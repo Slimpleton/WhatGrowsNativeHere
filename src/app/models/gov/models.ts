@@ -13,10 +13,38 @@ export type Lifespan = 'Long' | 'Moderate' | 'Short';
 export type Toxicity = 'Severe' | 'Moderate' | 'None' | 'Slight';
 export type Texture = 'Coarse' | 'Fine' | 'Medium';
 export type CommercialAvailability = 'Contracting Only' | 'Field Collections Only' | 'No Known Source' | 'Routinely Available';
+export type NativeStatusCode = 'N' | 'I' | 'N?' | 'I?' | 'NI' | 'NI?' | 'GP' | 'GP?' | 'W' | 'W?' | 'A' | 'H';
+export type NativeLocationCode = 'L48' | 'AK' | 'HI' | 'PR' | 'VI' | 'CAN' | 'CA' | 'SPM' | 'NA';
+export type NativeStatus = `${NativeLocationCode}(${NativeStatusCode})`;
+
+/**
+ * L48 - Lower 48 states
+AK - Alaska
+HI - Hawaii
+PR - Puerto Rico
+VI - U.S. Virgin Islands
+CAN (or CA) - Canada
+GL - Greenland (Denmark)
+SPM - St. Pierre and Miquelon (France)
+NA - North America
+ */
+// (N) - Native
+// (I) - Introduced
+// (N?) - Probably Native
+// (I?) - Probably Introduced
+// (NI) - Native and Introduced
+// (NI?) - Probably Native and Introduced
+// (GP) - Garden Plant
+// (GP?) - Probably Garden Plant
+// (W) - Waif
+// (W?) - Probably Waif
+// (A) - Absent
+// H - Historic (no longer present, but was documented historically)
 
 // TOOD hardest part is native status type mapping idk what they stand for
 
 // State and Province column is {COUNTRY_CODE}([ST,ST,ST,...]) OR USA+([PR, VI]) for puerto rico or virgin island or both
+// idgaf about the state and province i only care about the damn native status u dolt
 
 // Native statis seems to be like Two letter region (StatusCodeEnum)
 // where the enum is either I for invasive or N for Native
@@ -27,105 +55,6 @@ export type CommercialAvailability = 'Contracting Only' | 'Field Collections Onl
 // https://plants.usda.gov/plant-profile/LAENN is the plant profile for
 // LAENN aka horseweed
 // https://plants.usda.gov/plant-profile/maam/sources gives some plant occurrences / distributions
-
-
-// export interface PlantData {
-//     acceptedSymbol: string;
-//     synonymSymbol: string;
-//     symbol: string;
-//     scientificName: string;
-//     plantsFloristicArea: string;
-//     stateAndProvince: string;
-//     category: Category;
-//     family: string;
-//     duration: Duration[] | Duration;
-//     growthHabit: string;
-//     nativeStatus: string;
-//     characteristicsData: boolean;
-//     activeGrowthPeriod: Season[] | Season;
-//     afterHarvestRegrowthRate: Rate;
-//     bloat: Level;
-//     cnRatio: Level;
-//     coppicePotential: boolean;
-//     fallConspicuous: boolean;
-//     fireResistance: boolean;
-//     flowerColor: Color;
-//     flowerConspicuous: boolean;
-//     foliageColor: Color;
-//     foliagePorosityWinter: Porosity;
-//     foliagePorosityDummer: Porosity;
-//     foliageTexture: Texture;
-//     fruitColor: Color;
-//     fruitConspicuous: boolean;
-//     growthForm: GrowthForm;
-//     growthRate: Rate;
-//     heightAtBaseAgeMaximumFeet: number;
-//     heightMatureFeet: number;
-//     knownAllelopath: boolean;
-//     leafRetention: boolean;
-//     lifespan: Lifespan;
-//     lowGrowingGrass: boolean;
-//     nitrogenFixation: Level;
-//     resproutAbility: boolean;
-//     shapeAndOrientation: ShapeAndOrientation;
-//     toxicity: Toxicity;
-//     frostFreeDaysMinimum: number;
-//     phMinimum: number;
-//     phMaximum: number;
-//     plantingDensityPerAcreMinimum: number;
-//     plantingDensityPerAcreMaximum: number;
-//     precipitationMinimum: number;
-//     precipitationMaximum: number;
-//     rootDepthMinimumInches: number;
-//     shadeTolerance: ShadeTolerance;
-//     temperatureMinimumF: number;
-//     commercialAvailability: CommercialAvailability;
-//     hedgeTolerance: Level;
-//     moistureUse: Level;
-//     adaptedToCoarseTexturedSoils: boolean;
-//     adaptedToMediumTexturedSoils: boolean;
-//     adaptedToFineTexturedSoils: boolean;
-//     anaerobicTolerance: Level;
-//     caco3Tolerance: Level;
-//     coldStratificationRequired: boolean;
-//     droughtTolerance: Level;
-//     fertilityRequirement: Level;
-//     fireTolerance: Level;
-//     salinityTolerance: Level;
-//     fruitSeedAbundance: Level;
-//     fruitSeedPeriodBegin: Season;
-//     fruitSeedPeriodEnd: Season;
-//     fruitSeedPersistence: boolean;
-//     propogatedByBareRoot: boolean;
-//     propogatedByBulbs: boolean;
-//     propogatedByContainer: boolean;
-//     propogatedByCorms: boolean;
-//     propogatedByCuttings: boolean;
-//     propogatedBySeed: boolean;
-//     propogatedBySod: boolean;
-//     propogatedBySprigs: boolean;
-//     propogatedByTubers: boolean;
-//     seedsPerPound: number;
-//     seedSpreadRate: Rate;
-//     seedlingVigor: Level;
-//     smallGrain: boolean;
-//     vegetativeSpreadRate: Rate;
-//     berryNutSeedProduct: boolean;
-//     christmasTreeProduct: boolean;
-//     fodderProduct: boolean;
-//     fuelwoodProduct: Level;
-//     lumberProduct: boolean;
-//     navalStoreProduct: boolean;
-//     nurseryStockProduct: boolean;
-//     palatableBrowseAnimal: Level;
-//     palatableGrazeAnimal: Level;
-//     palatableHuman: boolean;
-//     postProduct: boolean;
-//     proteinPotential: Level;
-//     pulpwoodProduct: boolean;
-//     bloomPeriod: string;
-//     veneerProduct: boolean;
-// }
 
 // Define the interface based on the exact CSV header row
 export interface PlantDataRaw {
