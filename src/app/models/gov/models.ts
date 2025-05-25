@@ -18,7 +18,136 @@ export type NativeLocationCode = 'L48' | 'AK' | 'HI' | 'PR' | 'VI' | 'CAN' | 'CA
 // Map-like structure where you can access status by jurisdiction
 
 export type NativeStatus = {
-    [K in NativeStatusCode]?: NativeLocationCode[];
+    [K in NativeStatusCode]?: LocationCode[];
+}
+
+// US States and Canadian Provinces/Territories for PLANTS Database
+export type USState =
+    | 'AL' // Alabama
+    | 'AK' // Alaska
+    | 'AZ' // Arizona
+    | 'AR' // Arkansas
+    | 'CA' // California
+    | 'CO' // Colorado
+    | 'CT' // Connecticut
+    | 'DE' // Delaware
+    | 'FL' // Florida
+    | 'GA' // Georgia
+    | 'HI' // Hawaii
+    | 'ID' // Idaho
+    | 'IL' // Illinois
+    | 'IN' // Indiana
+    | 'IA' // Iowa
+    | 'KS' // Kansas
+    | 'KY' // Kentucky
+    | 'LA' // Louisiana
+    | 'ME' // Maine
+    | 'MD' // Maryland
+    | 'MA' // Massachusetts
+    | 'MI' // Michigan
+    | 'MN' // Minnesota
+    | 'MS' // Mississippi
+    | 'MO' // Missouri
+    | 'MT' // Montana
+    | 'NE' // Nebraska
+    | 'NV' // Nevada
+    | 'NH' // New Hampshire
+    | 'NJ' // New Jersey
+    | 'NM' // New Mexico
+    | 'NY' // New York
+    | 'NC' // North Carolina
+    | 'ND' // North Dakota
+    | 'OH' // Ohio
+    | 'OK' // Oklahoma
+    | 'OR' // Oregon
+    | 'PA' // Pennsylvania
+    | 'RI' // Rhode Island
+    | 'SC' // South Carolina
+    | 'SD' // South Dakota
+    | 'TN' // Tennessee
+    | 'TX' // Texas
+    | 'UT' // Utah
+    | 'VT' // Vermont
+    | 'VA' // Virginia
+    | 'WA' // Washington
+    | 'WV' // West Virginia
+    | 'WI' // Wisconsin
+    | 'WY'; // Wyoming
+
+export type CanadianProvince =
+    | 'AB' // Alberta
+    | 'BC' // British Columbia
+    | 'MB' // Manitoba
+    | 'NB' // New Brunswick
+    | 'NL' // Newfoundland and Labrador
+    | 'NT' // Northwest Territories
+    | 'NS' // Nova Scotia
+    | 'NU' // Nunavut
+    | 'ON' // Ontario
+    | 'PE' // Prince Edward Island
+    | 'QC' // Quebec
+    | 'SK' // Saskatchewan
+    | 'YT'; // Yukon Territory
+
+export type USTerritory =
+    | 'PR' // Puerto Rico
+    | 'VI' // US Virgin Islands
+    | 'GU' // Guam
+    | 'AS' // American Samoa
+    | 'MP'; // Northern Mariana Islands
+
+// Combined type for all location codes used in PLANTS database
+export type LocationCode = USState | CanadianProvince | USTerritory;
+// TODO change NativeLocationCode[] to State/Province variation because thats the accurate native range
+
+// Generate valid codes from the union type
+export const validLocationCodes: Set<LocationCode> = new Set([
+    // US States
+    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID',
+    'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS',
+    'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK',
+    'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV',
+    'WI', 'WY',
+    // Canadian Provinces/Territories
+    'AB', 'BC', 'MB', 'NB', 'NL', 'NT', 'NS', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT',
+    // US Territories
+    'PR', 'VI', 'GU', 'AS', 'MP'
+] as const);
+
+// Mapping from individual location codes to native status regions
+export const LocationToNativeRegion: Record<LocationCode, NativeLocationCode> = {
+    // US States (Lower 48)
+    'AL': 'L48', 'AR': 'L48', 'AZ': 'L48', 'CA': 'L48', 'CO': 'L48',
+    'CT': 'L48', 'DE': 'L48', 'FL': 'L48', 'GA': 'L48', 'ID': 'L48',
+    'IL': 'L48', 'IN': 'L48', 'IA': 'L48', 'KS': 'L48', 'KY': 'L48',
+    'LA': 'L48', 'ME': 'L48', 'MD': 'L48', 'MA': 'L48', 'MI': 'L48',
+    'MN': 'L48', 'MS': 'L48', 'MO': 'L48', 'MT': 'L48', 'NE': 'L48',
+    'NV': 'L48', 'NH': 'L48', 'NJ': 'L48', 'NM': 'L48', 'NY': 'L48',
+    'NC': 'L48', 'ND': 'L48', 'OH': 'L48', 'OK': 'L48', 'OR': 'L48',
+    'PA': 'L48', 'RI': 'L48', 'SC': 'L48', 'SD': 'L48', 'TN': 'L48',
+    'TX': 'L48', 'UT': 'L48', 'VT': 'L48', 'VA': 'L48', 'WA': 'L48',
+    'WV': 'L48', 'WI': 'L48', 'WY': 'L48',
+
+    // Alaska and Hawaii (separate regions)
+    'AK': 'AK',
+    'HI': 'HI',
+
+    // US Territories
+    'PR': 'PR',
+    'VI': 'VI',
+    'GU': 'PR', // Guam often grouped with PR region
+    'AS': 'PR', // American Samoa often grouped with PR region  
+    'MP': 'PR', // Northern Mariana Islands often grouped with PR region
+
+    // Canadian Provinces/Territories (all map to CAN)
+    'AB': 'CAN', 'BC': 'CAN', 'MB': 'CAN', 'NB': 'CAN', 'NL': 'CAN',
+    'NT': 'CAN', 'NS': 'CAN', 'NU': 'CAN', 'ON': 'CAN', 'PE': 'CAN',
+    'QC': 'CAN', 'SK': 'CAN', 'YT': 'CAN'
+};
+
+// Helper function to get native region for a location code
+export function getNativeRegion(locationCode: LocationCode): NativeLocationCode | undefined {
+    return LocationToNativeRegion[locationCode];
 }
 
 /**

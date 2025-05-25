@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { NativePlantSearch } from "../interfaces/native-plant-search.interface";
 import { catchError, filter, map, Observable, of, shareReplay } from "rxjs";
-import { NativeLocationCode, NativeStatus, NativeStatusCode, PlantData } from "../models/gov/models";
+import { getNativeRegion, LocationCode, NativeLocationCode, NativeStatus, NativeStatusCode, PlantData, validLocationCodes } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 
 @Injectable({
@@ -144,7 +144,7 @@ export class GovPlantsDataService implements NativePlantSearch {
             .pipe(
                 map(csvText => this.parseCsv(csvText)),
                 // Convert each row to PlantData object and filter for native plants
-                map(csvData => csvData.map(row => (this.convertCsvRowToPlantData(row)) as Readonly<PlantData>)));
+                map(csvData => csvData.map((row: Record<string, string>) => (this.convertCsvRowToPlantData(row)) as Readonly<PlantData>)));
     }
 
 
@@ -165,6 +165,28 @@ export class GovPlantsDataService implements NativePlantSearch {
 
                 return row;
             });
+    }
+
+
+    // Helper function to parse distribution strings from PLANTS database
+    private parseDistributionString(distribution: string | undefined | null): ReadonlyArray<LocationCode> {
+        // Handle undefined, null, or empty distribution strings
+        if (!distribution) {
+            return Object.freeze([]);
+        }
+
+        console.log('Original distribution:', distribution);
+
+        // Remove country prefixes and parentheses, then split by comma
+        // Handles optional + infront of USA+() combined with possible USA() in same line because USA+([...PR, VI]) 
+        const cleaned = distribution
+            .replace(/USA\+\(([^)]+)\)/g, '$1')
+            .replace(/USA\(([^)]+)\)/g, '$1')
+            .replace(/CAN\+\(([^)]+)\)/g, '$1')
+            .replace(/CAN\(([^)]+)\)/g, '$1')
+            .replace(/\s/g, '');
+
+        return Object.freeze(cleaned.split(',').filter((code): code is LocationCode => validLocationCodes.has(code as LocationCode)));
     }
 
     // Helper to handle quoted values and commas within fields
@@ -196,7 +218,7 @@ export class GovPlantsDataService implements NativePlantSearch {
      * @param csvValue 
      * @returns 
      */
-    private parseNativeStatus(csvValue: string): NativeStatus {
+    private parseNativeStatus(csvValue: string, stateAndProvinceValues: ReadonlyArray<LocationCode>): NativeStatus {
         if (!csvValue) return {};
 
         const regex = /([A-Z0-9]+)\(([A-Z?]+)\)/g;
@@ -207,12 +229,19 @@ export class GovPlantsDataService implements NativePlantSearch {
         // Compiles that into properties for each applicable nativity status with regions mapped in
         while ((match = regex.exec(csvValue)) !== null) {
             const [, locationString, statusCode] = match;
-            let property: NativeLocationCode[] = (result as any)[statusCode as NativeStatusCode];
+            let property: LocationCode[] = (result as any)[statusCode as NativeStatusCode];
             const location = locationString as NativeLocationCode;
-            if (property)
-                property.push(location);
-            else
-                property = [location];
+
+            // Turn location aka broad region => state && territories aka LocationCode
+
+            if (!property)
+                property = [];
+
+            stateAndProvinceValues.forEach((province: LocationCode) => {
+                const nativeRegion: NativeLocationCode | undefined = getNativeRegion(province);
+                if (nativeRegion && location == nativeRegion)
+                    property.push(province);
+            });
 
             (result as any)[statusCode as NativeStatusCode] = property;
         }
@@ -223,13 +252,26 @@ export class GovPlantsDataService implements NativePlantSearch {
     private convertCsvRowToPlantData(csvRow: Record<string, string>): Readonly<PlantData> {
         const result: Record<string, any> = {};
 
+        // console.log(this._headerMapping);
+        const distributionColumnName = Object.keys(csvRow).find(key =>
+            key.toLowerCase().replace(/\s+/g, ' ').trim() === 'state and province'
+        );
+        const stateAndProvinceValues: ReadonlyArray<LocationCode> = distributionColumnName ? this.parseDistributionString(csvRow[distributionColumnName]) : Object.freeze([]);
+
+        console.log(stateAndProvinceValues);
+
         // Map each property using our predefined mapping
         Object.entries(csvRow).forEach(([key, value]) => {
+            // console.log(key, value);
             if (key in this._headerMapping) {
                 const camelKey = this._headerMapping[key] as keyof PlantData;
 
                 if (camelKey === 'nativeStatus') {
-                    result[camelKey] = this.parseNativeStatus(value);
+                    result[camelKey] = this.parseNativeStatus(value, stateAndProvinceValues);
+                }
+                else if (camelKey === 'stateAndProvince') {
+                    // Use the pre-parsed distribution values instead of re-parsing
+                    result[camelKey] = stateAndProvinceValues;
                 }
                 // Handle different data types
                 else if (value === 'true' || value === 'yes' || value === 'y') {
