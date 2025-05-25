@@ -1,13 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GbifService } from '../services/gbif.service';
-import { map, Observable, of, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { filter, map, Observable, of, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { AsyncPipe, NgFor } from '@angular/common';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
 import { PlantData } from '../models/gov/models';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { StateGeometryService, StateInfo } from '../services/state-geometry.service';
-
-
 
 @Component({
   selector: 'app-home',
@@ -18,31 +16,20 @@ import { StateGeometryService, StateInfo } from '../services/state-geometry.serv
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private _ngDestroy$: Subject<void> = new Subject<void>();
-
-
-
   private _positionEmitter$: Subject<GeolocationPosition> = new Subject<GeolocationPosition>();
 
-  private allPlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteAndPossibleNativePlantData()
+  private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteNativePlantData()
     .pipe(
-      tap(value => console.log('All Plants from Gov', value)),
-      shareReplay(1),
+      tap(value => console.log('All definite natives from gov', value)),
       takeUntil(this._ngDestroy$)
     );
 
-  // Initialize filtered plants to show all plants
-  public filteredPlants$: Observable<ReadonlyArray<PlantData>> = this._positionEmitter$.pipe(
-    switchMap((position: GeolocationPosition) => {
-      // TODO use turf to get point and then us-atlas to see if point is in region of state or something? map that to the state values in the allPlants
-      console.log(position);
-      const state: StateInfo | null = this._stateGeometryService.findStateOrProvince(position.coords.latitude, position.coords.longitude);
-      // If country exists and starts with u, its US
-      // else it exists and starts wit c, its CAN
-      console.log(state);
-      // Convert topojson to geojson features
-      // const states = feature(us as any as Topology, (us as any).objects.states);
-
-      return of([]);
+  private _filteredPossibleNativePlants$: Observable<ReadonlyArray<PlantData>> = this._positionEmitter$.pipe(
+    map((pos: GeolocationPosition) => this._stateGeometryService.findStateOrProvince(pos.coords.latitude, pos.coords.longitude)),
+    filter((state: StateInfo | null): state is StateInfo => state != null),
+    map((state: StateInfo) => {
+      // TODO use state info to filter gbifoccurences ? 
+      return [];
     }),
   );
 
@@ -78,6 +65,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     // TODO the socal area used to belong to the tongva people. visit the tongva community garden in pomona to learn more
     shareReplay(1)
   );
+
   public get lastSearch$(): Observable<GbifOccurrence[]> {
     return this._lastSearch$;
   }
@@ -99,6 +87,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   // TODO use d3-geo and us-atlas to display maps of the geo locations
   // Maps are drawn on canvas btw its not like ur unfamiliar with it
   // TODO use d3-geo / us-atlas maps to display gbif occurence data and other occurence data??? 
+  // TODO use inaturalist api for occurrences as well, research grade only
+  // https://explorer.natureserve.org/api-docs/#_species_search OnlyNatives for locationCriteria will get only the native species we search !! might have some info on occurrences here too not sure could also get a combined accurate record of native plants 
+  // TODO trefle api has open source botanical indexed plants and stuff too
 
   public constructor(private readonly _gbifService: GbifService, private readonly _plantService: GovPlantsDataService, private readonly _stateGeometryService: StateGeometryService) { }
 
@@ -109,7 +100,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Load plant data and share the result to avoid multiple HTTP requests
-    this.allPlants$.subscribe({
+    this._allNativePlants$.subscribe({
       error: err => console.error(err)
     });
 

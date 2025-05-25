@@ -2,10 +2,9 @@ import { Injectable } from '@angular/core';
 import * as US from 'us-atlas/states-10m.json';
 import * as CANADA from 'us-atlas/states-albers-10m.json';
 import * as topojson from 'topojson-client';
-import { geoContains } from 'd3-geo';
+import { geoContains } from 'd3-geo';// With your type declaration from earlier:
+import * as us from 'us';
 // Fips state codes to abbreviation mappings using require('us');
-const us = require('us') as any;
-
 
 export interface StateInfo {
   id: string;
@@ -26,12 +25,18 @@ export class StateGeometryService {
     this.initializeGeometries();
   }
 
+  private getFipsAbbreviation(fips: string): string | undefined {
+    const state = (us as any).states.find((s: any) => s.fips === fips);
+    return state?.abbr;
+  }
+
   private initializeGeometries(): void {
     // Convert TopoJSON to GeoJSON for US states
     this.usStates = topojson.feature(US as any, (US as any).objects.states);
     // Convert TopoJSON to GeoJSON for Canadian provinces (if available)
     this.canadaProvinces = topojson.feature(CANADA as any, (CANADA as any).objects.states);
   }
+
 
   /**
   * Find which US state contains the given latitude/longitude point
@@ -45,7 +50,7 @@ export class StateGeometryService {
     for (const feature of this.usStates.features) {
       if (this.isPointInFeature(point, feature)) {
         return {
-          id: feature.id || us.states.find((state: any) => state.fips === feature.properties?.GEOID).abbr || '',
+          id: feature.id || this.getFipsAbbreviation(feature.properties?.GEOID) || '',
           name: feature.properties?.NAME || feature.properties?.name || 'Unknown',
           properties: feature.properties
         };
