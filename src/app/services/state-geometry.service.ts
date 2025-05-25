@@ -3,6 +3,9 @@ import * as US from 'us-atlas/states-10m.json';
 import * as CANADA from 'us-atlas/states-albers-10m.json';
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';
+// Fips state codes to abbreviation mappings using require('us');
+const us = require('us') as any;
+
 
 export interface StateInfo {
   id: string;
@@ -42,7 +45,7 @@ export class StateGeometryService {
     for (const feature of this.usStates.features) {
       if (this.isPointInFeature(point, feature)) {
         return {
-          id: feature.id || feature.properties?.GEOID || '',
+          id: feature.id || us.states.find((state: any) => state.fips === feature.properties?.GEOID).abbr || '',
           name: feature.properties?.NAME || feature.properties?.name || 'Unknown',
           properties: feature.properties
         };

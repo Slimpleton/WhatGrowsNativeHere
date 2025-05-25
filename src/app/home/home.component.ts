@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private _positionEmitter$: Subject<GeolocationPosition> = new Subject<GeolocationPosition>();
 
-  private allPlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadPlantData()
+  private allPlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteAndPossibleNativePlantData()
     .pipe(
       tap(value => console.log('All Plants from Gov', value)),
       shareReplay(1),

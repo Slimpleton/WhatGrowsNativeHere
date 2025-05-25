@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { NativePlantSearch } from "../interfaces/native-plant-search.interface";
 import { catchError, map, Observable, of, shareReplay } from "rxjs";
-import { PlantData } from "../models/gov/models";
+import { NativeLocationCode, NativeStatus, NativeStatusCode, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 
 @Injectable({
@@ -115,13 +115,14 @@ export class GovPlantsDataService implements NativePlantSearch {
         throw new Error("Method not implemented.");
     }
 
-    public loadPlantData(): Observable<ReadonlyArray<PlantData>> {
+    public loadAllDefiniteAndPossibleNativePlantData(): Observable<ReadonlyArray<PlantData>> {
         return this.http.get(this.dataUrl, { responseType: 'text' })
             .pipe(
                 map(csvText => this.parseCsv(csvText)),
                 map(csvData => {
-                    // Convert each row to PlantData object
-                    const plantData = csvData.map(row => this.convertCsvRowToPlantData(row));
+                    // Convert each row to PlantData object and filter for native plants
+                    const plantData = csvData
+                        .map(row => this.convertCsvRowToPlantData(row))
                     // Return as a deeply immutable array
                     return Object.freeze(plantData);
                 }),
@@ -185,8 +186,11 @@ export class GovPlantsDataService implements NativePlantSearch {
             if (key in this._headerMapping) {
                 const camelKey = this._headerMapping[key] as keyof PlantData;
 
+                if (camelKey === 'nativeStatus') {
+                    result[camelKey] = this.parseNativeStatus(value);
+                }
                 // Handle different data types
-                if (value === 'true' || value === 'yes' || value === 'y') {
+                else if (value === 'true' || value === 'yes' || value === 'y') {
                     result[camelKey] = true;
                 } else if (value === 'false' || value === 'no' || value === 'n') {
                     result[camelKey] = false;
@@ -204,6 +208,37 @@ export class GovPlantsDataService implements NativePlantSearch {
         // Return as a deeply immutable object
         return Object.freeze(result) as PlantData;
     }
+
+    private parseNativeStatus(csvValue: string): NativeStatus {
+        if (!csvValue) return {};
+
+        const regex = /([A-Z0-9]+)\(([A-Z?]+)\)/g;
+        const result: NativeStatus = {};
+        let match;
+
+        // Parses the csv row for ${LOCATION}(${STATUS}) on repeat until the end of the value
+        // Compiles that into properties for each applicable nativity status with regions mapped in
+        while ((match = regex.exec(csvValue)) !== null) {
+            const [, locationString, statusCode] = match;
+            let property: NativeLocationCode[] = (result as any)[statusCode as NativeStatusCode];
+            const location = locationString as NativeLocationCode;
+            if (property)
+                property.push(location);
+            else
+                property = [location];
+
+            (result as any)[statusCode as NativeStatusCode] = property;
+        }
+
+        return result;
+    }
+
+
+    // private getLocationsByStatus(nativeStatus: NativeStatus, statusCode: NativeStatusCode): NativeLocationCode[] {
+    //     return (Object.entries(nativeStatus) as [NativeLocationCode, NativeStatusCode][])
+    //         .filter(([_, status]) => status === statusCode)
+    //         .map(([location, _]) => location);
+    // }
 
     /**
      * Likely State/Province Code Format:

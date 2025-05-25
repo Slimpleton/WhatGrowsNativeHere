@@ -15,7 +15,11 @@ export type Texture = 'Coarse' | 'Fine' | 'Medium';
 export type CommercialAvailability = 'Contracting Only' | 'Field Collections Only' | 'No Known Source' | 'Routinely Available';
 export type NativeStatusCode = 'N' | 'I' | 'N?' | 'I?' | 'NI' | 'NI?' | 'GP' | 'GP?' | 'W' | 'W?' | 'A' | 'H';
 export type NativeLocationCode = 'L48' | 'AK' | 'HI' | 'PR' | 'VI' | 'CAN' | 'CA' | 'SPM' | 'NA';
-export type NativeStatus = `${NativeLocationCode}(${NativeStatusCode})`;
+// Map-like structure where you can access status by jurisdiction
+
+export type NativeStatus = {
+    [K in NativeStatusCode]?: NativeLocationCode[];
+}
 
 /**
  * L48 - Lower 48 states
@@ -41,7 +45,6 @@ NA - North America
 // (A) - Absent
 // H - Historic (no longer present, but was documented historically)
 
-// TOOD hardest part is native status type mapping idk what they stand for
 
 // State and Province column is {COUNTRY_CODE}([ST,ST,ST,...]) OR USA+([PR, VI]) for puerto rico or virgin island or both
 // idgaf about the state and province i only care about the damn native status u dolt
@@ -168,7 +171,7 @@ export type PlantData = Readonly<{
     family: string;
     duration: ReadonlyArray<Duration> | Duration;
     growthHabit: string;
-    nativeStatus: string;
+    nativeStatus: NativeStatus[];
     characteristicsData: boolean;
     activeGrowthPeriod: ReadonlyArray<Season> | Season;
     afterHarvestRegrowthRate: Rate;
