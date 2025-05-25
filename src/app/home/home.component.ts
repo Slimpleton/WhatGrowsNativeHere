@@ -87,9 +87,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   // TODO use d3-geo and us-atlas to display maps of the geo locations
   // Maps are drawn on canvas btw its not like ur unfamiliar with it
   // TODO use d3-geo / us-atlas maps to display gbif occurence data and other occurence data??? 
-  // TODO use inaturalist api for occurrences as well, research grade only
+  // TODO use inaturalist api for occurrences as well, research grade only, use for occurrences because its community driven
+
   // https://explorer.natureserve.org/api-docs/#_species_search OnlyNatives for locationCriteria will get only the native species we search !! might have some info on occurrences here too not sure could also get a combined accurate record of native plants 
-  // TODO trefle api has open source botanical indexed plants and stuff too
+  // TODO trefle api has open source botanical indexed plants and stuff too, probably use for occurrences because native declaration is weak
 
   public constructor(private readonly _gbifService: GbifService, private readonly _plantService: GovPlantsDataService, private readonly _stateGeometryService: StateGeometryService) { }
 
