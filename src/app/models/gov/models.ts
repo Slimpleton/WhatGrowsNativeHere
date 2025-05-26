@@ -30,6 +30,7 @@ export type USState =
     | 'CA' // California
     | 'CO' // Colorado
     | 'CT' // Connecticut
+    | 'DC' // Washington DC
     | 'DE' // Delaware
     | 'FL' // Florida
     | 'GA' // Georgia
@@ -87,15 +88,19 @@ export type CanadianProvince =
     | 'PE' // Prince Edward Island
     | 'QC' // Quebec
     | 'SK' // Saskatchewan
-    | 'YT'; // Yukon Territory
+    | 'YT' // Yukon Territory
+    | 'NF' // NewFoundland
+    | 'LB'; // Labrador
 
 export type USTerritory =
     | 'PR' // Puerto Rico
     | 'VI' // US Virgin Islands
     | 'GU' // Guam
     | 'AS' // American Samoa
-    | 'MP'; // Northern Mariana Islands
-
+    | 'MP'// Northern Mariana Islands  
+    | 'PW' // Pacific West/Wake Island region
+    | 'UM' // US Minor Outlying Islands
+    | 'NAV'; // Navajo Nation
 // Combined type for all location codes used in PLANTS database
 export type LocationCode = USState | CanadianProvince | USTerritory;
 // TODO change NativeLocationCode[] to State/Province variation because thats the accurate native range
@@ -103,22 +108,22 @@ export type LocationCode = USState | CanadianProvince | USTerritory;
 // Generate valid codes from the union type
 export const validLocationCodes: Set<LocationCode> = new Set([
     // US States
-    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID',
+    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'ID',
     'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS',
     'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK',
     'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV',
     'WI', 'WY',
     // Canadian Provinces/Territories
-    'AB', 'BC', 'MB', 'NB', 'NL', 'NT', 'NS', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT',
+    'AB', 'BC', 'MB', 'NB', 'NL', 'NT', 'NS', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT', 'NF', 'LB',
     // US Territories
-    'PR', 'VI', 'GU', 'AS', 'MP'
+    'PR', 'VI', 'GU', 'AS', 'MP', 'PW', 'UM', 'NAV'
 ] as const);
 
 // Mapping from individual location codes to native status regions
 export const LocationToNativeRegion: Record<LocationCode, NativeLocationCode> = {
     // US States (Lower 48)
     'AL': 'L48', 'AR': 'L48', 'AZ': 'L48', 'CA': 'L48', 'CO': 'L48',
-    'CT': 'L48', 'DE': 'L48', 'FL': 'L48', 'GA': 'L48', 'ID': 'L48',
+    'CT': 'L48', 'DC': 'L48', 'DE': 'L48', 'FL': 'L48', 'GA': 'L48', 'ID': 'L48',
     'IL': 'L48', 'IN': 'L48', 'IA': 'L48', 'KS': 'L48', 'KY': 'L48',
     'LA': 'L48', 'ME': 'L48', 'MD': 'L48', 'MA': 'L48', 'MI': 'L48',
     'MN': 'L48', 'MS': 'L48', 'MO': 'L48', 'MT': 'L48', 'NE': 'L48',
@@ -138,11 +143,15 @@ export const LocationToNativeRegion: Record<LocationCode, NativeLocationCode> = 
     'GU': 'PR', // Guam often grouped with PR region
     'AS': 'PR', // American Samoa often grouped with PR region  
     'MP': 'PR', // Northern Mariana Islands often grouped with PR region
+    'PW': 'L48',
+    'UM': 'L48',
+    'NAV': 'L48',
+
 
     // Canadian Provinces/Territories (all map to CAN)
     'AB': 'CAN', 'BC': 'CAN', 'MB': 'CAN', 'NB': 'CAN', 'NL': 'CAN',
     'NT': 'CAN', 'NS': 'CAN', 'NU': 'CAN', 'ON': 'CAN', 'PE': 'CAN',
-    'QC': 'CAN', 'SK': 'CAN', 'YT': 'CAN'
+    'QC': 'CAN', 'SK': 'CAN', 'YT': 'CAN', 'NF': 'CAN', 'LB': 'CAN',
 };
 
 // Helper function to get native region for a location code

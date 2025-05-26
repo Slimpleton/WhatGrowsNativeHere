@@ -175,8 +175,6 @@ export class GovPlantsDataService implements NativePlantSearch {
             return Object.freeze([]);
         }
 
-        console.log('Original distribution:', distribution);
-
         // Remove country prefixes and parentheses, then split by comma
         // Handles optional + infront of USA+() combined with possible USA() in same line because USA+([...PR, VI]) 
         const cleaned = distribution
@@ -256,9 +254,21 @@ export class GovPlantsDataService implements NativePlantSearch {
         const distributionColumnName = Object.keys(csvRow).find(key =>
             key.toLowerCase().replace(/\s+/g, ' ').trim() === 'state and province'
         );
+
         const stateAndProvinceValues: ReadonlyArray<LocationCode> = distributionColumnName ? this.parseDistributionString(csvRow[distributionColumnName]) : Object.freeze([]);
 
-        console.log(stateAndProvinceValues);
+        if (distributionColumnName && csvRow[distributionColumnName]?.length > 0 && stateAndProvinceValues && stateAndProvinceValues?.length > 0) {
+            if (csvRow[distributionColumnName].split(',').length !== stateAndProvinceValues.length) {
+                // console.log(csvRow[distributionColumnName]);
+                // console.log(stateAndProvinceValues);
+
+                // TODO 1775 left to dispute, figure out how to filter out fr() and den()
+                console.log('notequal');
+                // console.log('not equal count ' + csvRow[distributionColumnName].split(',').length + ' vs ' + stateAndProvinceValues.length, csvRow[distributionColumnName], stateAndProvinceValues);
+            }
+        }
+
+
 
         // Map each property using our predefined mapping
         Object.entries(csvRow).forEach(([key, value]) => {

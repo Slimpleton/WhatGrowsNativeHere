@@ -24,14 +24,19 @@ export class HomeComponent implements OnInit, OnDestroy {
       takeUntil(this._ngDestroy$)
     );
 
-  private _filteredPossibleNativePlants$: Observable<ReadonlyArray<PlantData>> = this._positionEmitter$.pipe(
+  private _filteredNativePlants$: Observable<ReadonlyArray<PlantData>> = this._positionEmitter$.pipe(
     map((pos: GeolocationPosition) => this._stateGeometryService.findStateOrProvince(pos.coords.latitude, pos.coords.longitude)),
     filter((state: StateInfo | null): state is StateInfo => state != null),
     map((state: StateInfo) => {
+      // _allNativePlants will have all StateInfo.id listed under 
+      // TODO use state info to filter for _allNativePlants by NativeStatus
       // TODO use state info to filter gbifoccurences ? 
       return [];
     }),
   );
+  public get filteredNativePlants$(): Observable<ReadonlyArray<PlantData>> {
+    return this._filteredNativePlants$;
+  }
 
   private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
   private _lastSearch$: Observable<GbifOccurrence[]> = this._lastUnfilteredSearch$.pipe(
