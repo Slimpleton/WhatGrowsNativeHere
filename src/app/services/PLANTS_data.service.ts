@@ -300,12 +300,12 @@ export class GovPlantsDataService implements NativePlantSearch {
      */
     private isPossiblyNativePlant(plant: PlantData): boolean {
         // Only include plants that are native SOMEWHERE
-        const nativeStatuses: NativeStatusCode[] = ['N', 'N?', 'NI', 'NI?'];
+        const nativeStatuses: NativeStatusCode[] = ['N', 'N?'];
         return this.isPlantType(plant, nativeStatuses);
     }
 
     private isDefiniteNativePlant(plant: PlantData): boolean {
-        const nativeStatuses: NativeStatusCode[] = ['N', 'NI'];
+        const nativeStatuses: NativeStatusCode[] = ['N'];
         return this.isPlantType(plant, nativeStatuses);
     }
 
