@@ -11,10 +11,11 @@
         <!-- </section> -->
     </article>
     <br>
-    <article class="gov-container" id="gov-container">
+    <article class="result-container" id="gov-container">
         <section *ngFor="let plant of filteredNativePlants$ | async; let i = index;"
             class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">
-
+            <h1 class="result-scientific-name" id="plant-scientific-name-{{i}}">{{plant.scientificName}}</h1>
+            <h4 class="result-property" id="plant-growth-habit-{{i}}">{{plant.growthHabit}}</h4>
         </section>
     </article>
 </body>

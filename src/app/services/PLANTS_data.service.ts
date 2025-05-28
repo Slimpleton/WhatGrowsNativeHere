@@ -109,6 +109,8 @@ export class GovPlantsDataService implements NativePlantSearch {
 
     private readonly dataUrl = 'assets/PLANTS_Characteristics_Plus_Data.csv';
 
+    private readonly MINIMUM_SPECIES_NAME_WORDS = 2;
+
     public constructor(private readonly http: HttpClient) { }
 
     public searchNativePlants(latitude: number, longitude: number): Observable<PlantData[]> {
@@ -116,7 +118,9 @@ export class GovPlantsDataService implements NativePlantSearch {
     }
 
     public loadAllDefiniteNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {
-        return this.getFromCSV().pipe(
+        return this.getPlantDataFromCSV().pipe(
+            // Filters out non species listings
+            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.scientificName.split(/\s+/).length >= this.MINIMUM_SPECIES_NAME_WORDS)),
             map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeLocations.size > 0)),
             // Return as a deeply immutable array
             map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
@@ -127,14 +131,20 @@ export class GovPlantsDataService implements NativePlantSearch {
             }));
     }
 
-    private getFromCSV(): Observable<Readonly<PlantData>[]> {
-        return this.http.get(this.dataUrl, { responseType: 'text' })
-            .pipe(
-                map(csvText => this.parseCsv(csvText)),
-                // Convert each row to PlantData object and filter for native plants
-                map(csvData => csvData.map((row: Record<string, string>) => (this.convertCsvRowToPlantData(row)) as Readonly<PlantData>)));
+    private getPlantDataFromCSV(): Observable<Readonly<PlantData>[]> {
+        return this.getRecordsFromCSV().pipe(
+            // Convert each row to PlantData object and filter for native plants
+            map(csvData => csvData.map((row: Record<string, string>) => (this.convertCsvRowToPlantData(row)) as Readonly<PlantData>)));
     }
 
+    /**
+     * HACK use this for testing to see if the native ranges are correct without parsing into plant data / aka native plant range conversion
+     * @returns 
+     */
+    private getRecordsFromCSV(): Observable<Record<string, string>[]> {
+        return this.http.get(this.dataUrl, { responseType: 'text' })
+            .pipe(map(csvText => this.parseCsv(csvText)));
+    }
 
     private parseCsv(csvText: string): Record<string, string>[] {
         // Simple CSV parser (you might want to use a library like papaparse in a real app)
@@ -241,6 +251,9 @@ export class GovPlantsDataService implements NativePlantSearch {
         // console.log(this._headerMapping);
         const distributionColumnName = Object.keys(csvRow).find(key =>
             key.toLowerCase().replace(/\s+/g, ' ').trim() === 'state and province'
+        );
+        const scientificNameColumnName = Object.keys(csvRow).find(key =>
+            key.toLowerCase().replace(/\s+/g, ' ').trim() === 'scientific name'
         );
 
         const stateAndProvinceValues: ReadonlyArray<LocationCode> = distributionColumnName ? this.parseDistributionString(csvRow[distributionColumnName]) : Object.freeze([]);
