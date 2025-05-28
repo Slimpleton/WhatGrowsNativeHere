@@ -120,7 +120,37 @@ export class GovPlantsDataService implements NativePlantSearch {
     public loadAllDefiniteNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {
         return this.getPlantDataFromCSV().pipe(
             // Filters out non species listings
-            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.scientificName.split(/\s+/).length >= this.MINIMUM_SPECIES_NAME_WORDS)),
+            map((plantData: Readonly<PlantData>[]) => {
+                const speciesGroups = new Map<string, PlantData[]>();
+                const result: Readonly<PlantData>[] = [];
+
+                // Group by base species name
+                plantData.forEach(plant => {
+                    const words = plant.scientificName.split(/\s+/);
+                    if (words.length >= 2) {
+                        const baseSpecies = `${words[0]} ${words[1]}`;
+                        if (!speciesGroups.has(baseSpecies)) {
+                            speciesGroups.set(baseSpecies, []);
+                        }
+                        speciesGroups.get(baseSpecies)!.push(plant);
+                    }
+                });
+
+                // For each species group, decide what to keep
+                speciesGroups.forEach(group => {
+                    const subspeciesEntries = group.filter(plant => /\b(subsp\.|var\.|f\.)\b/.test(plant.scientificName));
+
+                    if (subspeciesEntries.length > 0) {
+                        // Keep subspecies, exclude base species
+                        result.push(...subspeciesEntries);
+                    } else {
+                        // No subspecies exist, keep everything in the group
+                        result.push(...group);
+                    }
+                });
+
+                return result;
+            }),
             map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeLocations.size > 0)),
             // Return as a deeply immutable array
             map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
