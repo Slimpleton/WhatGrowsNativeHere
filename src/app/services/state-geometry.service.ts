@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as US from 'us-atlas/states-10m.json';
+import * as USStates from 'us-atlas/states-10m.json';
 import * as CANADA from 'us-atlas/states-albers-10m.json';
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';// With your type declaration from earlier:
@@ -26,13 +26,15 @@ export class StateGeometryService {
   }
 
   private getFipsAbbreviation(fips: string): string | undefined {
-    const state = (us as any).states.find((s: any) => s.fips === fips);
-    return state?.abbr;
+    const states: any[] = us['STATES'];
+    const state = states.find((s: any) => s.fips === fips);
+    return state.abbr;
   }
 
   private initializeGeometries(): void {
     // Convert TopoJSON to GeoJSON for US states
-    this.usStates = topojson.feature(US as any, (US as any).objects.states);
+    this.usStates = topojson.feature(USStates as any, (USStates as any).objects.states);
+
     // Convert TopoJSON to GeoJSON for Canadian provinces (if available)
     this.canadaProvinces = topojson.feature(CANADA as any, (CANADA as any).objects.states);
   }
@@ -49,8 +51,9 @@ export class StateGeometryService {
 
     for (const feature of this.usStates.features) {
       if (this.isPointInFeature(point, feature)) {
+        // console.log('found feature', feature);
         return {
-          id: feature.id || this.getFipsAbbreviation(feature.properties?.GEOID) || '',
+          id: this.getFipsAbbreviation(feature.id) || '',
           name: feature.properties?.NAME || feature.properties?.name || 'Unknown',
           properties: feature.properties
         };

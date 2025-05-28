@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { NativePlantSearch } from "../interfaces/native-plant-search.interface";
 import { catchError, filter, map, Observable, of, shareReplay } from "rxjs";
-import { getNativeRegion, LocationCode, NativeLocationCode, NativeStatus, NativeStatusCode, PlantData, validLocationCodes } from "../models/gov/models";
+import { getNativeRegion, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, validLocationCodes } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 
 @Injectable({
@@ -20,7 +20,7 @@ export class GovPlantsDataService implements NativePlantSearch {
         "Family": "family",
         "Duration": "duration",
         "Growth Habit": "growthHabit",
-        "Native Status": "nativeStatus",
+        "Native Status": "nativeLocations",
         "Characteristics Data": "characteristicsData",
         "Active Growth Period": "activeGrowthPeriod",
         "After Harvest Regrowth Rate": "afterHarvestRegrowthRate",
@@ -115,21 +115,9 @@ export class GovPlantsDataService implements NativePlantSearch {
         throw new Error("Method not implemented.");
     }
 
-    public loadAllDefiniteAndPossibleNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {
-        return this.getFromCSV().pipe(
-            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => this.isPossiblyNativePlant(plantDatum))),
-            // Return as a deeply immutable array
-            map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
-            shareReplay(1),
-            catchError(error => {
-                console.error('Error loading definite and possibly native plant data:', error);
-                return of([] as ReadonlyArray<PlantData>);
-            }));
-    }
-
     public loadAllDefiniteNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {
         return this.getFromCSV().pipe(
-            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => this.isDefiniteNativePlant(plantDatum))),
+            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeLocations.size > 0)),
             // Return as a deeply immutable array
             map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
             shareReplay(1),
@@ -167,7 +155,6 @@ export class GovPlantsDataService implements NativePlantSearch {
             });
     }
 
-
     // Helper function to parse distribution strings from PLANTS database
     private parseDistributionString(distribution: string | undefined | null): ReadonlyArray<LocationCode> {
         // Handle undefined, null, or empty distribution strings
@@ -178,10 +165,8 @@ export class GovPlantsDataService implements NativePlantSearch {
         // Remove country prefixes and parentheses, then split by comma
         // Handles optional + infront of USA+() combined with possible USA() in same line because USA+([...PR, VI]) 
         const cleaned = distribution
-            .replace(/USA\+\(([^)]+)\)/g, '$1')
-            .replace(/USA\(([^)]+)\)/g, '$1')
-            .replace(/CAN\+\(([^)]+)\)/g, '$1')
-            .replace(/CAN\(([^)]+)\)/g, '$1')
+            .replace(/USA\+?\s?\(([^)]+)\)/g, '$1')
+            .replace(/CAN\+?\s?\(([^)]+)\)/g, '$1')
             .replace(/\s/g, '');
 
         return Object.freeze(cleaned.split(',').filter((code): code is LocationCode => validLocationCodes.has(code as LocationCode)));
@@ -216,18 +201,21 @@ export class GovPlantsDataService implements NativePlantSearch {
      * @param csvValue 
      * @returns 
      */
-    private parseNativeStatus(csvValue: string, stateAndProvinceValues: ReadonlyArray<LocationCode>): NativeStatus {
-        if (!csvValue) return {};
+    private parseNativeStatus(csvValue: string, stateAndProvinceValues: ReadonlyArray<LocationCode>): Set<LocationCode> {
+        if (!csvValue) return new Set();
 
         const regex = /([A-Z0-9]+)\(([A-Z?]+)\)/g;
-        const result: NativeStatus = {};
+        let result: LocationCode[] = [];
         let match;
 
         // Parses the csv row for ${LOCATION}(${STATUS}) on repeat until the end of the value
         // Compiles that into properties for each applicable nativity status with regions mapped in
         while ((match = regex.exec(csvValue)) !== null) {
             const [, locationString, statusCode] = match;
-            let property: LocationCode[] = (result as any)[statusCode as NativeStatusCode];
+            const status = statusCode as NativeStatusCode;
+            if (status !== 'N')
+                continue;
+            let property: LocationCode[] = result
             const location = locationString as NativeLocationCode;
 
             // Turn location aka broad region => state && territories aka LocationCode
@@ -241,10 +229,10 @@ export class GovPlantsDataService implements NativePlantSearch {
                     property.push(province);
             });
 
-            (result as any)[statusCode as NativeStatusCode] = property;
+            result = property;
         }
 
-        return result;
+        return new Set(result);
     }
 
     private convertCsvRowToPlantData(csvRow: Record<string, string>): Readonly<PlantData> {
@@ -257,26 +245,13 @@ export class GovPlantsDataService implements NativePlantSearch {
 
         const stateAndProvinceValues: ReadonlyArray<LocationCode> = distributionColumnName ? this.parseDistributionString(csvRow[distributionColumnName]) : Object.freeze([]);
 
-        if (distributionColumnName && csvRow[distributionColumnName]?.length > 0 && stateAndProvinceValues && stateAndProvinceValues?.length > 0) {
-            if (csvRow[distributionColumnName].split(',').length !== stateAndProvinceValues.length) {
-                // console.log(csvRow[distributionColumnName]);
-                // console.log(stateAndProvinceValues);
-
-                // TODO 1775 left to dispute, figure out how to filter out fr() and den()
-                console.log('notequal');
-                // console.log('not equal count ' + csvRow[distributionColumnName].split(',').length + ' vs ' + stateAndProvinceValues.length, csvRow[distributionColumnName], stateAndProvinceValues);
-            }
-        }
-
-
-
         // Map each property using our predefined mapping
         Object.entries(csvRow).forEach(([key, value]) => {
             // console.log(key, value);
             if (key in this._headerMapping) {
                 const camelKey = this._headerMapping[key] as keyof PlantData;
 
-                if (camelKey === 'nativeStatus') {
+                if (camelKey === 'nativeLocations') {
                     result[camelKey] = this.parseNativeStatus(value, stateAndProvinceValues);
                 }
                 else if (camelKey === 'stateAndProvince') {
@@ -303,25 +278,25 @@ export class GovPlantsDataService implements NativePlantSearch {
         return Object.freeze(result) as PlantData;
     }
 
-    /**
-     * Retrieves all plants from the PLANTS database list that contain Native or possibly native in their NativeStatus mapping
-     * @param plant 
-     * @returns 
-     */
-    private isPossiblyNativePlant(plant: PlantData): boolean {
-        // Only include plants that are native SOMEWHERE
-        const nativeStatuses: NativeStatusCode[] = ['N', 'N?'];
-        return this.isPlantType(plant, nativeStatuses);
-    }
+    // /**
+    //  * Retrieves all plants from the PLANTS database list that contain Native or possibly native in their NativeStatus mapping
+    //  * @param plant 
+    //  * @returns 
+    //  */
+    // private isPossiblyNativePlant(plant: PlantData): boolean {
+    //     // Only include plants that are native SOMEWHERE
+    //     const nativeStatuses: NativeStatusCode[] = ['N', 'N?'];
+    //     return this.isPlantType(plant, nativeStatuses);
+    // }
 
-    private isDefiniteNativePlant(plant: PlantData): boolean {
-        const nativeStatuses: NativeStatusCode[] = ['N'];
-        return this.isPlantType(plant, nativeStatuses);
-    }
+    // private isDefiniteNativePlant(plant: PlantData): boolean {
+    //     const nativeStatuses: NativeStatusCode[] = ['N'];
+    //     return this.isPlantType(plant, nativeStatuses);
+    // }
 
-    private isPlantType(plant: PlantData, statuses: NativeStatusCode[]) {
-        return (Object.keys(plant.nativeStatus) as NativeStatusCode[]).some((status) =>
-            status && statuses.includes(status)
-        );
-    }
+    // private isPlantType(plant: PlantData, statuses: NativeStatusCode[]) {
+    //     return (Object.keys(plant.nativeStatus) as NativeStatusCode[]).some((status) =>
+    //         status && statuses.includes(status)
+    //     );
+    // }
 }

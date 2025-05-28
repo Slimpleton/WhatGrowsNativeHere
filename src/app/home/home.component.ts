@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GbifService } from '../services/gbif.service';
-import { filter, map, Observable, of, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { combineLatest, filter, map, Observable, of, shareReplay, Subject, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs';
 import { AsyncPipe, NgFor } from '@angular/common';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
-import { PlantData } from '../models/gov/models';
+import { LocationCode, NativeStatusCode, PlantData } from '../models/gov/models';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { StateGeometryService, StateInfo } from '../services/state-geometry.service';
 
@@ -24,16 +24,28 @@ export class HomeComponent implements OnInit, OnDestroy {
       takeUntil(this._ngDestroy$)
     );
 
-  private _filteredNativePlants$: Observable<ReadonlyArray<PlantData>> = this._positionEmitter$.pipe(
-    map((pos: GeolocationPosition) => this._stateGeometryService.findStateOrProvince(pos.coords.latitude, pos.coords.longitude)),
-    filter((state: StateInfo | null): state is StateInfo => state != null),
-    map((state: StateInfo) => {
-      // _allNativePlants will have all StateInfo.id listed under 
-      // TODO use state info to filter for _allNativePlants by NativeStatus
-      // TODO use state info to filter gbifoccurences ? 
-      return [];
-    }),
-  );
+  private _filteredNativePlants$: Observable<ReadonlyArray<PlantData>> = combineLatest([
+    this._positionEmitter$.pipe(
+      map((pos: GeolocationPosition) => this._stateGeometryService.findStateOrProvince(pos.coords.latitude, pos.coords.longitude)),
+      filter((state: StateInfo | null): state is StateInfo => state != null)),
+    this._allNativePlants$])
+    .pipe(
+      map(([state, plants]) => {
+        console.log(state.id);
+        return plants.filter(plant => {
+          // Your filtering logic here based on state
+          return plant.nativeLocations?.has(state.id as LocationCode);
+        });
+      }),
+      tap((plants) => console.log(plants)),
+      takeUntil(this._ngDestroy$)
+    );
+  //   map((state: StateInfo) => 
+  //     // _allNativePlants will have all StateInfo.id listed under 
+  //     // TODO use state info to filter for _allNativePlants by NativeStatus
+  //     // TODO use state info to filter gbifoccurences ? 
+  //   ),
+  // );
   public get filteredNativePlants$(): Observable<ReadonlyArray<PlantData>> {
     return this._filteredNativePlants$;
   }

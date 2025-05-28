@@ -3,7 +3,6 @@ export type Color = 'Black' | 'Blue' | 'Brown' | 'Green' | 'Orange' | 'Purple' |
 export type Rate = 'Moderate' | 'None' | 'Rapid' | 'Slow';
 export type Category = 'Dicot' | 'Fern' | 'Green alga' | 'Gymnosperm' | 'Hornwort' | 'Horsetail' | 'Lichen' | 'Liverwort' | 'Lycopod' | 'Monocot' | 'Moss' | 'Quillwort' | 'RA' | 'Whisk-fern';
 export type Level = 'High' | 'Medium' | 'Low' | 'None';
-export type NativityStatus = 'N' | 'I';
 export type Duration = 'Perennial' | 'Biennial' | 'Annual' | 'AN';
 export type Season = 'Winter' | 'Spring' | 'Summer' | 'Fall' | 'Year Round';
 export type Porosity = 'Dense' | 'Moderate' | 'Porous';
@@ -17,9 +16,6 @@ export type NativeStatusCode = 'N' | 'I' | 'N?' | 'I?' | 'NI' | 'NI?' | 'GP' | '
 export type NativeLocationCode = 'L48' | 'AK' | 'HI' | 'PR' | 'VI' | 'CAN' | 'CA' | 'SPM' | 'NA';
 // Map-like structure where you can access status by jurisdiction
 
-export type NativeStatus = {
-    [K in NativeStatusCode]?: LocationCode[];
-}
 
 // US States and Canadian Provinces/Territories for PLANTS Database
 export type USState =
@@ -100,7 +96,9 @@ export type USTerritory =
     | 'MP'// Northern Mariana Islands  
     | 'PW' // Pacific West/Wake Island region
     | 'UM' // US Minor Outlying Islands
-    | 'NAV'; // Navajo Nation
+    | 'NAV' // Navajo Nation
+    | 'FM'
+    | 'MH' //Marshal islands;
 // Combined type for all location codes used in PLANTS database
 export type LocationCode = USState | CanadianProvince | USTerritory;
 // TODO change NativeLocationCode[] to State/Province variation because thats the accurate native range
@@ -116,7 +114,7 @@ export const validLocationCodes: Set<LocationCode> = new Set([
     // Canadian Provinces/Territories
     'AB', 'BC', 'MB', 'NB', 'NL', 'NT', 'NS', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT', 'NF', 'LB',
     // US Territories
-    'PR', 'VI', 'GU', 'AS', 'MP', 'PW', 'UM', 'NAV'
+    'PR', 'VI', 'GU', 'AS', 'MP', 'PW', 'UM', 'NAV', 'FM', 'MH'
 ] as const);
 
 // Mapping from individual location codes to native status regions
@@ -146,6 +144,8 @@ export const LocationToNativeRegion: Record<LocationCode, NativeLocationCode> = 
     'PW': 'L48',
     'UM': 'L48',
     'NAV': 'L48',
+    'FM': 'L48',
+    'MH': 'L48',
 
 
     // Canadian Provinces/Territories (all map to CAN)
@@ -309,7 +309,7 @@ export type PlantData = Readonly<{
     family: string;
     duration: ReadonlyArray<Duration> | Duration;
     growthHabit: string;
-    nativeStatus: NativeStatus[];
+    nativeLocations: Set<LocationCode>;
     characteristicsData: boolean;
     activeGrowthPeriod: ReadonlyArray<Season> | Season;
     afterHarvestRegrowthRate: Rate;
