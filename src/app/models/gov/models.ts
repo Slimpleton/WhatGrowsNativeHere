@@ -14,6 +14,7 @@ export type Texture = 'Coarse' | 'Fine' | 'Medium';
 export type CommercialAvailability = 'Contracting Only' | 'Field Collections Only' | 'No Known Source' | 'Routinely Available';
 export type NativeStatusCode = 'N' | 'I' | 'N?' | 'I?' | 'NI' | 'NI?' | 'GP' | 'GP?' | 'W' | 'W?' | 'A' | 'H';
 export type NativeLocationCode = 'L48' | 'AK' | 'HI' | 'PR' | 'VI' | 'CAN' | 'CA' | 'SPM' | 'NA';
+export type GrowthHabit = 'Forb/herb' | 'Shrub' | 'Subshrub' | 'Graminioid' | 'Lichenous' | 'Tree' | 'Nonvascular' | 'Vine';
 // Map-like structure where you can access status by jurisdiction
 
 
@@ -101,7 +102,6 @@ export type USTerritory =
     | 'MH' //Marshal islands;
 // Combined type for all location codes used in PLANTS database
 export type LocationCode = USState | CanadianProvince | USTerritory;
-// TODO change NativeLocationCode[] to State/Province variation because thats the accurate native range
 
 // Generate valid codes from the union type
 export const validLocationCodes: Set<LocationCode> = new Set([
@@ -118,44 +118,44 @@ export const validLocationCodes: Set<LocationCode> = new Set([
 ] as const);
 
 // Mapping from individual location codes to native status regions
-export const LocationToNativeRegion: Record<LocationCode, NativeLocationCode> = {
+export const LocationToNativeRegion: Record<LocationCode, NativeLocationCode[]> = {
     // US States (Lower 48)
-    'AL': 'L48', 'AR': 'L48', 'AZ': 'L48', 'CA': 'L48', 'CO': 'L48',
-    'CT': 'L48', 'DC': 'L48', 'DE': 'L48', 'FL': 'L48', 'GA': 'L48', 'ID': 'L48',
-    'IL': 'L48', 'IN': 'L48', 'IA': 'L48', 'KS': 'L48', 'KY': 'L48',
-    'LA': 'L48', 'ME': 'L48', 'MD': 'L48', 'MA': 'L48', 'MI': 'L48',
-    'MN': 'L48', 'MS': 'L48', 'MO': 'L48', 'MT': 'L48', 'NE': 'L48',
-    'NV': 'L48', 'NH': 'L48', 'NJ': 'L48', 'NM': 'L48', 'NY': 'L48',
-    'NC': 'L48', 'ND': 'L48', 'OH': 'L48', 'OK': 'L48', 'OR': 'L48',
-    'PA': 'L48', 'RI': 'L48', 'SC': 'L48', 'SD': 'L48', 'TN': 'L48',
-    'TX': 'L48', 'UT': 'L48', 'VT': 'L48', 'VA': 'L48', 'WA': 'L48',
-    'WV': 'L48', 'WI': 'L48', 'WY': 'L48',
+    'AL': ['L48', 'NA'], 'AR': ['L48', 'NA'], 'AZ': ['L48', 'NA'], 'CA': ['L48', 'NA'], 'CO': ['L48', 'NA'],
+    'CT': ['L48', 'NA'], 'DC': ['L48', 'NA'], 'DE': ['L48', 'NA'], 'FL': ['L48', 'NA'], 'GA': ['L48', 'NA'], 'ID': ['L48', 'NA'],
+    'IL': ['L48', 'NA'], 'IN': ['L48', 'NA'], 'IA': ['L48', 'NA'], 'KS': ['L48', 'NA'], 'KY': ['L48', 'NA'],
+    'LA': ['L48', 'NA'], 'ME': ['L48', 'NA'], 'MD': ['L48', 'NA'], 'MA': ['L48', 'NA'], 'MI': ['L48', 'NA'],
+    'MN': ['L48', 'NA'], 'MS': ['L48', 'NA'], 'MO': ['L48', 'NA'], 'MT': ['L48', 'NA'], 'NE': ['L48', 'NA'],
+    'NV': ['L48', 'NA'], 'NH': ['L48', 'NA'], 'NJ': ['L48', 'NA'], 'NM': ['L48', 'NA'], 'NY': ['L48', 'NA'],
+    'NC': ['L48', 'NA'], 'ND': ['L48', 'NA'], 'OH': ['L48', 'NA'], 'OK': ['L48', 'NA'], 'OR': ['L48', 'NA'],
+    'PA': ['L48', 'NA'], 'RI': ['L48', 'NA'], 'SC': ['L48', 'NA'], 'SD': ['L48', 'NA'], 'TN': ['L48', 'NA'],
+    'TX': ['L48', 'NA'], 'UT': ['L48', 'NA'], 'VT': ['L48', 'NA'], 'VA': ['L48', 'NA'], 'WA': ['L48', 'NA'],
+    'WV': ['L48', 'NA'], 'WI': ['L48', 'NA'], 'WY': ['L48', 'NA'],
 
     // Alaska and Hawaii (separate regions)
-    'AK': 'AK',
-    'HI': 'HI',
+    'AK': ['AK'],
+    'HI': ['HI'],
 
     // US Territories
-    'PR': 'PR',
-    'VI': 'VI',
-    'GU': 'PR', // Guam often grouped with PR region
-    'AS': 'PR', // American Samoa often grouped with PR region  
-    'MP': 'PR', // Northern Mariana Islands often grouped with PR region
-    'PW': 'L48',
-    'UM': 'L48',
-    'NAV': 'L48',
-    'FM': 'L48',
-    'MH': 'L48',
+    'PR': ['PR'],
+    'VI': ['VI'],
+    'GU': ['PR'], // Guam often grouped with PR region
+    'AS': ['PR'], // American Samoa often grouped with PR region  
+    'MP': ['PR'], // Northern Mariana Islands often grouped with PR region
+    'PW': ['L48', 'NA'],
+    'UM': ['L48', 'NA'],
+    'NAV': ['L48', 'NA'],
+    'FM': ['L48', 'NA'],
+    'MH': ['L48', 'NA'],
 
 
     // Canadian Provinces/Territories (all map to CAN)
-    'AB': 'CAN', 'BC': 'CAN', 'MB': 'CAN', 'NB': 'CAN', 'NL': 'CAN',
-    'NT': 'CAN', 'NS': 'CAN', 'NU': 'CAN', 'ON': 'CAN', 'PE': 'CAN',
-    'QC': 'CAN', 'SK': 'CAN', 'YT': 'CAN', 'NF': 'CAN', 'LB': 'CAN',
+    'AB': ['CAN'], 'BC': ['CAN'], 'MB': ['CAN'], 'NB': ['CAN'], 'NL': ['CAN'],
+    'NT': ['CAN'], 'NS': ['CAN'], 'NU': ['CAN'], 'ON': ['CAN'], 'PE': ['CAN'],
+    'QC': ['CAN'], 'SK': ['CAN'], 'YT': ['CAN'], 'NF': ['CAN'], 'LB': ['CAN'],
 };
 
 // Helper function to get native region for a location code
-export function getNativeRegion(locationCode: LocationCode): NativeLocationCode | undefined {
+export function getNativeRegion(locationCode: LocationCode): NativeLocationCode[] | undefined {
     return LocationToNativeRegion[locationCode];
 }
 
@@ -308,7 +308,7 @@ export type PlantData = Readonly<{
     category: Category;
     family: string;
     duration: ReadonlyArray<Duration> | Duration;
-    growthHabit: string;
+    growthHabit: GrowthHabit[];
     nativeLocations: Set<LocationCode>;
     characteristicsData: boolean;
     activeGrowthPeriod: ReadonlyArray<Season> | Season;

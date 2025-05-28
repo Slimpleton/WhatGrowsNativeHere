@@ -1,22 +1,27 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GbifService } from '../services/gbif.service';
-import { combineLatest, filter, map, Observable, of, shareReplay, Subject, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, map, Observable, of, shareReplay, Subject, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs';
 import { AsyncPipe, NgFor } from '@angular/common';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
 import { LocationCode, NativeStatusCode, PlantData } from '../models/gov/models';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { StateGeometryService, StateInfo } from '../services/state-geometry.service';
+import { GrowthHabit } from '../models/gov/models';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [NgFor, AsyncPipe],
+  imports: [NgFor, AsyncPipe, FormsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private _ngDestroy$: Subject<void> = new Subject<void>();
   private _positionEmitter$: Subject<GeolocationPosition> = new Subject<GeolocationPosition>();
+  private _growthHabitEmitter$: Subject<GrowthHabit | null> = new BehaviorSubject<GrowthHabit | null>(null);
+
+  public growthHabits: GrowthHabit[] = ['Forb/herb', 'Graminioid', 'Lichenous', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
 
   private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteNativePlantData()
     .pipe(
@@ -24,30 +29,31 @@ export class HomeComponent implements OnInit, OnDestroy {
       takeUntil(this._ngDestroy$)
     );
 
-  private _filteredNativePlants$: Observable<ReadonlyArray<PlantData>> = combineLatest([
+  private _filteredNativePlantsByState$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._positionEmitter$.pipe(
       map((pos: GeolocationPosition) => this._stateGeometryService.findStateOrProvince(pos.coords.latitude, pos.coords.longitude)),
       filter((state: StateInfo | null): state is StateInfo => state != null)),
     this._allNativePlants$])
     .pipe(
-      map(([state, plants]) => {
-        console.log(state.id);
-        return plants.filter(plant => {
-          // Your filtering logic here based on state
-          return plant.nativeLocations?.has(state.id as LocationCode);
-        });
-      }),
-      tap((plants) => console.log(plants)),
+      map(([state, plants]) => this.filterForState(state, plants)),
+      // TODO filter even finer some day
+      // TODO switchMap combineLatest to do the GrowthHabit filter
+      // TODO use state info to filter gbifoccurences ? 
+      tap((plants) => console.log('statePlants', plants)),
       takeUntil(this._ngDestroy$)
     );
-  //   map((state: StateInfo) => 
-  //     // _allNativePlants will have all StateInfo.id listed under 
-  //     // TODO use state info to filter for _allNativePlants by NativeStatus
-  //     // TODO use state info to filter gbifoccurences ? 
-  //   ),
-  // );
+
+  private _filteredStateNativePlantsByGrowthHabit$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
+    this._growthHabitEmitter$,
+    this._filteredNativePlantsByState$
+  ]).pipe(
+    map(
+      (([growthHabit, plants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>]) => this.filterForGrowthHabit(growthHabit, plants)),
+    ),
+    takeUntil(this._ngDestroy$)
+  );
   public get filteredNativePlants$(): Observable<ReadonlyArray<PlantData>> {
-    return this._filteredNativePlants$;
+    return this._filteredStateNativePlantsByGrowthHabit$;
   }
 
   private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
@@ -141,6 +147,29 @@ export class HomeComponent implements OnInit, OnDestroy {
         this._lastUnfilteredSearch$.next(value);
       },
       error: err => console.error(err)
+    });
+  }
+
+  public changeGrowthHabit(event: any) {
+    const target = event.target as HTMLSelectElement;
+    this._growthHabitEmitter$.next(target.value as GrowthHabit);
+  }
+
+  private filterForGrowthHabit(growthHabit: GrowthHabit | null, plants: ReadonlyArray<Readonly<PlantData>>) {
+    console.log(growthHabit);
+    if (growthHabit == null)
+      return plants;
+    return plants.filter(plant => {
+      // Your filtering logic here based on state
+      return plant.growthHabit?.some(x => x == growthHabit);
+    });
+  }
+
+  private filterForState(state: StateInfo, plants: ReadonlyArray<Readonly<PlantData>>) {
+    console.log(state.id);
+    return plants.filter(plant => {
+      // Your filtering logic here based on state
+      return plant.nativeLocations?.has(state.id as LocationCode);
     });
   }
 

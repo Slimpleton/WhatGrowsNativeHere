@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { NativePlantSearch } from "../interfaces/native-plant-search.interface";
 import { catchError, filter, map, Observable, of, shareReplay } from "rxjs";
-import { getNativeRegion, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, validLocationCodes } from "../models/gov/models";
+import { getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, validLocationCodes } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 
 @Injectable({
@@ -236,6 +236,11 @@ export class GovPlantsDataService implements NativePlantSearch {
         return result;
     }
 
+    private parseGrowthHabit(habitCsvValue: string): ReadonlyArray<GrowthHabit> {
+        return Object.freeze(habitCsvValue.split(',').map(v => v.trim() as GrowthHabit));
+    }
+
+
     /**
      * Converts the csv value for nativeStatus into the indexed array searchable for locationCodes
      * @param csvValue 
@@ -247,6 +252,8 @@ export class GovPlantsDataService implements NativePlantSearch {
         const regex = /([A-Z0-9]+)\(([A-Z?]+)\)/g;
         let result: LocationCode[] = [];
         let match;
+
+        // TODO this is not properly capturing plants native to the entire continent aka NA(N)
 
         // Parses the csv row for ${LOCATION}(${STATUS}) on repeat until the end of the value
         // Compiles that into properties for each applicable nativity status with regions mapped in
@@ -260,12 +267,19 @@ export class GovPlantsDataService implements NativePlantSearch {
 
             // Turn location aka broad region => state && territories aka LocationCode
 
+            // Handle continental native status NA(N) - native to entire continent
+            if (location === 'NA') {
+                // Add all North American states/provinces
+                result.push(...stateAndProvinceValues);
+                continue;
+            }
+
             if (!property)
                 property = [];
 
             stateAndProvinceValues.forEach((province: LocationCode) => {
-                const nativeRegion: NativeLocationCode | undefined = getNativeRegion(province);
-                if (nativeRegion && location == nativeRegion)
+                const nativeRegion: NativeLocationCode[] | undefined = getNativeRegion(province);
+                if (nativeRegion && nativeRegion.some(x => x == location))
                     property.push(province);
             });
 
@@ -277,13 +291,8 @@ export class GovPlantsDataService implements NativePlantSearch {
 
     private convertCsvRowToPlantData(csvRow: Record<string, string>): Readonly<PlantData> {
         const result: Record<string, any> = {};
-
-        // console.log(this._headerMapping);
         const distributionColumnName = Object.keys(csvRow).find(key =>
             key.toLowerCase().replace(/\s+/g, ' ').trim() === 'state and province'
-        );
-        const scientificNameColumnName = Object.keys(csvRow).find(key =>
-            key.toLowerCase().replace(/\s+/g, ' ').trim() === 'scientific name'
         );
 
         const stateAndProvinceValues: ReadonlyArray<LocationCode> = distributionColumnName ? this.parseDistributionString(csvRow[distributionColumnName]) : Object.freeze([]);
@@ -296,6 +305,9 @@ export class GovPlantsDataService implements NativePlantSearch {
 
                 if (camelKey === 'nativeLocations') {
                     result[camelKey] = this.parseNativeStatus(value, stateAndProvinceValues);
+                }
+                else if (camelKey === 'growthHabit') {
+                    result[camelKey] = this.parseGrowthHabit(value);
                 }
                 else if (camelKey === 'stateAndProvince') {
                     // Use the pre-parsed distribution values instead of re-parsing
@@ -320,6 +332,8 @@ export class GovPlantsDataService implements NativePlantSearch {
         // Return as a deeply immutable object
         return Object.freeze(result) as PlantData;
     }
+
+
 
     // /**
     //  * Retrieves all plants from the PLANTS database list that contain Native or possibly native in their NativeStatus mapping
