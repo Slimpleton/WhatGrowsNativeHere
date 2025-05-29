@@ -2,3 +2,8 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
 }
+
+#filterSection{
+    top: 0;
+    position: sticky;
+}

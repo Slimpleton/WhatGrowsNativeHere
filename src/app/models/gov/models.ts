@@ -15,7 +15,7 @@ export type CommercialAvailability = 'Contracting Only' | 'Field Collections Onl
 export type NativeStatusCode = 'N' | 'I' | 'N?' | 'I?' | 'NI' | 'NI?' | 'GP' | 'GP?' | 'W' | 'W?' | 'A' | 'H';
 export type NativeLocationCode = 'L48' | 'AK' | 'HI' | 'PR' | 'VI' | 'CAN' | 'CA' | 'SPM' | 'NA';
 export type GrowthHabit = 'Forb/herb' | 'Shrub' | 'Subshrub' | 'Graminoid' | 'Lichenous' | 'Tree' | 'Nonvascular' | 'Vine' | 'Any';
-// TODO maybe filter out lichenous types because theyre not really a nativity thing more just an environment destruction in general, no real native regions as they exist everywhere as a conglomerate of species
+// HACK Filtered out lichenous types at the home component level because theyre not really a nativity thing more just an environment destruction in general, no real native regions as they exist everywhere as a conglomerate of species
 // Map-like structure where you can access status by jurisdiction
 
 // US States and Canadian Provinces/Territories for PLANTS Database

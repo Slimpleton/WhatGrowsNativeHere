@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { NativePlantSearch } from "../interfaces/native-plant-search.interface";
-import { catchError, filter, map, Observable, of, shareReplay } from "rxjs";
+import { catchError, map, Observable, of, shareReplay } from "rxjs";
 import { getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, validLocationCodes } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 
