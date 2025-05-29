@@ -17,7 +17,6 @@ export type NativeLocationCode = 'L48' | 'AK' | 'HI' | 'PR' | 'VI' | 'CAN' | 'CA
 export type GrowthHabit = 'Forb/herb' | 'Shrub' | 'Subshrub' | 'Graminoid' | 'Lichenous' | 'Tree' | 'Nonvascular' | 'Vine' | 'Any';
 // Map-like structure where you can access status by jurisdiction
 
-
 // US States and Canadian Provinces/Territories for PLANTS Database
 export type USState =
     | 'AL' // Alabama

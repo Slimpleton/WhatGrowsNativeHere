@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GbifService } from '../services/gbif.service';
-import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, Subject, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { AsyncPipe, NgFor } from '@angular/common';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
 import { LocationCode, PlantData, validLocationCodes } from '../models/gov/models';
@@ -19,11 +19,12 @@ import { FormsModule } from '@angular/forms';
 export class HomeComponent implements OnInit, OnDestroy {
   private _ngDestroy$: Subject<void> = new Subject<void>();
   private _positionEmitter$: Subject<GeolocationPosition> = new Subject<GeolocationPosition>();
-  private _growthHabitEmitter$: Subject<GrowthHabit | null> = new BehaviorSubject<GrowthHabit | null>(null);
+  private _growthHabitEmitter$: Subject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
   private _nationwideFilterEmitter$: Subject<boolean> = new BehaviorSubject<boolean>(true);
   public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
 
   public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Lichenous', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
+  public usdaGovPlantProfileUrl: string = 'https://plants.usda.gov/plant-profile/';
 
   private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteNativePlantData()
     .pipe(
@@ -44,7 +45,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       takeUntil(this._ngDestroy$)
     );
 
-  //HACK using a combineLatest to combine multiple state changes at once for filtering easy
+  // Using a combineLatest to combine multiple state changes at once for filtering easy
   private _fullyFilteredNativePlants: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._growthHabitEmitter$,
     this._filteredNativePlantsByState$,
@@ -115,11 +116,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Maps are drawn on canvas btw its not like ur unfamiliar with it
   // TODO use d3-geo / us-atlas maps to display gbif occurence data and other occurence data??? 
   // TODO use inaturalist api for occurrences as well, research grade only, use for occurrences because its community driven
-
   // https://explorer.natureserve.org/api-docs/#_species_search OnlyNatives for locationCriteria will get only the native species we search !! might have some info on occurrences here too not sure could also get a combined accurate record of native plants 
   // TODO trefle api has open source botanical indexed plants and stuff too, probably use for occurrences because native declaration is weak
 
-  public constructor(private readonly _gbifService: GbifService, private readonly _plantService: GovPlantsDataService, private readonly _stateGeometryService: StateGeometryService) { }
+  public constructor(
+    private readonly _gbifService: GbifService,
+    private readonly _plantService: GovPlantsDataService,
+    private readonly _stateGeometryService: StateGeometryService
+  ) { }
 
   ngOnDestroy(): void {
     this._ngDestroy$.next();
@@ -156,7 +160,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   public changeGrowthHabit(event: any) {
     const target = event.target as HTMLSelectElement;
-    this._growthHabitEmitter$.next(target.value as GrowthHabit | null);
+    this._growthHabitEmitter$.next(target.value as GrowthHabit);
   }
   public setNationwideFilter(event: any) {
     const target = event.target as HTMLInputElement;
@@ -171,7 +175,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private filterForNationwidePlants(plants: ReadonlyArray<Readonly<PlantData>>, includeNationwidePlants: boolean): ReadonlyArray<Readonly<PlantData>> {
-    return plants.filter(plant => includeNationwidePlants ? true : plant.nativeLocationCodes?.size != validLocationCodes.size);
+    return plants.filter(plant => includeNationwidePlants ? true : (plant.growthHabit.some(x => x == 'Lichenous') ? true : plant.nativeLocationCodes?.size != validLocationCodes.size));
   }
 
   private filterForState(state: StateInfo, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {

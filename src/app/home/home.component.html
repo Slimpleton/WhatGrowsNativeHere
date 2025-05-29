@@ -23,6 +23,8 @@
         <section *ngFor="let plant of filteredNativePlants$ | async; let i = index;"
             class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">
             <h1 class="result-scientific-name" id="plant-scientific-name-{{i}}">{{plant.scientificName}}</h1>
+            <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol" class=""
+                id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
             <h4 class="result-property" id="plant-growth-habit-{{i}}">{{plant.growthHabit}}</h4>
         </section>
     </article>
