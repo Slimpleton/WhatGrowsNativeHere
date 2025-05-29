@@ -11,11 +11,16 @@
         <!-- </section> -->
     </article>
     <br>
+    <select (change)="changeGrowthHabit($event)" name="growthHabitSelector" id="growthHabitSelector"
+        [disabled]="filterInProgress$ | async">
+        <option [defaultSelected]="true" [value]="null"></option>
+        <option *ngFor="let growthHabit of growthHabits" [value]="growthHabit">{{growthHabit}}</option>
+    </select>
+    <input type="checkbox" name="includeNationwidePlants" id="includeNationwidePlantsControl"
+        (change)="setNationwideFilter($event)" [checked]="true" [disabled]="filterInProgress$ | async">
+    <label for="includeNationwidePlantsControl" class="includeNationwidePlantsLabel"
+        id="includeNationwidePlantsLabel">Include Nationwide Native Plants?</label>
     <article class="result-container" id="gov-container">
-        <select (change)="changeGrowthHabit($event)" name="growthHabitSelector" id="growthHabitSelector">
-            <option [defaultSelected]="true" [value]="null"></option>
-            <option *ngFor="let growthHabit of growthHabits" [value]="growthHabit">{{growthHabit}}</option>
-        </select>
         <section *ngFor="let plant of filteredNativePlants$ | async; let i = index;"
             class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">
             <h1 class="result-scientific-name" id="plant-scientific-name-{{i}}">{{plant.scientificName}}</h1>

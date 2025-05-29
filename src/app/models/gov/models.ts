@@ -309,7 +309,7 @@ export type PlantData = Readonly<{
     family: string;
     duration: ReadonlyArray<Duration> | Duration;
     growthHabit: GrowthHabit[];
-    nativeLocations: Set<LocationCode>;
+    nativeLocationCodes: Set<LocationCode>;
     characteristicsData: boolean;
     activeGrowthPeriod: ReadonlyArray<Season> | Season;
     afterHarvestRegrowthRate: Rate;

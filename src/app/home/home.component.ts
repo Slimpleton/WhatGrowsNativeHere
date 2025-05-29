@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GbifService } from '../services/gbif.service';
-import { BehaviorSubject, combineLatest, filter, map, Observable, of, shareReplay, Subject, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, Subject, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs';
 import { AsyncPipe, NgFor } from '@angular/common';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
-import { LocationCode, NativeStatusCode, PlantData } from '../models/gov/models';
+import { LocationCode, PlantData, validLocationCodes } from '../models/gov/models';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { StateGeometryService, StateInfo } from '../services/state-geometry.service';
 import { GrowthHabit } from '../models/gov/models';
@@ -20,6 +20,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   private _ngDestroy$: Subject<void> = new Subject<void>();
   private _positionEmitter$: Subject<GeolocationPosition> = new Subject<GeolocationPosition>();
   private _growthHabitEmitter$: Subject<GrowthHabit | null> = new BehaviorSubject<GrowthHabit | null>(null);
+  private _nationwideFilterEmitter$: Subject<boolean> = new BehaviorSubject<boolean>(true);
+  public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
 
   public growthHabits: GrowthHabit[] = ['Forb/herb', 'Graminioid', 'Lichenous', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
 
@@ -43,17 +45,26 @@ export class HomeComponent implements OnInit, OnDestroy {
       takeUntil(this._ngDestroy$)
     );
 
-  private _filteredStateNativePlantsByGrowthHabit$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
+  //HACK using a combineLatest to combine multiple state changes at once for filtering easy
+  private _fullyFilteredNativePlants: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._growthHabitEmitter$,
-    this._filteredNativePlantsByState$
+    this._filteredNativePlantsByState$,
+    this._nationwideFilterEmitter$
   ]).pipe(
+    tap(() => this.filterInProgress$.next(true)),
     map(
-      (([growthHabit, plants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>]) => this.filterForGrowthHabit(growthHabit, plants)),
+      (([growthHabit, plants, includeNationwidePlants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>, boolean]) => {
+        const filteredNationwide = this.filterForNationwidePlants(plants, includeNationwidePlants);
+        return this.filterForGrowthHabit(growthHabit, filteredNationwide);
+      }),
     ),
+    tap(() => this.filterInProgress$.next(false)),
+    tap((plants) => console.log('final filtering', plants)),
     takeUntil(this._ngDestroy$)
   );
+
   public get filteredNativePlants$(): Observable<ReadonlyArray<PlantData>> {
-    return this._filteredStateNativePlantsByGrowthHabit$;
+    return this._fullyFilteredNativePlants;
   }
 
   private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
@@ -92,6 +103,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   public get lastSearch$(): Observable<GbifOccurrence[]> {
     return this._lastSearch$;
   }
+
+
+
 
   // PRIORITIES 
 
@@ -154,8 +168,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     const target = event.target as HTMLSelectElement;
     this._growthHabitEmitter$.next(target.value as GrowthHabit);
   }
+  public setNationwideFilter(event: any) {
+    const target = event.target as HTMLInputElement;
+    this._nationwideFilterEmitter$.next(target.checked as boolean);
+  }
 
-  private filterForGrowthHabit(growthHabit: GrowthHabit | null, plants: ReadonlyArray<Readonly<PlantData>>) {
+  private filterForGrowthHabit(growthHabit: GrowthHabit | null, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
     console.log(growthHabit);
     if (growthHabit == null)
       return plants;
@@ -165,11 +183,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  private filterForState(state: StateInfo, plants: ReadonlyArray<Readonly<PlantData>>) {
+  private filterForNationwidePlants(plants: ReadonlyArray<Readonly<PlantData>>, includeNationwidePlants: boolean): ReadonlyArray<Readonly<PlantData>> {
+    return plants.filter(plant => includeNationwidePlants ? true : plant.nativeLocationCodes?.size != validLocationCodes.size);
+  }
+
+  private filterForState(state: StateInfo, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
     console.log(state.id);
     return plants.filter(plant => {
       // Your filtering logic here based on state
-      return plant.nativeLocations?.has(state.id as LocationCode);
+      return plant.nativeLocationCodes?.has(state.id as LocationCode);
     });
   }
 

@@ -20,7 +20,7 @@ export class GovPlantsDataService implements NativePlantSearch {
         "Family": "family",
         "Duration": "duration",
         "Growth Habit": "growthHabit",
-        "Native Status": "nativeLocations",
+        "Native Status": "nativeLocationCodes",
         "Characteristics Data": "characteristicsData",
         "Active Growth Period": "activeGrowthPeriod",
         "After Harvest Regrowth Rate": "afterHarvestRegrowthRate",
@@ -151,7 +151,7 @@ export class GovPlantsDataService implements NativePlantSearch {
 
                 return result;
             }),
-            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeLocations.size > 0)),
+            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeLocationCodes.size > 0)),
             // Return as a deeply immutable array
             map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
             shareReplay(1),
@@ -194,6 +194,7 @@ export class GovPlantsDataService implements NativePlantSearch {
                 return row;
             });
     }
+
 
     // Helper function to parse distribution strings from PLANTS database
     private parseDistributionString(distribution: string | undefined | null): ReadonlyArray<LocationCode> {
@@ -254,6 +255,7 @@ export class GovPlantsDataService implements NativePlantSearch {
         let match;
 
         // TODO this is not properly capturing plants native to the entire continent aka NA(N)
+        // stateAndProvinceValues is empty if the entire continent is NA
 
         // Parses the csv row for ${LOCATION}(${STATUS}) on repeat until the end of the value
         // Compiles that into properties for each applicable nativity status with regions mapped in
@@ -270,8 +272,7 @@ export class GovPlantsDataService implements NativePlantSearch {
             // Handle continental native status NA(N) - native to entire continent
             if (location === 'NA') {
                 // Add all North American states/provinces
-                result.push(...stateAndProvinceValues);
-                continue;
+                return validLocationCodes; // HACK all NA location codes including islands
             }
 
             if (!property)
@@ -283,7 +284,7 @@ export class GovPlantsDataService implements NativePlantSearch {
                     property.push(province);
             });
 
-            result = property;
+            result.push(...property);
         }
 
         return new Set(result);
@@ -291,11 +292,16 @@ export class GovPlantsDataService implements NativePlantSearch {
 
     private convertCsvRowToPlantData(csvRow: Record<string, string>): Readonly<PlantData> {
         const result: Record<string, any> = {};
-        const distributionColumnName = Object.keys(csvRow).find(key =>
+        const rowKeys = Object.keys(csvRow);
+        const distributionColumnName = rowKeys.find(key =>
             key.toLowerCase().replace(/\s+/g, ' ').trim() === 'state and province'
+        );
+        const nativeStatusColumnName = rowKeys.find(key =>
+            key.toLowerCase().replace(/\s+/g, ' ').trim() === 'native status'
         );
 
         const stateAndProvinceValues: ReadonlyArray<LocationCode> = distributionColumnName ? this.parseDistributionString(csvRow[distributionColumnName]) : Object.freeze([]);
+        const nativeStatusValues: Set<LocationCode> = nativeStatusColumnName ? this.parseNativeStatus(csvRow[nativeStatusColumnName], stateAndProvinceValues) : new Set();
 
         // Map each property using our predefined mapping
         Object.entries(csvRow).forEach(([key, value]) => {
@@ -303,8 +309,8 @@ export class GovPlantsDataService implements NativePlantSearch {
             if (key in this._headerMapping) {
                 const camelKey = this._headerMapping[key] as keyof PlantData;
 
-                if (camelKey === 'nativeLocations') {
-                    result[camelKey] = this.parseNativeStatus(value, stateAndProvinceValues);
+                if (camelKey === 'nativeLocationCodes') {
+                    result[camelKey] = nativeStatusValues;
                 }
                 else if (camelKey === 'growthHabit') {
                     result[camelKey] = this.parseGrowthHabit(value);
