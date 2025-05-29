@@ -255,8 +255,9 @@ export class GovPlantsDataService implements NativePlantSearch {
 
         // Parses the csv row for ${LOCATION}(${STATUS}) on repeat until the end of the value
         // Compiles that into properties for each applicable nativity status with regions mapped in
+
         while ((match = regex.exec(csvValue)) !== null) {
-            const [, locationString, statusCode] = match;
+            const [matchedGroup, locationString, statusCode] = match;
             const status = statusCode as NativeStatusCode;
             if (status !== 'N')
                 continue;
@@ -264,10 +265,18 @@ export class GovPlantsDataService implements NativePlantSearch {
             const location = locationString as NativeLocationCode;
 
 
+            // TODO the distributionString can contain both CA(N)NA(N)
+            // e.g. ACAL17,,ACAL17,Achillea alpina,NA (CAN),"CAN(AB, BC, MB, NT, ON, QC, SK, YT)",Dicot,Asteraceae,Perennial,Forb/herb,CAN(N)NA(N),No,...,
+            // In this case, only canada and those regions within it are native, but NA(N) is still labeled for some reason?
+            // AKA more are labeled native to other parts of americas than they should and it should not include the extra regions either like spm and shit
+
             // Handle continental native status NA(N) - native to entire continent
-            if (location === 'NA') {
+            if (location === 'NA' && matchedGroup.length == csvValue.length) {
                 // Add all North American states/provinces
                 return validLocationCodes; // HACK all NA location codes including islands
+            } else if (location === 'NA') {
+                // TODO possibly have to use floristic area mapping not sure
+                continue;
             }
 
             if (!property)
@@ -295,11 +304,6 @@ export class GovPlantsDataService implements NativePlantSearch {
         const nativeStatusColumnName = rowKeys.find(key =>
             key.toLowerCase().replace(/\s+/g, ' ').trim() === 'native status'
         );
-
-        // TODO the distributionString can contain both CA(N)NA(N)
-        // e.g. ACAL17,,ACAL17,Achillea alpina,NA (CAN),"CAN(AB, BC, MB, NT, ON, QC, SK, YT)",Dicot,Asteraceae,Perennial,Forb/herb,CAN(N)NA(N),No,...,
-        // In this case, only canada and those regions within it are native, but NA(N) is still labeled for some reason?
-        // AKA more are labeled native to other parts of americas than they should and it should not include the extra regions either like spm and shit
 
         const stateAndProvinceValues: ReadonlyArray<LocationCode> = distributionColumnName ? this.parseDistributionString(csvRow[distributionColumnName]) : Object.freeze([]);
         const nativeStatusValues: Set<LocationCode> = nativeStatusColumnName ? this.parseNativeStatus(csvRow[nativeStatusColumnName], stateAndProvinceValues) : new Set();

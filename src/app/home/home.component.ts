@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private _nationwideFilterEmitter$: Subject<boolean> = new BehaviorSubject<boolean>(true);
   public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
 
-  public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Lichenous', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
+  public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
   public usdaGovPlantProfileUrl: string = 'https://plants.usda.gov/plant-profile/';
 
   private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteNativePlantData()
