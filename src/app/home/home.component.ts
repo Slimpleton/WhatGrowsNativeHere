@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private _nationwideFilterEmitter$: Subject<boolean> = new BehaviorSubject<boolean>(true);
   public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
 
-  public growthHabits: GrowthHabit[] = ['Forb/herb', 'Graminioid', 'Lichenous', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
+  public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Lichenous', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
 
   private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteNativePlantData()
     .pipe(
@@ -39,7 +39,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     .pipe(
       map(([state, plants]) => this.filterForState(state, plants)),
       // TODO filter even finer some day
-      // TODO switchMap combineLatest to do the GrowthHabit filter
       // TODO use state info to filter gbifoccurences ? 
       tap((plants) => console.log('statePlants', plants)),
       takeUntil(this._ngDestroy$)
@@ -77,10 +76,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }),
     map((values) => values.sort((x, y) => x.acceptedScientificName.localeCompare(y.acceptedScientificName))),
     tap((values) => console.log('without duplicates', values)),
-
-
     // switchMap((values) => from(values)),
-
     // // tap((occurrence) => {
     // //   this._gbifService.searchLiterature(occurrence.speciesKey).subscribe((value) => console.log(value));
     // // }),
@@ -92,9 +88,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     //   return aggregate;
     // }, [] as GbifOccurrence[]),
 
-
-
-
     // TODO search each species to ensure its native somehow using gbif service again
     // TODO the socal area used to belong to the tongva people. visit the tongva community garden in pomona to learn more
     shareReplay(1)
@@ -103,9 +96,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   public get lastSearch$(): Observable<GbifOccurrence[]> {
     return this._lastSearch$;
   }
-
-
-
 
   // PRIORITIES 
 
@@ -166,7 +156,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   public changeGrowthHabit(event: any) {
     const target = event.target as HTMLSelectElement;
-    this._growthHabitEmitter$.next(target.value as GrowthHabit);
+    this._growthHabitEmitter$.next(target.value as GrowthHabit | null);
   }
   public setNationwideFilter(event: any) {
     const target = event.target as HTMLInputElement;
@@ -174,13 +164,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private filterForGrowthHabit(growthHabit: GrowthHabit | null, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
-    console.log(growthHabit);
-    if (growthHabit == null)
+    if (growthHabit == 'Any') {
       return plants;
-    return plants.filter(plant => {
-      // Your filtering logic here based on state
-      return plant.growthHabit?.some(x => x == growthHabit);
-    });
+    }
+    return plants.filter(plant => plant.growthHabit?.some(x => x == growthHabit));
   }
 
   private filterForNationwidePlants(plants: ReadonlyArray<Readonly<PlantData>>, includeNationwidePlants: boolean): ReadonlyArray<Readonly<PlantData>> {
@@ -189,10 +176,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private filterForState(state: StateInfo, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
     console.log(state.id);
-    return plants.filter(plant => {
-      // Your filtering logic here based on state
-      return plant.nativeLocationCodes?.has(state.id as LocationCode);
-    });
+    return plants.filter(plant => plant.nativeLocationCodes?.has(state.id as LocationCode));
   }
 
   private emitPosition(position: GeolocationPosition): void {

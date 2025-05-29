@@ -13,7 +13,6 @@
     <br>
     <select (change)="changeGrowthHabit($event)" name="growthHabitSelector" id="growthHabitSelector"
         [disabled]="filterInProgress$ | async">
-        <option [defaultSelected]="true" [value]="null"></option>
         <option *ngFor="let growthHabit of growthHabits" [value]="growthHabit">{{growthHabit}}</option>
     </select>
     <input type="checkbox" name="includeNationwidePlants" id="includeNationwidePlantsControl"

@@ -14,7 +14,7 @@ export type Texture = 'Coarse' | 'Fine' | 'Medium';
 export type CommercialAvailability = 'Contracting Only' | 'Field Collections Only' | 'No Known Source' | 'Routinely Available';
 export type NativeStatusCode = 'N' | 'I' | 'N?' | 'I?' | 'NI' | 'NI?' | 'GP' | 'GP?' | 'W' | 'W?' | 'A' | 'H';
 export type NativeLocationCode = 'L48' | 'AK' | 'HI' | 'PR' | 'VI' | 'CAN' | 'CA' | 'SPM' | 'NA';
-export type GrowthHabit = 'Forb/herb' | 'Shrub' | 'Subshrub' | 'Graminioid' | 'Lichenous' | 'Tree' | 'Nonvascular' | 'Vine';
+export type GrowthHabit = 'Forb/herb' | 'Shrub' | 'Subshrub' | 'Graminoid' | 'Lichenous' | 'Tree' | 'Nonvascular' | 'Vine' | 'Any';
 // Map-like structure where you can access status by jurisdiction
 
 

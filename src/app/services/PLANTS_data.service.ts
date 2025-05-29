@@ -108,8 +108,7 @@ export class GovPlantsDataService implements NativePlantSearch {
     };
 
     private readonly dataUrl = 'assets/PLANTS_Characteristics_Plus_Data.csv';
-
-    private readonly MINIMUM_SPECIES_NAME_WORDS = 2;
+    private static readonly MINIMUM_SPECIES_NAME_WORDS = 2;
 
     public constructor(private readonly http: HttpClient) { }
 
@@ -127,7 +126,7 @@ export class GovPlantsDataService implements NativePlantSearch {
                 // Group by base species name
                 plantData.forEach(plant => {
                     const words = plant.scientificName.split(/\s+/);
-                    if (words.length >= 2) {
+                    if (words.length >= GovPlantsDataService.MINIMUM_SPECIES_NAME_WORDS) {
                         const baseSpecies = `${words[0]} ${words[1]}`;
                         if (!speciesGroups.has(baseSpecies)) {
                             speciesGroups.set(baseSpecies, []);
@@ -254,9 +253,6 @@ export class GovPlantsDataService implements NativePlantSearch {
         let result: LocationCode[] = [];
         let match;
 
-        // TODO this is not properly capturing plants native to the entire continent aka NA(N)
-        // stateAndProvinceValues is empty if the entire continent is NA
-
         // Parses the csv row for ${LOCATION}(${STATUS}) on repeat until the end of the value
         // Compiles that into properties for each applicable nativity status with regions mapped in
         while ((match = regex.exec(csvValue)) !== null) {
@@ -267,7 +263,6 @@ export class GovPlantsDataService implements NativePlantSearch {
             let property: LocationCode[] = result
             const location = locationString as NativeLocationCode;
 
-            // Turn location aka broad region => state && territories aka LocationCode
 
             // Handle continental native status NA(N) - native to entire continent
             if (location === 'NA') {
@@ -278,6 +273,7 @@ export class GovPlantsDataService implements NativePlantSearch {
             if (!property)
                 property = [];
 
+            // Turn location aka broad region => state && territories aka LocationCode
             stateAndProvinceValues.forEach((province: LocationCode) => {
                 const nativeRegion: NativeLocationCode[] | undefined = getNativeRegion(province);
                 if (nativeRegion && nativeRegion.some(x => x == location))
@@ -305,19 +301,18 @@ export class GovPlantsDataService implements NativePlantSearch {
 
         // Map each property using our predefined mapping
         Object.entries(csvRow).forEach(([key, value]) => {
-            // console.log(key, value);
             if (key in this._headerMapping) {
                 const camelKey = this._headerMapping[key] as keyof PlantData;
 
                 if (camelKey === 'nativeLocationCodes') {
                     result[camelKey] = nativeStatusValues;
                 }
-                else if (camelKey === 'growthHabit') {
-                    result[camelKey] = this.parseGrowthHabit(value);
-                }
                 else if (camelKey === 'stateAndProvince') {
                     // Use the pre-parsed distribution values instead of re-parsing
                     result[camelKey] = stateAndProvinceValues;
+                }
+                else if (camelKey === 'growthHabit') {
+                    result[camelKey] = this.parseGrowthHabit(value);
                 }
                 // Handle different data types
                 else if (value === 'true' || value === 'yes' || value === 'y') {
@@ -338,28 +333,4 @@ export class GovPlantsDataService implements NativePlantSearch {
         // Return as a deeply immutable object
         return Object.freeze(result) as PlantData;
     }
-
-
-
-    // /**
-    //  * Retrieves all plants from the PLANTS database list that contain Native or possibly native in their NativeStatus mapping
-    //  * @param plant 
-    //  * @returns 
-    //  */
-    // private isPossiblyNativePlant(plant: PlantData): boolean {
-    //     // Only include plants that are native SOMEWHERE
-    //     const nativeStatuses: NativeStatusCode[] = ['N', 'N?'];
-    //     return this.isPlantType(plant, nativeStatuses);
-    // }
-
-    // private isDefiniteNativePlant(plant: PlantData): boolean {
-    //     const nativeStatuses: NativeStatusCode[] = ['N'];
-    //     return this.isPlantType(plant, nativeStatuses);
-    // }
-
-    // private isPlantType(plant: PlantData, statuses: NativeStatusCode[]) {
-    //     return (Object.keys(plant.nativeStatus) as NativeStatusCode[]).some((status) =>
-    //         status && statuses.includes(status)
-    //     );
-    // }
 }
