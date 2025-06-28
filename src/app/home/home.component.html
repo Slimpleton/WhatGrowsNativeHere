@@ -1,4 +1,13 @@
-<!-- TODO start with displaying info about the native stuff found in the area -->
+<section id="filterSection">
+    <select (change)="changeGrowthHabit($event)" name="growthHabitSelector" id="growthHabitSelector"
+        [disabled]="filterInProgress$ | async">
+        <option *ngFor="let growthHabit of growthHabits" [value]="growthHabit">{{growthHabit}}</option>
+    </select>
+    <input type="checkbox" name="includeNationwidePlants" id="includeNationwidePlantsControl"
+        (change)="setNationwideFilter($event)" [checked]="true" [disabled]="filterInProgress$ | async">
+    <label for="includeNationwidePlantsControl" class="includeNationwidePlantsLabel"
+        id="includeNationwidePlantsLabel">Include Nationwide Native Plants?</label>
+</section>
 
 <body class="container" id="container">
     <!-- <article class="result-container" id="result-container"> -->
@@ -11,17 +20,7 @@
     <!-- </section> -->
     <!-- </article>
     <br> -->
-    <section id="filterSection">
-        <select (change)="changeGrowthHabit($event)" name="growthHabitSelector" id="growthHabitSelector"
-            [disabled]="filterInProgress$ | async">
-            <option *ngFor="let growthHabit of growthHabits" [value]="growthHabit">{{growthHabit}}</option>
-        </select>
-        <input type="checkbox" name="includeNationwidePlants" id="includeNationwidePlantsControl"
-            (change)="setNationwideFilter($event)" [checked]="true" [disabled]="filterInProgress$ | async">
-        <label for="includeNationwidePlantsControl" class="includeNationwidePlantsLabel"
-            id="includeNationwidePlantsLabel">Include Nationwide Native Plants?</label>
 
-    </section>
     <article class="result-container" id="gov-container">
         <section *ngFor="let plant of filteredNativePlants$ | async; let i = index;"
             class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">

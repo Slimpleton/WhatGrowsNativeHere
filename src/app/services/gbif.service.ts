@@ -25,7 +25,6 @@ export class GbifService implements NativePlantSearch {
 
 
   private readonly NATURALIZED_NON_NATIVE_SPECIES: string[] = ['Agrostis stolonifera', 'Ricinus communis'];
-  // TODO cal-ipc can be used to filter out invasive california plants for california queries
 
   private readonly UNFORGIVEABLE_ERRORS: string[] = [];
 

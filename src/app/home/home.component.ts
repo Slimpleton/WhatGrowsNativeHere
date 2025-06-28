@@ -119,6 +119,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   // https://explorer.natureserve.org/api-docs/#_species_search OnlyNatives for locationCriteria will get only the native species we search !! might have some info on occurrences here too not sure could also get a combined accurate record of native plants 
   // TODO trefle api has open source botanical indexed plants and stuff too, probably use for occurrences because native declaration is weak
 
+  // HIGHEST 
+  // Create web scraper to scrape the downloads from the boostrap modal that contains the county information 
+
+
   public constructor(
     private readonly _gbifService: GbifService,
     private readonly _plantService: GovPlantsDataService,
