@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GbifService } from '../services/gbif.service';
 import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
-import { AsyncPipe, NgFor } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
 import { LocationCode, PlantData, validLocationCodes } from '../models/gov/models';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [NgFor, AsyncPipe, FormsModule],
+  imports: [AsyncPipe, FormsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
