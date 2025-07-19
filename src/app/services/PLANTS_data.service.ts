@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { NativePlantSearch } from "../interfaces/native-plant-search.interface";
-import { catchError, map, Observable, of, shareReplay } from "rxjs";
+import { catchError, map, Observable, of, shareReplay, switchMap } from "rxjs";
 import { getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, validLocationCodes } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 
@@ -8,6 +8,8 @@ import { HttpClient } from "@angular/common/http";
     providedIn: 'root'
 })
 export class GovPlantsDataService implements NativePlantSearch {
+
+    public usdaGovPlantProfileUrl: string = 'https://plants.usda.gov/plant-profile/';
 
     private readonly _headerMapping: Record<string, keyof PlantData> = {
         "Accepted Symbol": "acceptedSymbol",
@@ -114,6 +116,12 @@ export class GovPlantsDataService implements NativePlantSearch {
 
     public searchNativePlants(latitude: number, longitude: number): Observable<PlantData[]> {
         throw new Error("Method not implemented.");
+    }
+
+    public getAllDefiniteNativePlantIds(): Observable<ReadonlyArray<Readonly<string>>> {
+        return this.loadAllDefiniteNativePlantData().pipe(
+            map((value: ReadonlyArray<Readonly<PlantData>>) => value.map(val => val.acceptedSymbol)),
+        );
     }
 
     public loadAllDefiniteNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {

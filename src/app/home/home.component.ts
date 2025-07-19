@@ -24,7 +24,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
 
   public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
-  public usdaGovPlantProfileUrl: string = 'https://plants.usda.gov/plant-profile/';
+  public usdaGovPlantProfileUrl: string = this._plantService.usdaGovPlantProfileUrl;
 
   private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteNativePlantData()
     .pipe(
@@ -121,6 +121,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // HIGHEST 
   // Create web scraper to scrape the downloads from the boostrap modal that contains the county information 
+  // Remove some of the plants where native data is unsure aka on site it might say not in pfa
 
 
   public constructor(
