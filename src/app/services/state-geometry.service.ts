@@ -4,6 +4,7 @@ import * as CANADA from 'us-atlas/states-albers-10m.json';
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';// With your type declaration from earlier:
 import * as us from 'us';
+import { County } from '../models/gov/models';
 // Fips state codes to abbreviation mappings using require('us');
 
 export interface StateInfo {
@@ -111,6 +112,9 @@ export class StateGeometryService {
     return null;
   }
 
+  public findCounty(coords: GeolocationCoordinates): County | null{
+    throw new Error('Method not implemented.');
+  }
 
   /**
    * Check if a point is inside a GeoJSON feature using d3-geo

@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GbifService } from '../services/gbif.service';
-import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, map, Observable, of, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { AsyncPipe, NgFor } from '@angular/common';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
-import { LocationCode, PlantData, validLocationCodes } from '../models/gov/models';
+import { County, LocationCode, PlantCompositeData, PlantData, validLocationCodes } from '../models/gov/models';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { StateGeometryService, StateInfo } from '../services/state-geometry.service';
 import { GrowthHabit } from '../models/gov/models';
@@ -30,10 +30,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteNativePlantData()
     .pipe(
-      // tap(value => console.log('All definite natives from gov', value)),
       takeUntil(this._ngDestroy$)
     );
 
+
+  /**
+   * Begin positoin service point lel
+   */
+  // TODO switch to plantcompositedata
   private _filteredNativePlantsByState$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._positionEmitter$.pipe(
       map((pos: GeolocationPosition) => this._stateGeometryService.findStateOrProvince(pos.coords.latitude, pos.coords.longitude)),
@@ -43,9 +47,19 @@ export class HomeComponent implements OnInit, OnDestroy {
       map(([state, plants]) => this.filterForState(state, plants)),
       // TODO filter even finer some day
       // TODO use state info to filter gbifoccurences ? 
-      // tap((plants) => console.log('statePlants', plants)),
       takeUntil(this._ngDestroy$)
     );
+
+    // TODO finish lel
+  private _filteredNativePlantsByCounty$: Observable<ReadonlyArray<Readonly<PlantCompositeData>>> = combineLatest([
+    this._positionEmitter$.pipe(
+      map((pos: GeolocationPosition) => this._stateGeometryService.findCounty(pos.coords)),
+      filter((county : County | null): county is County => county != null)),
+      this._filteredNativePlantsByState$
+  ]).pipe(
+    map(([county, plants] : [County, any]) => [] ),
+    takeUntil(this._ngDestroy$)
+  );
 
   // Using a combineLatest to combine multiple state changes at once for filtering easy
   private _fullyFilteredNativePlants: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
@@ -61,13 +75,16 @@ export class HomeComponent implements OnInit, OnDestroy {
       }),
     ),
     tap(() => this.filterInProgress$.next(false)),
-    // tap((plants) => console.log('final filtering', plants)),
     takeUntil(this._ngDestroy$)
   );
 
   public get filteredNativePlants$(): Observable<ReadonlyArray<PlantData>> {
     return this._fullyFilteredNativePlants;
   }
+
+  /**
+   * end pos service maybe lel
+   */
 
   private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
   private _lastSearch$: Observable<GbifOccurrence[]> = this._lastUnfilteredSearch$.pipe(
@@ -149,6 +166,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       // TODO geolocation.watchPosition is a handler fcn register that gets updates use in future maybe ?? prob not tho
     }
 
+   // todo fix magic number for counties??
     this._gbifService.getUSAStateCounties(5).subscribe({
       next: (value) => console.log(value),
       error: err => console.error(err)
