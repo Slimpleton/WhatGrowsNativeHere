@@ -1,24 +1,38 @@
-#filterSection{
+:host{
+    --item-size: 8em;
+}
+
+#filterSection {
     top: 0;
     position: sticky;
     margin-left: .75vw;
     display: flex;
     align-items: center;
     text-align: center;
-    padding-top:.5vw;
+    padding-top: .5vw;
 }
 
-.container{
-    margin-left:1.5vw;
+.container {
+    margin-left: 1.5vw;
 }
 
-.gov-container-scrollport{
+.gov-container-scrollport {
     height: inherit;
     min-height: 60em;
-    width:100%
+    width: 100%
 }
 
-.positional-plant-result-container{
-    height: 6em;
-    /* width: fit-content; */
+.plant-holder,
+.positional-plant-result-container {
+    height: var(--item-size);
+}
+
+.plant-holder {
+    background-color: azure;
+    display: flex;
+    flex-direction: column;
+}
+
+.result-property{
+    margin-bottom: 0;
 }

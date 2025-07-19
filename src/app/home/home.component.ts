@@ -9,11 +9,12 @@ import { StateGeometryService, StateInfo } from '../services/state-geometry.serv
 import { GrowthHabit } from '../models/gov/models';
 import { FormsModule } from '@angular/forms';
 import { ScrollingModule} from '@angular/cdk/scrolling';
+import {MatGridListModule} from '@angular/material/grid-list';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [AsyncPipe, FormsModule, ScrollingModule, NgFor],
+  imports: [AsyncPipe, FormsModule, ScrollingModule, NgFor, MatGridListModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
