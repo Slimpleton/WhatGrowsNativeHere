@@ -126,7 +126,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   public constructor(
     private readonly _gbifService: GbifService,
     private readonly _plantService: GovPlantsDataService,
-    private readonly _stateGeometryService: StateGeometryService
+    private readonly _stateGeometryService: StateGeometryService,
   ) { }
 
   ngOnDestroy(): void {
@@ -140,9 +140,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       error: err => console.error(err)
     });
 
+
     if ("geolocation" in navigator) {
-      // TODO geolocation.watchPosition is a handler fcn register that gets updates use in future maybe ?? prob not tho
       navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => this.emitPosition(position), (err) => { console.error(err) });
+      // TODO geolocation.watchPosition is a handler fcn register that gets updates use in future maybe ?? prob not tho
     }
 
     this._gbifService.getUSAStateCounties(5).subscribe({

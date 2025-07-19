@@ -151,6 +151,7 @@ export class GovPlantsDataService implements NativePlantSearch {
                 return result;
             }),
             map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeLocationCodes.size > 0)),
+            // TODO add the county data??
             // Return as a deeply immutable array
             map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
             shareReplay(1),
@@ -158,6 +159,10 @@ export class GovPlantsDataService implements NativePlantSearch {
                 console.error('Error loading definite native plant data:', error);
                 return of([] as ReadonlyArray<PlantData>);
             }));
+    }
+
+    public getAllNativePlantIds(): Observable<Readonly<string[]>>{
+      return this.loadAllDefiniteNativePlantData().pipe(map((plantData: ReadonlyArray<Readonly<PlantData>>) => plantData.map(x => x.acceptedSymbol)));
     }
 
     private getPlantDataFromCSV(): Observable<Readonly<PlantData>[]> {
