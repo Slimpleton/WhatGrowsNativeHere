@@ -30,7 +30,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteNativePlantData()
     .pipe(
-      tap(value => console.log('All definite natives from gov', value)),
+      // tap(value => console.log('All definite natives from gov', value)),
       takeUntil(this._ngDestroy$)
     );
 
@@ -43,7 +43,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       map(([state, plants]) => this.filterForState(state, plants)),
       // TODO filter even finer some day
       // TODO use state info to filter gbifoccurences ? 
-      tap((plants) => console.log('statePlants', plants)),
+      // tap((plants) => console.log('statePlants', plants)),
       takeUntil(this._ngDestroy$)
     );
 
@@ -61,7 +61,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       }),
     ),
     tap(() => this.filterInProgress$.next(false)),
-    tap((plants) => console.log('final filtering', plants)),
+    // tap((plants) => console.log('final filtering', plants)),
     takeUntil(this._ngDestroy$)
   );
 
