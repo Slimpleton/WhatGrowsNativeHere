@@ -1,18 +1,19 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GbifService } from '../services/gbif.service';
 import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, NgFor } from '@angular/common';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
 import { LocationCode, PlantData, validLocationCodes } from '../models/gov/models';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { StateGeometryService, StateInfo } from '../services/state-geometry.service';
 import { GrowthHabit } from '../models/gov/models';
 import { FormsModule } from '@angular/forms';
+import { ScrollingModule} from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [AsyncPipe, FormsModule],
+  imports: [AsyncPipe, FormsModule, ScrollingModule, NgFor],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

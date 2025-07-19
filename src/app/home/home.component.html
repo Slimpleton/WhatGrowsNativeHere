@@ -22,12 +22,15 @@
     <br> -->
 
     <article class="result-container" id="gov-container">
-        <section *ngFor="let plant of filteredNativePlants$ | async; let i = index;"
+        <!-- TODO fix the virtual scroll -->
+        <cdk-virtual-scroll-viewport itemSize="100" id="gov-container-scrollport" class="gov-container-scrollport">
+        <section *cdkVirtualFor="let plant of filteredNativePlants$ | async; let i = index;"
             class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">
             <h1 class="result-scientific-name" id="plant-scientific-name-{{i}}">{{plant.scientificName}}</h1>
             <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol" class=""
                 id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
             <h4 class="result-property" id="plant-growth-habit-{{i}}">{{plant.growthHabit}}</h4>
         </section>
+        </cdk-virtual-scroll-viewport>
     </article>
 </body>
