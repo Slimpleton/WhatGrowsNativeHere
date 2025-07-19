@@ -1,4 +1,4 @@
-:host{
+:root{
     --item-size: 8em;
 }
 
@@ -28,7 +28,6 @@
 }
 
 .plant-holder {
-    background-color: azure;
     display: flex;
     flex-direction: column;
 }
