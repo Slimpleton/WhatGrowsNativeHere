@@ -22,10 +22,8 @@
     <br> -->
 
     <article class="result-container" id="gov-container">
-        <!-- TODO fix the virtual scroll -->
-         <!-- TODO mat-grid-list to generate a virtual grid -->
         <cdk-virtual-scroll-viewport itemSize="var(--item-size)" id="gov-container-scrollport" class="gov-container-scrollport">
-            <mat-grid-list cols="4">
+            <mat-grid-list cols="4" rowHeight="1.75:1">
                 <mat-grid-tile *cdkVirtualFor="let plant of filteredNativePlants$ | async; let i = index;"
                     class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">
                     <section class="plant-holder" id="plant-holder-{{i}}">
