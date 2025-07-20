@@ -4,6 +4,7 @@ import * as CANADA from 'us-atlas/states-albers-10m.json';
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';// With your type declaration from earlier:
 import { County } from '../models/gov/models';
+import { FipsFileService, StateCSVItem } from './fips-file.service';
 
 export interface StateInfo {
   fip: number | string,
@@ -21,11 +22,12 @@ export class StateGeometryService {
   private usStates: any;
   private canadaProvinces: any;
 
-  constructor() {
+  constructor(private readonly _fipsFileService: FipsFileService) {
     this.initializeGeometries();
   }
 
   private getFipsAbbreviation(fips: string): string | undefined {
+
     // TODO replace this with my own parsing of the fips mapping?
     // const states: any[] = us['STATES'];
     // const state = states.find((s: any) => s.fips === fips);
@@ -51,15 +53,17 @@ export class StateGeometryService {
   */
   findUSState(lat: number, lng: number): StateInfo | null {
     const point: [number, number] = [lng, lat]; // GeoJSON uses [longitude, latitude]
+    console.log(this._fipsFileService._states);
 
     for (const feature of this.usStates.features) {
       if (this.isPointInFeature(point, feature)) {
-        // console.log('found feature', feature);
+        const stateItem: StateCSVItem = this._fipsFileService.getStateCSVItem(feature.id);
         return {
           fip:feature.id,
-          abbreviation: this.getFipsAbbreviation(feature.id) || '',
-          name: feature.properties?.NAME || feature.properties?.name || 'Unknown',
-          properties: feature.properties
+          abbreviation: stateItem.abbrev,
+          name: stateItem.name,
+          properties: feature.properties,
+          gnisid: stateItem.gnisid
         };
       }
     }
