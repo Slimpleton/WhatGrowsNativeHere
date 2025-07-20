@@ -158,7 +158,8 @@ export class GovPlantsDataService implements NativePlantSearch {
 
                 return result;
             }),
-            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeLocationCodes.size > 0)),
+            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeLocationCodes.size > 0 
+                && !plantDatum.growthHabit.includes('Lichenous'))),
             // TODO add the county data??
             // Return as a deeply immutable array
             map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),

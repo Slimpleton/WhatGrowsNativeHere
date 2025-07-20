@@ -21,10 +21,13 @@ import { StateGeometryService, StateInfo } from './state-geometry.service';
 export class PositionService implements OnDestroy {
     public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
     private _positionEmitter$: Subject<GeolocationPosition> = new Subject<GeolocationPosition>();
+    private _stateEmitter$: Subject<StateInfo> = new Subject<StateInfo>();
     private _nationwideFilterEmitter$: Subject<boolean> = new BehaviorSubject<boolean>(true);
 
     private readonly _ngDestroy$: Subject<void> = new Subject<void>();
     constructor(private readonly _stateGeometryService: StateGeometryService) { }
+
+
 
     // private _filteredNativePlantsByState$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     //     this._positionEmitter$.pipe(
