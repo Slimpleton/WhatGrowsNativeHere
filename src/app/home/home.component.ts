@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GbifService } from '../services/gbif.service';
-import { BehaviorSubject, combineLatest, filter, map, Observable, of, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { AsyncPipe, NgFor } from '@angular/common';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
 import { County, LocationCode, PlantCompositeData, PlantData, validLocationCodes } from '../models/gov/models';
@@ -201,12 +201,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private filterForNationwidePlants(plants: ReadonlyArray<Readonly<PlantData>>, includeNationwidePlants: boolean): ReadonlyArray<Readonly<PlantData>> {
-    return plants.filter(plant => includeNationwidePlants ? true : (plant.growthHabit.some(x => x == 'Lichenous') ? true : plant.nativeLocationCodes?.size != validLocationCodes.size));
+    return plants.filter(plant => includeNationwidePlants ? true : (plant.growthHabit.some(x => x == 'Lichenous') ? true : plant.nativeStateAndProvinceCodes?.size != validLocationCodes.size));
   }
 
   private filterForState(state: StateInfo, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
-    console.log(state.id);
-    return plants.filter(plant => plant.nativeLocationCodes?.has(state.id as LocationCode));
+    console.log(state.abbreviation);
+    return plants.filter(plant => plant.nativeStateAndProvinceCodes?.has(state.abbreviation as LocationCode));
   }
 
   private emitPosition(position: GeolocationPosition): void {

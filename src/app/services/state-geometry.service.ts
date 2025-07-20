@@ -3,17 +3,16 @@ import * as USStates from 'us-atlas/states-10m.json';
 import * as CANADA from 'us-atlas/states-albers-10m.json';
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';// With your type declaration from earlier:
-import * as us from 'us';
 import { County } from '../models/gov/models';
-// Fips state codes to abbreviation mappings using require('us');
 
 export interface StateInfo {
-  id: string;
+  fip: number | string,
+  abbreviation: string;
   name: string;
   properties?: any;
   country?: string;
+  gnisid?: string;
 }
-
 
 @Injectable({
   providedIn: 'root'
@@ -27,9 +26,12 @@ export class StateGeometryService {
   }
 
   private getFipsAbbreviation(fips: string): string | undefined {
-    const states: any[] = us['STATES'];
-    const state = states.find((s: any) => s.fips === fips);
-    return state.abbr;
+    // TODO replace this with my own parsing of the fips mapping?
+    // const states: any[] = us['STATES'];
+    // const state = states.find((s: any) => s.fips === fips);
+    // return state.abbr;
+
+    return 'CA';
   }
 
   private initializeGeometries(): void {
@@ -54,7 +56,8 @@ export class StateGeometryService {
       if (this.isPointInFeature(point, feature)) {
         // console.log('found feature', feature);
         return {
-          id: this.getFipsAbbreviation(feature.id) || '',
+          fip:feature.id,
+          abbreviation: this.getFipsAbbreviation(feature.id) || '',
           name: feature.properties?.NAME || feature.properties?.name || 'Unknown',
           properties: feature.properties
         };
@@ -80,7 +83,8 @@ export class StateGeometryService {
     for (const feature of this.canadaProvinces.features) {
       if (this.isPointInFeature(point, feature)) {
         return {
-          id: feature.id || feature.properties?.GEOID || '',
+          fip: feature.id,
+          abbreviation: feature.id || feature.properties?.GEOID || '',
           name: feature.properties?.NAME || feature.properties?.name || 'Unknown',
           properties: feature.properties
         };

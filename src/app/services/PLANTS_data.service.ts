@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { NativePlantSearch } from "../interfaces/native-plant-search.interface";
-import { catchError, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { catchError, map, Observable, of, shareReplay } from "rxjs";
 import { getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, validLocationCodes } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 
@@ -8,9 +8,7 @@ import { HttpClient } from "@angular/common/http";
     providedIn: 'root'
 })
 export class GovPlantsDataService implements NativePlantSearch {
-
     public usdaGovPlantProfileUrl: string = 'https://plants.usda.gov/plant-profile/';
-
     private readonly _headerMapping: Record<string, keyof PlantData> = {
         "Accepted Symbol": "acceptedSymbol",
         "Synonym Symbol": "synonymSymbol",
@@ -22,7 +20,7 @@ export class GovPlantsDataService implements NativePlantSearch {
         "Family": "family",
         "Duration": "duration",
         "Growth Habit": "growthHabit",
-        "Native Status": "nativeLocationCodes",
+        "Native Status": "nativeStateAndProvinceCodes",
         "Characteristics Data": "characteristicsData",
         "Active Growth Period": "activeGrowthPeriod",
         "After Harvest Regrowth Rate": "afterHarvestRegrowthRate",
@@ -158,7 +156,7 @@ export class GovPlantsDataService implements NativePlantSearch {
 
                 return result;
             }),
-            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeLocationCodes.size > 0 
+            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeStateAndProvinceCodes.size > 0 
                 && !plantDatum.growthHabit.includes('Lichenous'))),
             // TODO add the county data??
             // Return as a deeply immutable array
@@ -327,7 +325,7 @@ export class GovPlantsDataService implements NativePlantSearch {
             if (key in this._headerMapping) {
                 const camelKey = this._headerMapping[key] as keyof PlantData;
 
-                if (camelKey === 'nativeLocationCodes') {
+                if (camelKey === 'nativeStateAndProvinceCodes') {
                     result[camelKey] = nativeStatusValues;
                 }
                 else if (camelKey === 'stateAndProvince') {
