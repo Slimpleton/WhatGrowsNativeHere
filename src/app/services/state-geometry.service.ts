@@ -41,7 +41,6 @@ export class StateGeometryService {
   */
   findUSState(lat: number, lng: number): StateInfo | null {
     const point: [number, number] = [lng, lat]; // GeoJSON uses [longitude, latitude]
-    console.log(this._fipsFileService._states);
 
     for (const feature of this.usStates.features) {
       if (this.isPointInFeature(point, feature)) {
@@ -109,7 +108,7 @@ export class StateGeometryService {
   }
 
   public findCounty(coords: GeolocationCoordinates): County | null {
-    throw new Error('Method not implemented.');
+    return null;
   }
 
   /**

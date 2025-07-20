@@ -1,19 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, Subject, takeUntil } from 'rxjs';
-import { County, GrowthHabit, LocationCode, PlantCompositeData, PlantData, validLocationCodes } from '../models/gov/models';
+import { BehaviorSubject, filter, map, Observable, shareReplay, Subject, takeUntil } from 'rxjs';
+import { County } from '../models/gov/models';
 import { StateGeometryService, StateInfo } from './state-geometry.service';
-
-
-/**
- * 
- * TODO
- * Not sure whether or not to serve the plant data directly from the position service or just to offer different levels of location data from this service asyncrhonously
- * I think im leaning towards the second option more because its more flexible for using in other queries and better separation of services/ more work tho
- * 
- * ripppity
- * 
- */
-
 
 @Injectable({
     providedIn: 'root'
@@ -36,11 +24,9 @@ export class PositionService implements OnDestroy {
         shareReplay(1),
         takeUntil(this._ngDestroy$));
 
-    
-
     constructor(private readonly _stateGeometryService: StateGeometryService) { }
 
-    findCounty(stateInfo: StateInfo): any {
+    private findCounty(stateInfo: StateInfo): County | null {
         throw new Error('Method not implemented.');
     }
 
