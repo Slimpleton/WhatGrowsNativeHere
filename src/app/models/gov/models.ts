@@ -412,4 +412,4 @@ export type PlantCompositeData = Readonly<{
     plantData: PlantData;
     commonName: string;
     counties: County[];
-}>;\
+}>;
