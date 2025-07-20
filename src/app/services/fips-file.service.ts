@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, OnDestroy } from "@angular/core";
-import { from, map, Observable, shareReplay, skip, Subject, switchMap, takeUntil, tap, toArray } from "rxjs";
+import { from, map, Observable, shareReplay, skip, Subject, switchMap, takeUntil, toArray } from "rxjs";
 
 @Injectable({
     providedIn: 'root'

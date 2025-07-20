@@ -15,6 +15,9 @@ export interface StateInfo {
   gnisid?: string;
 }
 
+// TODO optimize this class, the dependencies / jsons are loading whacky and causing it to be slower than it has to be prob
+// no compiler warnings reeeeeeeee
+
 @Injectable({
   providedIn: 'root'
 })
@@ -23,27 +26,12 @@ export class StateGeometryService {
   private canadaProvinces: any;
 
   constructor(private readonly _fipsFileService: FipsFileService) {
-    this.initializeGeometries();
-  }
-
-  private getFipsAbbreviation(fips: string): string | undefined {
-
-    // TODO replace this with my own parsing of the fips mapping?
-    // const states: any[] = us['STATES'];
-    // const state = states.find((s: any) => s.fips === fips);
-    // return state.abbr;
-
-    return 'CA';
-  }
-
-  private initializeGeometries(): void {
     // Convert TopoJSON to GeoJSON for US states
     this.usStates = topojson.feature(USStates as any, (USStates as any).objects.states);
 
     // Convert TopoJSON to GeoJSON for Canadian provinces (if available)
     this.canadaProvinces = topojson.feature(CANADA as any, (CANADA as any).objects.states);
   }
-
 
   /**
   * Find which US state contains the given latitude/longitude point
@@ -59,7 +47,7 @@ export class StateGeometryService {
       if (this.isPointInFeature(point, feature)) {
         const stateItem: StateCSVItem = this._fipsFileService.getStateCSVItem(feature.id);
         return {
-          fip:feature.id,
+          fip: feature.id,
           abbreviation: stateItem.abbrev,
           name: stateItem.name,
           properties: feature.properties,
@@ -120,7 +108,7 @@ export class StateGeometryService {
     return null;
   }
 
-  public findCounty(coords: GeolocationCoordinates): County | null{
+  public findCounty(coords: GeolocationCoordinates): County | null {
     throw new Error('Method not implemented.');
   }
 
@@ -138,11 +126,11 @@ export class StateGeometryService {
       } else if (feature.geometry.type === 'MultiPolygon') {
         return geoContains(feature, point);
       }
-      return false;
+
+      throw new Error('Invalid feature geometry type ' + feature.geometry.type);
     } catch (error) {
       console.error('Error checking point in feature:', error);
       return false;
     }
   }
-
 }
