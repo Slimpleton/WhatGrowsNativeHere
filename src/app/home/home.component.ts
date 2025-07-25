@@ -95,7 +95,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       return ([...plantMap.values()] as GbifOccurrence[]);
     }),
     map((values) => values.sort((x, y) => x.acceptedScientificName.localeCompare(y.acceptedScientificName))),
-    tap((values) => console.log('without duplicates', values)),
+    // tap((values) => console.log('without duplicates', values)),
     // switchMap((values) => from(values)),
     // // tap((occurrence) => {
     // //   this._gbifService.searchLiterature(occurrence.speciesKey).subscribe((value) => console.log(value));

@@ -12,7 +12,7 @@ export class FipsFileService implements OnDestroy {
         switchMap((file: string) => from(file.split('\n'))),
         skip(1),
         map((line: string) => {
-            console.log(line);
+            // console.log(line);
             const lineValues: string[] = line.split(',');
             return <StateCSVItem>{
                 fip: Number.parseInt(lineValues[0]),
