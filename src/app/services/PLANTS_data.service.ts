@@ -1,9 +1,8 @@
 import { Injectable } from "@angular/core";
 import { NativePlantSearch } from "../interfaces/native-plant-search.interface";
 import { catchError, map, Observable, of, shareReplay } from "rxjs";
-import { County, ExtraInfo, getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, StateToCountyMapping, validLocationCodes } from "../models/gov/models";
+import { getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, validLocationCodes } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
-import { FileService, StateCSVItem } from "./fips-file.service";
 
 @Injectable({
     providedIn: 'root'
@@ -111,7 +110,7 @@ export class GovPlantsDataService implements NativePlantSearch {
     private readonly dataUrl = 'assets/PLANTS_Characteristics_Plus_Data.csv';
     private static readonly MINIMUM_SPECIES_NAME_WORDS = 2;
 
-    public constructor(private readonly http: HttpClient, private readonly _fileService: FileService) { }
+    public constructor(private readonly http: HttpClient) { }
 
     public searchNativePlants(latitude: number, longitude: number): Observable<PlantData[]> {
         throw new Error("Method not implemented.");
@@ -311,9 +310,6 @@ export class GovPlantsDataService implements NativePlantSearch {
     private convertCsvRowToPlantData(csvRow: Record<string, string>): Readonly<PlantData> {
         const result: Record<string, any> = {};
         const rowKeys = Object.keys(csvRow);
-        const symbol = rowKeys.find(key => 
-            key.toLowerCase().trim() === 'symbol'
-        );
         const distributionColumnName = rowKeys.find(key =>
             key.toLowerCase().replace(/\s+/g, ' ').trim() === 'state and province'
         );
@@ -323,21 +319,6 @@ export class GovPlantsDataService implements NativePlantSearch {
 
         const stateAndProvinceValues: ReadonlyArray<LocationCode> = distributionColumnName ? this.parseDistributionString(csvRow[distributionColumnName]) : Object.freeze([]);
         const nativeStatusValues: Set<LocationCode> = nativeStatusColumnName ? this.parseNativeStatus(csvRow[nativeStatusColumnName], stateAndProvinceValues) : new Set();
-        
-        const nativeMap : StateToCountyMapping = new Map<StateCSVItem, County[]>();
-        const extraInfo: ExtraInfo | undefined = this._fileService.extraInfo.find(x => x.symbol === symbol);
-        if(extraInfo == undefined)
-            throw new Error('Couldnt find the extra info json object for symbol '+ symbol);
-
-        // TODO map from each location code to a Map of state to county info from the other csv?? 
-        nativeStatusValues.forEach((value: LocationCode) => {
-            const state : StateCSVItem  | undefined= this._fileService.getStateCSVItemByAbbrev(value);
-            if(state == undefined)
-                return;
-
-            nativeMap.set(state, extraInfo.counties.filter(county=> county.stateFIP == state.fip));
-        });
-
 
         // Map each property using our predefined mapping
         Object.entries(csvRow).forEach(([key, value]) => {
