@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as USStates from 'us-atlas/states-10m.json';
 import * as CANADA from 'us-atlas/states-albers-10m.json';
+// TODO do i need counties ?? 
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';// With your type declaration from earlier:
 import { County } from '../models/gov/models';

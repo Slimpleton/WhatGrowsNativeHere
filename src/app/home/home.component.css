@@ -2,6 +2,10 @@
     --item-size: 8em;
 }
 
+h2{
+    all: unset;
+}
+
 #filterSection {
     top: 0;
     position: sticky;
@@ -11,6 +15,13 @@
     text-align: center;
     padding-top: .5vh;
     height: 2em;
+    width: 70%;
+}
+
+.filter-title{
+    flex: 2;
+    font-weight: 600;
+    font-size: 1.4em;
 }
 
 .container {

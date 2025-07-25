@@ -103,6 +103,8 @@ export type USTerritory =
 // Combined type for all location codes used in PLANTS database
 export type LocationCode = USState | CanadianProvince | USTerritory;
 
+export type StateToCountyMapping = Record<LocationCode, number[]>;
+
 // Generate valid codes from the union type
 export const validLocationCodes: Set<LocationCode> = new Set([
     // US States
