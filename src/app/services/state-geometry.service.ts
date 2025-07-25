@@ -5,7 +5,7 @@ import * as CANADA from 'us-atlas/states-albers-10m.json';
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';// With your type declaration from earlier:
 import { County } from '../models/gov/models';
-import { FipsFileService, StateCSVItem } from './fips-file.service';
+import { FileService, StateCSVItem } from './fips-file.service';
 
 export interface StateInfo {
   fip: number | string,
@@ -26,7 +26,7 @@ export class StateGeometryService {
   private usStates: any;
   private canadaProvinces: any;
 
-  constructor(private readonly _fipsFileService: FipsFileService) {
+  constructor(private readonly _fipsFileService: FileService) {
     // Convert TopoJSON to GeoJSON for US states
     this.usStates = topojson.feature(USStates as any, (USStates as any).objects.states);
 

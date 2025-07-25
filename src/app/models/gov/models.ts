@@ -1,3 +1,5 @@
+import { StateCSVItem } from "../../services/fips-file.service";
+
 export type GrowthForm = 'Bunch' | 'Colonizing' | 'Multiple Stem' | 'Rhizomatous' | 'Single Crown' | 'Single Stem' | 'Stoloniferous' | 'Thicket Forming';
 export type Color = 'Black' | 'Blue' | 'Brown' | 'Green' | 'Orange' | 'Purple' | 'Red' | 'White' | 'Yellow' | 'Dark Green' | 'Gray-Green' | 'White-Gray' | 'Yellow-Green';
 export type Rate = 'Moderate' | 'None' | 'Rapid' | 'Slow';
@@ -100,10 +102,14 @@ export type USTerritory =
     | 'NAV' // Navajo Nation
     | 'FM'
     | 'MH' //Marshal islands;
+
 // Combined type for all location codes used in PLANTS database
 export type LocationCode = USState | CanadianProvince | USTerritory;
 
-export type StateToCountyMapping = Record<LocationCode, number[]>;
+// TODO I think i would rather have a state to county[] map??
+// that way i can map the state fip to fip cuz i dont have it rn 
+// State fips info service i made can help with the mapping
+export type StateToCountyMapping = Map<StateCSVItem, County[]>;
 
 // Generate valid codes from the union type
 export const validLocationCodes: Set<LocationCode> = new Set([
@@ -123,7 +129,7 @@ export const validLocationCodes: Set<LocationCode> = new Set([
 export const LocationToNativeRegion: Record<LocationCode, NativeLocationCode[]> = {
     // US States (Lower 48)
     'AL': ['L48', 'NA'], 'AR': ['L48', 'NA'], 'AZ': ['L48', 'NA'], 'CA': ['L48', 'NA'], 'CO': ['L48', 'NA'],
-    'CT': ['L48', 'NA'], 'DC': ['L48', 'NA'], 'DE': ['L48', 'NA'], 'FL': ['L48', 'NA'], 'GA': ['L48', 'NA'], 'ID': ['L48', 'NA'],
+    'CT': ['L48', 'NA'], 'DC': ['L48', 'NA'], 'DE': ['L48', 'NA'], 'FL': ['L48', 'NA'], 'GA': ['L48', 'NA'], 
     'IL': ['L48', 'NA'], 'IN': ['L48', 'NA'], 'IA': ['L48', 'NA'], 'KS': ['L48', 'NA'], 'KY': ['L48', 'NA'],
     'LA': ['L48', 'NA'], 'ME': ['L48', 'NA'], 'MD': ['L48', 'NA'], 'MA': ['L48', 'NA'], 'MI': ['L48', 'NA'],
     'MN': ['L48', 'NA'], 'MS': ['L48', 'NA'], 'MO': ['L48', 'NA'], 'MT': ['L48', 'NA'], 'NE': ['L48', 'NA'],
@@ -131,7 +137,7 @@ export const LocationToNativeRegion: Record<LocationCode, NativeLocationCode[]> 
     'NC': ['L48', 'NA'], 'ND': ['L48', 'NA'], 'OH': ['L48', 'NA'], 'OK': ['L48', 'NA'], 'OR': ['L48', 'NA'],
     'PA': ['L48', 'NA'], 'RI': ['L48', 'NA'], 'SC': ['L48', 'NA'], 'SD': ['L48', 'NA'], 'TN': ['L48', 'NA'],
     'TX': ['L48', 'NA'], 'UT': ['L48', 'NA'], 'VT': ['L48', 'NA'], 'VA': ['L48', 'NA'], 'WA': ['L48', 'NA'],
-    'WV': ['L48', 'NA'], 'WI': ['L48', 'NA'], 'WY': ['L48', 'NA'],
+    'WV': ['L48', 'NA'], 'WI': ['L48', 'NA'], 'WY': ['L48', 'NA'], 'ID': ['L48', 'NA'],
 
     // Alaska and Hawaii (separate regions)
     'AK': ['AK'],
@@ -311,6 +317,7 @@ export type PlantData = Readonly<{
     family: string;
     duration: ReadonlyArray<Duration> | Duration;
     growthHabit: GrowthHabit[];
+    // Replace with type StateToCountyMapping aka Record<LocationCode, County[]>
     nativeStateAndProvinceCodes: Set<LocationCode>;
     characteristicsData: boolean;
     activeGrowthPeriod: ReadonlyArray<Season> | Season;
@@ -396,6 +403,7 @@ export type PlantData = Readonly<{
     proteinPotential: Level;
     pulpwoodProduct: boolean;
     veneerProduct: boolean;
+    commonName: string;
 }>;
 
 export type County = Readonly<{
