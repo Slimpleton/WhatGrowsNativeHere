@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { filter, Observable, shareReplay, Subject, takeUntil } from 'rxjs';
-import { County } from '../models/gov/models';
-import { StateGeometryService, StateInfo } from './state-geometry.service';
+import { County, StateInfo } from '../models/gov/models';
+import { StateGeometryService  } from './state-geometry.service';
 
 @Injectable({
     providedIn: 'root'

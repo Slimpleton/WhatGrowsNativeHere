@@ -30,10 +30,6 @@ export class FileService implements OnDestroy {
             const counties: County[] = reducedLine.length < 3 ? [] : JSON.parse(reducedLine);
             return map.set(symbol, { counties: counties, commonName: commonName });
         }, new Map<string, ExtraInfo>()),
-        // TODO get this to be a map of symbol to extraInfo somehow lol
-
-        // this.parseObject(this.parseExtraInfo),
-        // toArray(),
         takeUntil(this._ngDestroy$));
 
     private readonly _states$: Observable<StateCSVItem[]> = this._client.get(this._stateCSVUrl, { responseType: 'text' }).pipe(

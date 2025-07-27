@@ -1,24 +1,11 @@
 import { Injectable } from '@angular/core';
 import * as USStates from 'us-atlas/states-10m.json';
 import * as USCounties from 'us-atlas/counties-10m.json';
-// TODO do i need counties ?? 
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';// With your type declaration from earlier:
-import { County, CountyCSVItem, StateCSVItem } from '../models/gov/models';
+import { County, CountyCSVItem, StateCSVItem, StateInfo } from '../models/gov/models';
 import { FileService } from './file.service';
 import { forkJoin, map, Observable, of, pipe, switchMap, UnaryFunction } from 'rxjs';
-
-export interface StateInfo {
-  fip: number | string,
-  abbreviation: string;
-  name: string;
-  properties?: any;
-  country?: string;
-  gnisid?: string;
-}
-
-// TODO optimize this class, the dependencies / jsons are loading whacky and causing it to be slower than it has to be prob
-// no compiler warnings reeeeeeeee
 
 @Injectable({
   providedIn: 'root'

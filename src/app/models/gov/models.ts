@@ -430,4 +430,14 @@ export interface CountyCSVItem {
     countyName: string,
 }
 
+export interface StateInfo {
+  fip: number | string,
+  abbreviation: string;
+  name: string;
+  properties?: any;
+  country?: string;
+  gnisid?: string;
+}
+
+
 export type StateToCounties = Map<State, Set<County>>;
