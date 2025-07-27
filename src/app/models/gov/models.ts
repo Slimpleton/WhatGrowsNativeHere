@@ -1,5 +1,3 @@
-import { StateCSVItem } from "../../services/fips-file.service";
-
 export type GrowthForm = 'Bunch' | 'Colonizing' | 'Multiple Stem' | 'Rhizomatous' | 'Single Crown' | 'Single Stem' | 'Stoloniferous' | 'Thicket Forming';
 export type Color = 'Black' | 'Blue' | 'Brown' | 'Green' | 'Orange' | 'Purple' | 'Red' | 'White' | 'Yellow' | 'Dark Green' | 'Gray-Green' | 'White-Gray' | 'Yellow-Green';
 export type Rate = 'Moderate' | 'None' | 'Rapid' | 'Slow';
@@ -105,11 +103,6 @@ export type USTerritory =
 
 // Combined type for all location codes used in PLANTS database
 export type LocationCode = USState | CanadianProvince | USTerritory;
-
-// TODO I think i would rather have a state to county[] map??
-// that way i can map the state fip to fip cuz i dont have it rn 
-// State fips info service i made can help with the mapping
-export type StateToCountyMapping = Map<StateCSVItem, County[]>;
 
 // Generate valid codes from the union type
 export const validLocationCodes: Set<LocationCode> = new Set([
@@ -408,18 +401,33 @@ export type PlantData = Readonly<{
 
 export type County = Readonly<{
     name: string;
-    FIP: number;
-    stateFIP: number;
+    FIP: number | string;
+    stateFIP: number | string;
 }>;
 
 export type ExtraInfo = Readonly<{
-    symbol: string;
     counties: County[];
     commonName: string;
 }>;
+// TODO convert to map we are gonna be retrieving by symbol this increases sspeed
 
-export type PlantCompositeData = Readonly<{
-    plantData: PlantData;
-    commonName: string;
-    counties: County[];
-}>;
+export interface State{
+    name: string;
+    FIP: number | string;
+}
+
+export interface StateCSVItem {
+    fip: number,
+    abbrev: string,
+    name: string,
+    gnisid: string
+}
+
+export interface CountyCSVItem {
+    stateAbbrev: string,
+    stateFip: number,
+    countyFip: number,
+    countyName: string,
+}
+
+export type StateToCounties = Map<State, Set<County>>;

@@ -4,8 +4,8 @@ import * as USCounties from 'us-atlas/counties-10m.json';
 // TODO do i need counties ?? 
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';// With your type declaration from earlier:
-import { County } from '../models/gov/models';
-import { CountyCSVItem, FileService, StateCSVItem } from './fips-file.service';
+import { County, CountyCSVItem, StateCSVItem } from '../models/gov/models';
+import { FileService } from './file.service';
 import { forkJoin, map, Observable, of, pipe, switchMap, UnaryFunction } from 'rxjs';
 
 export interface StateInfo {

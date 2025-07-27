@@ -3,7 +3,7 @@ import { GbifService } from '../services/gbif.service';
 import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { AsyncPipe, NgFor } from '@angular/common';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
-import { County, LocationCode, PlantCompositeData, PlantData, validLocationCodes } from '../models/gov/models';
+import { County, LocationCode, PlantData, validLocationCodes } from '../models/gov/models';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { StateGeometryService, StateInfo } from '../services/state-geometry.service';
 import { GrowthHabit } from '../models/gov/models';
@@ -49,7 +49,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     );
 
   // TODO finish lel
-  private _filteredNativePlantsByCounty$: Observable<ReadonlyArray<Readonly<PlantCompositeData>>> = combineLatest([
+  private _filteredNativePlantsByCounty$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._positionService.countyEmitter$,
     this._filteredNativePlantsByState$
   ]).pipe(
@@ -157,27 +157,20 @@ export class HomeComponent implements OnInit, OnDestroy {
       error: err => console.error(err)
     });
 
-
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => this.emitPosition(position), (err) => { console.error(err) });
-      // TODO geolocation.watchPosition is a handler fcn register that gets updates use in future maybe ?? prob not tho
-    }
-
     // // todo fix magic number for counties??
     // this._gbifService.getUSAStateCounties(5).subscribe({
     //   next: (value) => console.log(value),
     //   error: err => console.error(err)
     // });
 
-
-    this._positionEmitter$.pipe(
-      switchMap((pos: GeolocationPosition) => this._gbifService.searchNativePlants(pos.coords.latitude, pos.coords.longitude)),
-    ).subscribe({
-      next: (value: GbifOccurrence[]) => {
-        this._lastUnfilteredSearch$.next(value);
-      },
-      error: err => console.error(err)
-    });
+    // this._positionEmitter$.pipe(
+    //   switchMap((pos: GeolocationPosition) => this._gbifService.searchNativePlants(pos.coords.latitude, pos.coords.longitude)),
+    // ).subscribe({
+    //   next: (value: GbifOccurrence[]) => {
+    //     this._lastUnfilteredSearch$.next(value);
+    //   },
+    //   error: err => console.error(err)
+    // });
   }
 
   public changeGrowthHabit(event: any) {
@@ -205,7 +198,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     return plants.filter(plant => plant.nativeStateAndProvinceCodes?.has(state.abbreviation as LocationCode));
   }
 
-  private emitPosition(position: GeolocationPosition): void {
-    this._positionEmitter$.next(position);
-  }
+  // private emitPosition(position: GeolocationPosition): void {
+  //   this._positionEmitter$.next(position);
+  // }
 }

@@ -1,21 +1,39 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, OnDestroy } from "@angular/core";
-import { combineLatestWith, from, map, Observable, OperatorFunction, pipe, shareReplay, skip, skipLast, Subject, switchMap, takeUntil, toArray, UnaryFunction } from "rxjs";
-import { ExtraInfo } from "../models/gov/models";
+import { combineLatestWith, filter, from, map, Observable, OperatorFunction, pipe, reduce, scan, shareReplay, skip, Subject, switchMap, takeUntil, toArray, UnaryFunction } from "rxjs";
+import { County, CountyCSVItem, ExtraInfo, StateCSVItem } from "../models/gov/models";
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class FileService implements OnDestroy {
-    private readonly _extraDataJsonUrl: string = 'assets/PLANTS_Extra_Info.csv';
+    private readonly _extraDataJsonUrl: string = 'assets/PLANTS_EXTRA_DATA.json';
     private readonly _stateCSVUrl: string = 'assets/statesFipsInfo.csv';
     private readonly _countyCSVUrl: string = 'assets/countyInfo.csv';
     private readonly _ngDestroy$: Subject<void> = new Subject<void>();
 
-    private readonly _extraInfo$: Observable<ExtraInfo[]> = this._client.get(this._extraDataJsonUrl, { responseType: 'text' }).pipe(
+    private readonly _JSON_OBJECT_START = `{"symbol":"`;
+    private readonly _JSON_OBJECT_GAP_1 = `","commonName":"`;
+
+    private readonly _extraInfo$: Observable<Map<string, ExtraInfo>> = this._client.get(this._extraDataJsonUrl, { responseType: 'text' }).pipe(
         this.getDataLines(),
-        skipLast(1),
-        this.parseObject(this.parseExtraInfo),
-        toArray(),
-        shareReplay(),
+        filter((x) => x != '' && x != ']' && x != '\r\n' && x != '\r'),
+        reduce((map: Map<string, ExtraInfo>, line: string) => {
+            let reducedLine = line.substring(this._JSON_OBJECT_START.length, line.length - 3);
+
+            let quotationIndex = reducedLine.indexOf('"');
+            const symbol = reducedLine.substring(0, quotationIndex);
+            reducedLine = reducedLine.substring(quotationIndex + this._JSON_OBJECT_GAP_1.length);
+
+            quotationIndex = reducedLine.indexOf('"');
+            const commonName = reducedLine.substring(0, quotationIndex);
+            reducedLine = reducedLine.substring(reducedLine.indexOf('['));
+
+            const counties: County[] = reducedLine.length < 3 ? [] : JSON.parse(reducedLine);
+            return map.set(symbol, { counties: counties, commonName: commonName });
+        }, new Map<string, ExtraInfo>()),
+        // TODO get this to be a map of symbol to extraInfo somehow lol
+
+        // this.parseObject(this.parseExtraInfo),
+        // toArray(),
         takeUntil(this._ngDestroy$));
 
     private readonly _states$: Observable<StateCSVItem[]> = this._client.get(this._stateCSVUrl, { responseType: 'text' }).pipe(
@@ -40,14 +58,14 @@ export class FileService implements OnDestroy {
         return this._states$;
     }
 
-    public get extraInfo$(): Observable<ExtraInfo[]> {
+    public get extraInfo$(): Observable<Map<string, ExtraInfo>> {
         return this._extraInfo$;
     }
 
     public constructor(private readonly _client: HttpClient) { }
 
-    private parseExtraInfo(line: string): ExtraInfo {
-        return JSON.parse(line);
+    private parseExtraInfo(line: string, map: Map<string, ExtraInfo>): ExtraInfo {
+        return JSON.parse(line.trim().substring(0, line.length - 1));
     }
 
     private parseState(line: string): StateCSVItem {
@@ -99,18 +117,4 @@ export class FileService implements OnDestroy {
         this._ngDestroy$.next();
         this._ngDestroy$.complete();
     }
-}
-
-export interface StateCSVItem {
-    fip: number,
-    abbrev: string,
-    name: string,
-    gnisid: string
-}
-
-export interface CountyCSVItem {
-    stateAbbrev: string,
-    stateFip: number,
-    countyFip: number,
-    countyName: string,
 }
