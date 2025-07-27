@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import * as USStates from 'us-atlas/states-10m.json';
-import * as CANADA from 'us-atlas/states-albers-10m.json';
 // TODO do i need counties ?? 
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';// With your type declaration from earlier:
 import { County } from '../models/gov/models';
 import { FileService, StateCSVItem } from './fips-file.service';
+import { forkJoin, map, Observable, of, pipe, switchMap, UnaryFunction } from 'rxjs';
 
 export interface StateInfo {
   fip: number | string,
@@ -24,88 +24,39 @@ export interface StateInfo {
 })
 export class StateGeometryService {
   private usStates: any;
-  private canadaProvinces: any;
 
   constructor(private readonly _fipsFileService: FileService) {
     // Convert TopoJSON to GeoJSON for US states
     this.usStates = topojson.feature(USStates as any, (USStates as any).objects.states);
-
-    // Convert TopoJSON to GeoJSON for Canadian provinces (if available)
-    this.canadaProvinces = topojson.feature(CANADA as any, (CANADA as any).objects.states);
+    console.log('us', this.usStates);
   }
 
-  /**
-  * Find which US state contains the given latitude/longitude point
-  * @param lat Latitude
-  * @param lng Longitude
-  * @returns StateInfo object or null if not found
-  */
-  findUSState(lat: number, lng: number): StateInfo | null {
-    const point: [number, number] = [lng, lat]; // GeoJSON uses [longitude, latitude]
+  findUSStateAsync(): UnaryFunction<Observable<GeolocationPosition>, Observable<StateInfo | null>> {
+    return pipe(
+      switchMap((pos: GeolocationPosition) => {
+        console.log(pos);
+        const state: any | null = (this.usStates.features as any[]).find((x: any) => this.isPointInFeature([pos.coords.longitude, pos.coords.latitude], x));
+        const undefinedState: boolean = state == undefined || state == null;
+        if (undefinedState) {
+          console.log(state);
 
-    for (const feature of this.usStates.features) {
-      if (this.isPointInFeature(point, feature)) {
-        const stateItem: StateCSVItem = this._fipsFileService.getStateCSVItem(feature.id);
-        return {
-          fip: feature.id,
-          abbreviation: stateItem.abbrev,
-          name: stateItem.name,
-          properties: feature.properties,
-          gnisid: stateItem.gnisid
-        };
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Find which Canadian province contains the given latitude/longitude point
-   * @param lat Latitude
-   * @param lng Longitude
-   * @returns StateInfo object or null if not found
-   */
-  findCanadianProvince(lat: number, lng: number): StateInfo | null {
-    if (!this.canadaProvinces) {
-      return null;
-    }
-
-    const point: [number, number] = [lng, lat];
-
-    for (const feature of this.canadaProvinces.features) {
-      if (this.isPointInFeature(point, feature)) {
-        return {
-          fip: feature.id,
-          abbreviation: feature.id || feature.properties?.GEOID || '',
-          name: feature.properties?.NAME || feature.properties?.name || 'Unknown',
-          properties: feature.properties
-        };
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Find which state/province contains the given point (checks both US and Canada)
-   * @param lat Latitude
-   * @param lng Longitude
-   * @returns StateInfo object with country info or null if not found
-   */
-  findStateOrProvince(lat: number, lng: number): StateInfo | null {
-    // Try US first (most common case)
-    const usState = this.findUSState(lat, lng);
-    if (usState) {
-      return { ...usState, country: 'US' };
-    }
-
-    // Try Canada
-    const canadianProvince = this.findCanadianProvince(lat, lng);
-    if (canadianProvince) {
-      return { ...canadianProvince, country: 'Canada' };
-    }
-
-    return null;
+          return of(null);
+        }
+        else {
+          return forkJoin([
+            of(state),
+            of(state.id).pipe(this._fipsFileService.getStateCSVItemAsync())
+          ]).pipe(
+            map(([feature, stateItem]: [any, StateCSVItem | undefined]) => stateItem ? <StateInfo>{
+              fip: feature.id,
+              abbreviation: stateItem.abbrev,
+              name: stateItem.name,
+              properties: feature.properties,
+              gnisid: stateItem.gnisid
+            } : null),
+          );
+        }
+      }));
   }
 
   public findCounty(coords: GeolocationCoordinates): County | null {

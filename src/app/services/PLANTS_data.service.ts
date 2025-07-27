@@ -174,6 +174,7 @@ export class GovPlantsDataService implements NativePlantSearch {
 
     private getPlantDataFromCSV(): Observable<Readonly<PlantData>[]> {
         return this.getRecordsFromCSV().pipe(
+            // TODO async retrieve the extra info and state fips from other csvs here 
             // Convert each row to PlantData object and filter for native plants
             map(csvData => csvData.map((row: Record<string, string>) => (this.convertCsvRowToPlantData(row)) as Readonly<PlantData>)));
     }
@@ -188,7 +189,6 @@ export class GovPlantsDataService implements NativePlantSearch {
     }
 
     private parseCsv(csvText: string): Record<string, string>[] {
-        // Simple CSV parser (you might want to use a library like papaparse in a real app)
         const lines = csvText.split('\n');
         const headers = lines[0].split(',').map(header => header.trim());
 
@@ -205,7 +205,6 @@ export class GovPlantsDataService implements NativePlantSearch {
                 return row;
             });
     }
-
 
     // Helper function to parse distribution strings from PLANTS database
     private parseDistributionString(distribution: string | undefined | null): ReadonlyArray<LocationCode> {

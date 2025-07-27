@@ -1,20 +1,16 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, OnDestroy } from "@angular/core";
-import { from, map, Observable, OperatorFunction, pipe, shareReplay, skip, skipLast, Subject, switchMap, takeUntil, toArray, UnaryFunction } from "rxjs";
+import { combineLatestWith, from, map, Observable, OperatorFunction, pipe, shareReplay, skip, skipLast, Subject, switchMap, takeUntil, toArray, UnaryFunction } from "rxjs";
 import { ExtraInfo } from "../models/gov/models";
 
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable({providedIn: 'root'})
 export class FileService implements OnDestroy {
-
     private readonly _extraDataJsonUrl: string = 'assets/PLANTS_Extra_Info.csv';
     private readonly _stateCSVUrl: string = 'assets/statesFipsInfo.csv';
     private readonly _countyCSVUrl: string = 'assets/countyInfo.csv';
-
     private readonly _ngDestroy$: Subject<void> = new Subject<void>();
 
-    private readonly _extraInfo$ : Observable<ExtraInfo[]> = this._client.get(this._extraDataJsonUrl, { responseType: 'text' }).pipe(
+    private readonly _extraInfo$: Observable<ExtraInfo[]> = this._client.get(this._extraDataJsonUrl, { responseType: 'text' }).pipe(
         this.getDataLines(),
         skipLast(1),
         this.parseObject(this.parseExtraInfo),
@@ -36,26 +32,21 @@ export class FileService implements OnDestroy {
         shareReplay(),
         takeUntil(this._ngDestroy$));
 
-    private _extraInfo: ExtraInfo[] = [];
-    private _states: StateCSVItem[] = [];
-    private _counties: CountyCSVItem[] = [];
-
-    public constructor(private readonly _client: HttpClient) {
-        // HACK lazy always loaded vibes
-        this._states$.subscribe({
-            next: (states) => this._states = states
-        });
-
-        this._counties$.subscribe({
-            next: (counties) => this._counties = counties
-        });
-
-        this._extraInfo$.subscribe({
-            next: (extraInfo) => this._extraInfo = extraInfo
-        });
+    public get counties$(): Observable<CountyCSVItem[]> {
+        return this._counties$;
     }
 
-    private parseExtraInfo(line: string) : ExtraInfo {
+    public get states$(): Observable<StateCSVItem[]> {
+        return this._states$;
+    }
+
+    public get extraInfo$(): Observable<ExtraInfo[]> {
+        return this._extraInfo$;
+    }
+
+    public constructor(private readonly _client: HttpClient) { }
+
+    private parseExtraInfo(line: string): ExtraInfo {
         return JSON.parse(line);
     }
 
@@ -89,27 +80,12 @@ export class FileService implements OnDestroy {
         return map((line: string) => parser(line));
     }
 
-    public getStateCSVItem(fip: number): StateCSVItem {
-        const state: StateCSVItem | undefined = this._states.find((state) => state.fip == fip);
-        if (state == undefined)
-            throw new Error('Invalid fip given for US state: ' + fip);
-        return state;
-    }
 
-    public getStateCSVItemByAbbrev(abbrev: string): StateCSVItem | undefined {
-        return this._states.find((state) => state.abbrev == abbrev);
-    }
-
-    public getCountyCSVItems(stateFip: number): CountyCSVItem[] {
-        return this._counties.filter(x => x.stateFip === stateFip);
-    }
-
-    public getCountyCSVItem(countyFip: number): CountyCSVItem | undefined {
-        return this._counties.find(x => x.countyFip === countyFip);
-    }
-
-    public get extraInfo(): ExtraInfo[]{
-        return this._extraInfo;
+    public getStateCSVItemAsync(): UnaryFunction<Observable<string | number>, Observable<StateCSVItem | undefined>> {
+        return pipe(
+            combineLatestWith(this.states$),
+            map(([fip, states]: [number | string, StateCSVItem[]]) => states.find(x => x.fip == fip))
+        );
     }
 
     ngOnDestroy(): void {

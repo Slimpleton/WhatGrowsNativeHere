@@ -13,7 +13,7 @@ export class PositionService implements OnDestroy {
     private _positionEmitter$: Subject<GeolocationPosition> = new Subject<GeolocationPosition>();
 
     private readonly _stateEmitter$: Observable<StateInfo> = this._positionEmitter$.pipe(
-        map((pos: GeolocationPosition) => this._stateGeometryService.findStateOrProvince(pos.coords.latitude, pos.coords.longitude)),
+        this._stateGeometryService.findUSStateAsync(),
         filter((state: StateInfo | null): state is StateInfo => state != null),
         shareReplay(1),
         takeUntil(this._ngDestroy$));
