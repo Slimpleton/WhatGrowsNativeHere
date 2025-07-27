@@ -88,6 +88,13 @@ export class FileService implements OnDestroy {
         );
     }
 
+    public getCountyCSVItemAsync(): UnaryFunction<Observable<string | number>, Observable<CountyCSVItem | undefined>> {
+        return pipe(
+            combineLatestWith(this.counties$),
+            map(([fip, counties]: [number | string, CountyCSVItem[]]) => counties.find(x => x.countyFip == fip))
+        );
+    }
+
     ngOnDestroy(): void {
         this._ngDestroy$.next();
         this._ngDestroy$.complete();

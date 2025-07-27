@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import * as USStates from 'us-atlas/states-10m.json';
+import * as USCounties from 'us-atlas/counties-10m.json';
 // TODO do i need counties ?? 
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';// With your type declaration from earlier:
 import { County } from '../models/gov/models';
-import { FileService, StateCSVItem } from './fips-file.service';
+import { CountyCSVItem, FileService, StateCSVItem } from './fips-file.service';
 import { forkJoin, map, Observable, of, pipe, switchMap, UnaryFunction } from 'rxjs';
 
 export interface StateInfo {
@@ -24,43 +25,54 @@ export interface StateInfo {
 })
 export class StateGeometryService {
   private usStates: any;
+  private usCounties: any;
 
   constructor(private readonly _fipsFileService: FileService) {
     // Convert TopoJSON to GeoJSON for US states
     this.usStates = topojson.feature(USStates as any, (USStates as any).objects.states);
-    console.log('us', this.usStates);
+    this.usCounties = topojson.feature(USCounties as any, (USCounties as any).objects.counties);
   }
 
   findUSStateAsync(): UnaryFunction<Observable<GeolocationPosition>, Observable<StateInfo | null>> {
     return pipe(
       switchMap((pos: GeolocationPosition) => {
-        console.log(pos);
         const state: any | null = (this.usStates.features as any[]).find((x: any) => this.isPointInFeature([pos.coords.longitude, pos.coords.latitude], x));
-        const undefinedState: boolean = state == undefined || state == null;
-        if (undefinedState) {
-          console.log(state);
-
+        if (state == undefined || state == null)
           return of(null);
-        }
-        else {
-          return forkJoin([
-            of(state),
-            of(state.id).pipe(this._fipsFileService.getStateCSVItemAsync())
-          ]).pipe(
-            map(([feature, stateItem]: [any, StateCSVItem | undefined]) => stateItem ? <StateInfo>{
-              fip: feature.id,
-              abbreviation: stateItem.abbrev,
-              name: stateItem.name,
-              properties: feature.properties,
-              gnisid: stateItem.gnisid
-            } : null),
-          );
-        }
+
+        return forkJoin([
+          of(state),
+          of(state.id).pipe(this._fipsFileService.getStateCSVItemAsync())
+        ]).pipe(
+          map(([feature, stateItem]: [any, StateCSVItem | undefined]) => stateItem ? <StateInfo>{
+            fip: feature.id,
+            abbreviation: stateItem.abbrev,
+            name: stateItem.name,
+            properties: feature.properties,
+            gnisid: stateItem.gnisid
+          } : null),
+        );
       }));
   }
 
-  public findCounty(coords: GeolocationCoordinates): County | null {
-    return null;
+  public findUSCountyAsync(): UnaryFunction<Observable<GeolocationPosition>, Observable<County | null>> {
+    return pipe(
+      switchMap((pos: GeolocationPosition) => {
+        const county: any | null = (this.usCounties.features as any[]).find((x: any) => this.isPointInFeature([pos.coords.longitude, pos.coords.latitude], x));
+        if (county == undefined || county == null)
+          return of(null);
+
+        return forkJoin([
+          of(county),
+          of(county.id).pipe(this._fipsFileService.getCountyCSVItemAsync())
+        ]).pipe(
+          map(([feature, countyItem]: [any, CountyCSVItem | undefined]) => countyItem ? <County>{
+            FIP: feature.id,
+            name: countyItem.countyName,
+            stateFIP: countyItem.stateFip
+          } : null),
+        );
+      }));
   }
 
   /**

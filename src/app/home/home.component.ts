@@ -10,6 +10,7 @@ import { GrowthHabit } from '../models/gov/models';
 import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { PositionService } from '../services/position.service';
 
 @Component({
   selector: 'app-home',
@@ -39,24 +40,17 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   // TODO switch to plantcompositedata
   private _filteredNativePlantsByState$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
-    this._positionEmitter$.pipe(
-      tap((pos) => console.log(pos)),
-      this._stateGeometryService.findUSStateAsync(),
-      // map((pos: GeolocationPosition) => this._stateGeometryService.findStateOrProvince(pos.coords.latitude, pos.coords.longitude)),
-      filter((state: StateInfo | null): state is StateInfo => state != null)),
+    this._positionService.stateEmitter$,
     this._allNativePlants$])
     .pipe(
       map(([state, plants]) => this.filterForState(state, plants)),
-      // TODO filter even finer some day
       // TODO use state info to filter gbifoccurences ? 
       takeUntil(this._ngDestroy$)
     );
 
   // TODO finish lel
   private _filteredNativePlantsByCounty$: Observable<ReadonlyArray<Readonly<PlantCompositeData>>> = combineLatest([
-    this._positionEmitter$.pipe(
-      map((pos: GeolocationPosition) => this._stateGeometryService.findCounty(pos.coords)),
-      filter((county: County | null): county is County => county != null)),
+    this._positionService.countyEmitter$,
     this._filteredNativePlantsByState$
   ]).pipe(
     map(([county, plants]: [County, any]) => []),
@@ -149,6 +143,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private readonly _gbifService: GbifService,
     private readonly _plantService: GovPlantsDataService,
     private readonly _stateGeometryService: StateGeometryService,
+    private readonly _positionService: PositionService,
   ) { }
 
   ngOnDestroy(): void {

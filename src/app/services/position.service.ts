@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, filter, map, Observable, shareReplay, Subject, takeUntil } from 'rxjs';
+import { filter, Observable, shareReplay, Subject, takeUntil } from 'rxjs';
 import { County } from '../models/gov/models';
 import { StateGeometryService, StateInfo } from './state-geometry.service';
 
@@ -8,27 +8,25 @@ import { StateGeometryService, StateInfo } from './state-geometry.service';
 })
 export class PositionService implements OnDestroy {
     private readonly _ngDestroy$: Subject<void> = new Subject<void>();
-
-    public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
     private _positionEmitter$: Subject<GeolocationPosition> = new Subject<GeolocationPosition>();
 
-    private readonly _stateEmitter$: Observable<StateInfo> = this._positionEmitter$.pipe(
+    public readonly stateEmitter$: Observable<StateInfo> = this._positionEmitter$.pipe(
         this._stateGeometryService.findUSStateAsync(),
         filter((state: StateInfo | null): state is StateInfo => state != null),
         shareReplay(1),
         takeUntil(this._ngDestroy$));
 
-    private _countyEmitter$: Observable<County> = this._stateEmitter$.pipe(
-        map((stateInfo: StateInfo) => this.findCounty(stateInfo)),
+    public readonly countyEmitter$: Observable<County> = this._positionEmitter$.pipe(
+        this._stateGeometryService.findUSCountyAsync(),
         filter((county: County | null): county is County => county != null),
         shareReplay(1),
         takeUntil(this._ngDestroy$));
 
-    constructor(private readonly _stateGeometryService: StateGeometryService) { }
-
-    private findCounty(stateInfo: StateInfo): County | null {
-        throw new Error('Method not implemented.');
-    }
+    constructor(private readonly _stateGeometryService: StateGeometryService) {
+         if ("geolocation" in navigator) 
+            navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => this.emitPosition(position), (err) => { console.error(err) });4
+            // TODO geolocation.watchPosition is a handler fcn register that gets updates use in future maybe ?? prob not tho
+     }
 
     private emitPosition(position: GeolocationPosition): void {
         this._positionEmitter$.next(position);
