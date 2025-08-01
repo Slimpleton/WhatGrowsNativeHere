@@ -312,6 +312,7 @@ export type PlantData = Readonly<{
     growthHabit: GrowthHabit[];
     // Replace with type StateToCountyMapping aka Record<LocationCode, County[]>
     nativeStateAndProvinceCodes: Set<LocationCode>;
+    counties: County[];
     characteristicsData: boolean;
     activeGrowthPeriod: ReadonlyArray<Season> | Season;
     afterHarvestRegrowthRate: Rate;
@@ -401,7 +402,7 @@ export type PlantData = Readonly<{
 
 export type County = Readonly<{
     name: string;
-    FIP: number | string;
+    FIP: string;
     stateFIP: number | string;
 }>;
 
@@ -426,7 +427,7 @@ export interface StateCSVItem {
 export interface CountyCSVItem {
     stateAbbrev: string,
     stateFip: number,
-    countyFip: number,
+    countyFip: string,
     countyName: string,
 }
 

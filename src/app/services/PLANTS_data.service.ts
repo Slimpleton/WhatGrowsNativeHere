@@ -157,9 +157,8 @@ export class GovPlantsDataService implements NativePlantSearch {
 
                 return result;
             }),
-            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeStateAndProvinceCodes.size > 0 
+            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeStateAndProvinceCodes.size > 0
                 && !plantDatum.growthHabit.includes('Lichenous'))),
-            // TODO add the county data??
             // Return as a deeply immutable array
             map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
             shareReplay(1),
@@ -169,17 +168,16 @@ export class GovPlantsDataService implements NativePlantSearch {
             }));
     }
 
-    public getAllNativePlantIds(): Observable<Readonly<string[]>>{
-      return this.loadAllDefiniteNativePlantData().pipe(map((plantData: ReadonlyArray<Readonly<PlantData>>) => plantData.map(x => x.acceptedSymbol)));
+    public getAllNativePlantIds(): Observable<Readonly<string[]>> {
+        return this.loadAllDefiniteNativePlantData().pipe(map((plantData: ReadonlyArray<Readonly<PlantData>>) => plantData.map(x => x.acceptedSymbol)));
     }
 
     private getPlantDataFromCSV(): Observable<Readonly<PlantData>[]> {
         return this.getRecordsFromCSV().pipe(
-            // TODO async retrieve the extra info and state fips from other csvs here 
             // Convert each row to PlantData object and filter for native plants
             combineLatestWith(this._fileService.counties$, this._fileService.extraInfo$),
-            map(([csvData, counties, extraInfo] : [Record<string,string>[],CountyCSVItem[], Map<string, ExtraInfo>]) =>
-                 csvData.map((row: Record<string, string>) => (this.convertCsvRowToPlantData(row, counties, extraInfo)) as Readonly<PlantData>)));
+            map(([csvData, counties, extraInfo]: [Record<string, string>[], CountyCSVItem[], Map<string, ExtraInfo>]) =>
+                csvData.map((row: Record<string, string>) => (this.convertCsvRowToPlantData(row, counties, extraInfo)) as Readonly<PlantData>)));
     }
 
     /**
@@ -313,29 +311,27 @@ export class GovPlantsDataService implements NativePlantSearch {
         const result: Record<string, any> = {};
         const rowKeys = Object.keys(csvRow);
 
-        const symbolColumnName = rowKeys.find(key =>
-            key.toLowerCase().replace(/\s+/g, ' ').trim() === 'symbol'
-         )
-        const distributionColumnName = rowKeys.find(key =>
-            key.toLowerCase().replace(/\s+/g, ' ').trim() === 'state and province'
-        );
-        const nativeStatusColumnName = rowKeys.find(key =>
-            key.toLowerCase().replace(/\s+/g, ' ').trim() === 'native status'
-        );
+        const symbolColumnName = rowKeys.find(key => key.toLowerCase().replace(/\s+/g, ' ').trim() === 'symbol');
+        const distributionColumnName = rowKeys.find(key => key.toLowerCase().replace(/\s+/g, ' ').trim() === 'state and province');
+        const nativeStatusColumnName = rowKeys.find(key => key.toLowerCase().replace(/\s+/g, ' ').trim() === 'native status');
 
-        const symbol : string = csvRow[symbolColumnName!];
-        const stateAndProvinceValues: ReadonlyArray<LocationCode> = distributionColumnName ? this.parseDistributionString(csvRow[distributionColumnName]) : Object.freeze([]);
-        const nativeStatusValues: Set<LocationCode> = nativeStatusColumnName ? this.parseNativeStatus(csvRow[nativeStatusColumnName], stateAndProvinceValues) : new Set();
-        
+        const symbol: string = csvRow[symbolColumnName!];
+        const stateAndProvinceValues: ReadonlyArray<LocationCode> = distributionColumnName
+            ? this.parseDistributionString(csvRow[distributionColumnName]) : Object.freeze([]);
+        const nativeStatusValues: Set<LocationCode> = nativeStatusColumnName
+            ? this.parseNativeStatus(csvRow[nativeStatusColumnName], stateAndProvinceValues) : new Set();
+
         const relevantExtraInfo = extraInfo.get(symbol);
+
+        // Insert common name and region mapping
+        const countiesKey = 'counties' as keyof PlantData;
+        const commonNameKey = 'commonName' as keyof PlantData;
+
+        result[countiesKey] = relevantExtraInfo?.counties ?? [];
+        result[commonNameKey] = relevantExtraInfo?.commonName;
 
         // Map each property using our predefined mapping
         Object.entries(csvRow).forEach(([key, value]) => {
-
-            // Insert common name and region mapping
-            const commonNameKey = 'commonName' as keyof PlantData;
-            result[commonNameKey] = relevantExtraInfo?.commonName;
-
             if (key in this._headerMapping) {
                 const camelKey = this._headerMapping[key] as keyof PlantData;
 

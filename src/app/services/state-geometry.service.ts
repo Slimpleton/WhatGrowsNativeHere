@@ -54,7 +54,7 @@ export class StateGeometryService {
           of(county.id).pipe(this._fipsFileService.getCountyCSVItemAsync())
         ]).pipe(
           map(([feature, countyItem]: [any, CountyCSVItem | undefined]) => countyItem ? <County>{
-            FIP: feature.id,
+            FIP:countyItem.countyFip,
             name: countyItem.countyName,
             stateFIP: countyItem.stateFip
           } : null),

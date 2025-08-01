@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GbifService } from '../services/gbif.service';
-import { BehaviorSubject, combineLatest, map, Observable, shareReplay, Subject, takeUntil, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { AsyncPipe, NgFor } from '@angular/common';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
 import { County, LocationCode, PlantData, StateInfo } from '../models/gov/models';
@@ -29,9 +29,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteNativePlantData()
     .pipe(takeUntil(this._ngDestroy$));
 
-  /**
-   * Begin positoin service point lel
-   */
   private _filteredNativePlantsByState$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._positionService.stateEmitter$,
     this._allNativePlants$])
@@ -52,8 +49,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Using a combineLatest to combine multiple state changes at once for filtering easy
   private _fullyFilteredNativePlants: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._growthHabitEmitter$,
-    this._filteredNativePlantsByState$,
+    this._filteredNativePlantsByCounty$,
+    // this._filteredNativePlantsByState$
   ]).pipe(
+    tap((filteredPlants) => console.log('load filter',filteredPlants )),
     tap(() => this.filterInProgress$.next(true)),
     map(([growthHabit, plants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>]) =>
        this.filterForGrowthHabit(growthHabit, plants)),
@@ -64,10 +63,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   public get filteredNativePlants$(): Observable<ReadonlyArray<PlantData>> {
     return this._fullyFilteredNativePlants;
   }
-
-  /**
-   * end pos service maybe lel
-   */
 
   private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
   private _lastSearch$: Observable<GbifOccurrence[]> = this._lastUnfilteredSearch$.pipe(
@@ -104,7 +99,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // LOW 
   // TODO make a json reader for the plant_list_2024012.json.gz aka zenodo.org records low prior because no occurence / nativity data
-  // HACK theres also a sql file if im lazy and i want to query against a db but that feels.... unnecessary
 
   // MEDIUM 
   // TODO possibly use webcrawlers to gather information about local flora using more local websites?? low priority
@@ -113,7 +107,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // HIGH 
   // TODO make a reader for the gbif occurrence download records
-  // HACK the plant list json / sql would probably have common name mappings
   // TODO use d3-geo and us-atlas to display maps of the geo locations
   // Maps are drawn on canvas btw its not like ur unfamiliar with it
   // TODO use d3-geo / us-atlas maps to display gbif occurence data and other occurence data??? 
@@ -142,11 +135,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       error: err => console.error(err)
     });
 
-    // // todo fix magic number for counties??
-    // this._gbifService.getUSAStateCounties(5).subscribe({
-    //   next: (value) => console.log(value),
-    //   error: err => console.error(err)
-    // });
 
     // this._positionEmitter$.pipe(
     //   switchMap((pos: GeolocationPosition) => this._gbifService.searchNativePlants(pos.coords.latitude, pos.coords.longitude)),
@@ -169,13 +157,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     return plants.filter(plant => plant.growthHabit?.some(x => x == growthHabit));
   }
-  
+
   private filterForState(state: StateInfo, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
     return plants.filter(plant => plant.nativeStateAndProvinceCodes?.has(state.abbreviation as LocationCode));
   }
 
   private filterForCounty(county: County, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>>{
-    // TODO
-    return plants.filter(plant => plant.nativeStateAndProvinceCodes)
+    return plants.filter(plant => plant.counties.some(plantCounty => county.FIP == plantCounty.FIP));
   }
 }

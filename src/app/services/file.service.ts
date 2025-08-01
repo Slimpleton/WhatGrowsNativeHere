@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, OnDestroy } from "@angular/core";
-import { combineLatestWith, filter, from, map, Observable, OperatorFunction, pipe, reduce, scan, shareReplay, skip, Subject, switchMap, takeUntil, toArray, UnaryFunction } from "rxjs";
+import { combineLatestWith, filter, from, map, Observable, OperatorFunction, pipe, reduce, scan, shareReplay, skip, Subject, switchMap, takeUntil, tap, toArray, UnaryFunction } from "rxjs";
 import { County, CountyCSVItem, ExtraInfo, StateCSVItem } from "../models/gov/models";
 
 @Injectable({ providedIn: 'root' })
@@ -60,10 +60,6 @@ export class FileService implements OnDestroy {
 
     public constructor(private readonly _client: HttpClient) { }
 
-    private parseExtraInfo(line: string, map: Map<string, ExtraInfo>): ExtraInfo {
-        return JSON.parse(line.trim().substring(0, line.length - 1));
-    }
-
     private parseState(line: string): StateCSVItem {
         const lineValues: string[] = line.split(',');
         return <StateCSVItem>{
@@ -79,7 +75,7 @@ export class FileService implements OnDestroy {
         return <CountyCSVItem>{
             stateAbbrev: lineValues[0],
             stateFip: Number.parseInt(lineValues[1]),
-            countyFip: Number.parseInt(lineValues[2]),
+            countyFip: lineValues[2],
             countyName: lineValues[4],
         };
     }
@@ -102,10 +98,15 @@ export class FileService implements OnDestroy {
         );
     }
 
-    public getCountyCSVItemAsync(): UnaryFunction<Observable<string | number>, Observable<CountyCSVItem | undefined>> {
+    public getCountyCSVItemAsync(): UnaryFunction<Observable<string>, Observable<CountyCSVItem | undefined>> {
         return pipe(
             combineLatestWith(this.counties$),
-            map(([fip, counties]: [number | string, CountyCSVItem[]]) => counties.find(x => x.countyFip == fip))
+            tap(([_,counties]) => console.log(counties)),
+            map(([fip, counties]: [string, CountyCSVItem[]]) => {
+                const stateFip = parseInt(fip.substring(0,2));
+                const countyFip = fip.substring(2);
+                return counties.find(x => x.countyFip == countyFip && x.stateFip == stateFip);
+            })
         );
     }
 
