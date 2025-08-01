@@ -10,11 +10,12 @@ import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { PositionService } from '../services/position.service';
+import { PlantSearchComponent } from '../plant-search/plant-search.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [AsyncPipe, FormsModule, ScrollingModule, NgFor, MatGridListModule],
+  imports: [AsyncPipe, FormsModule, ScrollingModule, NgFor, MatGridListModule, PlantSearchComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
