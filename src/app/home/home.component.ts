@@ -52,7 +52,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this._filteredNativePlantsByCounty$,
     // this._filteredNativePlantsByState$
   ]).pipe(
-    tap((filteredPlants) => console.log('load filter',filteredPlants )),
+    // tap((filteredPlants) => console.log('load filter',filteredPlants )),
     tap(() => this.filterInProgress$.next(true)),
     map(([growthHabit, plants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>]) =>
        this.filterForGrowthHabit(growthHabit, plants)),
@@ -105,6 +105,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   // TODO make a calflora service cuz their db is extensive possibly with many records
   // TODO on search, might be cool to scrape the web for results on most common name associated with scientific name if i cant find an official mapping 
 
+
   // HIGH 
   // TODO make a reader for the gbif occurrence download records
   // TODO use d3-geo and us-atlas to display maps of the geo locations
@@ -116,7 +117,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // HIGHEST 
   // Remove some of the plants where native data is unsure aka on site it might say not in pfa
-
 
   public constructor(
     private readonly _gbifService: GbifService,
