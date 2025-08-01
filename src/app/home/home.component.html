@@ -3,11 +3,6 @@
         [disabled]="filterInProgress$ | async">
         <option *ngFor="let growthHabit of growthHabits" [value]="growthHabit">{{growthHabit}}</option>
     </select>
-    <input type="checkbox" name="includeNationwidePlants" id="includeNationwidePlantsControl"
-        (change)="setNationwideFilter($event)" [checked]="false" [disabled]="filterInProgress$ | async">
-    <label for="includeNationwidePlantsControl" class="includeNationwidePlantsLabel"
-        id="includeNationwidePlantsLabel">Include Nationwide Native Plants?</label>
-
     <h2 class="filter-title" id="title">Native Plants Near You!</h2>
 </section>
 

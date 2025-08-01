@@ -1,11 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GbifService } from '../services/gbif.service';
-import { BehaviorSubject, combineLatest, filter, map, Observable, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, shareReplay, Subject, takeUntil, tap } from 'rxjs';
 import { AsyncPipe, NgFor } from '@angular/common';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
-import { County, LocationCode, PlantData, StateInfo, validLocationCodes } from '../models/gov/models';
+import { County, LocationCode, PlantData, StateInfo } from '../models/gov/models';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
-import { StateGeometryService } from '../services/state-geometry.service';
 import { GrowthHabit } from '../models/gov/models';
 import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -21,39 +20,32 @@ import { PositionService } from '../services/position.service';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private _ngDestroy$: Subject<void> = new Subject<void>();
-  private _positionEmitter$: Subject<GeolocationPosition> = new Subject<GeolocationPosition>();
   private _growthHabitEmitter$: Subject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
-  private _nationwideFilterEmitter$: Subject<boolean> = new BehaviorSubject<boolean>(true);
   public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
 
   public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
   public usdaGovPlantProfileUrl: string = this._plantService.usdaGovPlantProfileUrl;
 
   private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteNativePlantData()
-    .pipe(
-      takeUntil(this._ngDestroy$)
-    );
-
+    .pipe(takeUntil(this._ngDestroy$));
 
   /**
    * Begin positoin service point lel
    */
-  // TODO switch to plantcompositedata
   private _filteredNativePlantsByState$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._positionService.stateEmitter$,
     this._allNativePlants$])
     .pipe(
-      map(([state, plants]) => this.filterForState(state, plants)),
+      map(([state, plants]: [StateInfo, ReadonlyArray<Readonly<PlantData>>]) => this.filterForState(state, plants)),
       // TODO use state info to filter gbifoccurences ? 
       takeUntil(this._ngDestroy$)
     );
 
-  // TODO finish lel
   private _filteredNativePlantsByCounty$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._positionService.countyEmitter$,
     this._filteredNativePlantsByState$
   ]).pipe(
-    map(([county, plants]: [County, any]) => []),
+    map(([county, plants]: [County, ReadonlyArray<Readonly<PlantData>>]) => this.filterForCounty(county, plants)),
     takeUntil(this._ngDestroy$)
   );
 
@@ -61,15 +53,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   private _fullyFilteredNativePlants: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._growthHabitEmitter$,
     this._filteredNativePlantsByState$,
-    this._nationwideFilterEmitter$
   ]).pipe(
     tap(() => this.filterInProgress$.next(true)),
-    map(
-      (([growthHabit, plants, includeNationwidePlants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>, boolean]) => {
-        const filteredNationwide = this.filterForNationwidePlants(plants, includeNationwidePlants);
-        return this.filterForGrowthHabit(growthHabit, filteredNationwide);
-      }),
-    ),
+    map(([growthHabit, plants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>]) =>
+       this.filterForGrowthHabit(growthHabit, plants)),
     tap(() => this.filterInProgress$.next(false)),
     takeUntil(this._ngDestroy$)
   );
@@ -135,14 +122,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   // TODO trefle api has open source botanical indexed plants and stuff too, probably use for occurrences because native declaration is weak
 
   // HIGHEST 
-  // Create web scraper to scrape the downloads from the boostrap modal that contains the county information 
   // Remove some of the plants where native data is unsure aka on site it might say not in pfa
 
 
   public constructor(
     private readonly _gbifService: GbifService,
     private readonly _plantService: GovPlantsDataService,
-    private readonly _stateGeometryService: StateGeometryService,
     private readonly _positionService: PositionService,
   ) { }
 
@@ -177,10 +162,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     const target = event.target as HTMLSelectElement;
     this._growthHabitEmitter$.next(target.value as GrowthHabit);
   }
-  public setNationwideFilter(event: any) {
-    const target = event.target as HTMLInputElement;
-    this._nationwideFilterEmitter$.next(target.checked as boolean);
-  }
 
   private filterForGrowthHabit(growthHabit: GrowthHabit | null, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
     if (growthHabit == 'Any') {
@@ -188,17 +169,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     return plants.filter(plant => plant.growthHabit?.some(x => x == growthHabit));
   }
-
-  private filterForNationwidePlants(plants: ReadonlyArray<Readonly<PlantData>>, includeNationwidePlants: boolean): ReadonlyArray<Readonly<PlantData>> {
-    return plants.filter(plant => includeNationwidePlants ? true : (plant.growthHabit.some(x => x == 'Lichenous') ? true : plant.nativeStateAndProvinceCodes?.size != validLocationCodes.size));
-  }
-
+  
   private filterForState(state: StateInfo, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
-    console.log(state.abbreviation, state.fip);
     return plants.filter(plant => plant.nativeStateAndProvinceCodes?.has(state.abbreviation as LocationCode));
   }
 
-  // private emitPosition(position: GeolocationPosition): void {
-  //   this._positionEmitter$.next(position);
-  // }
+  private filterForCounty(county: County, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>>{
+    // TODO
+    return plants.filter(plant => plant.nativeStateAndProvinceCodes)
+  }
 }
