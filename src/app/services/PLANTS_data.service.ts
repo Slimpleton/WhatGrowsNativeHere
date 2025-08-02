@@ -111,56 +111,21 @@ export class GovPlantsDataService implements NativePlantSearch {
     private readonly dataUrl = 'assets/PLANTS_Characteristics_Plus_Data.csv';
     private static readonly MINIMUM_SPECIES_NAME_WORDS = 2;
 
-    public constructor(private readonly http: HttpClient, private readonly _fileService: FileService) { }
+    public constructor(private readonly http: HttpClient, private readonly _fileService: FileService) {
+    }
 
     public searchNativePlants(latitude: number, longitude: number): Observable<PlantData[]> {
         throw new Error("Method not implemented.");
     }
 
     public getAllDefiniteNativePlantIds(): Observable<ReadonlyArray<Readonly<string>>> {
-        return this.loadAllDefiniteNativePlantData().pipe(
+        return this.loadNativePlantData.pipe(
             map((value: ReadonlyArray<Readonly<PlantData>>) => value.map(val => val.acceptedSymbol)),
         );
     }
 
-    public loadAllDefiniteNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {
-        return this.getPlantDataFromCSV().pipe(
-            // Filters out non species listings
-            map((plantData: Readonly<PlantData>[]) => {
-                const speciesGroups = new Map<string, PlantData[]>();
-                const result: Readonly<PlantData>[] = [];
-
-                // Group by base species name
-                plantData.forEach(plant => {
-                    const words = plant.scientificName.split(/\s+/);
-                    if (words.length >= GovPlantsDataService.MINIMUM_SPECIES_NAME_WORDS) {
-                        const baseSpecies = `${words[0]} ${words[1]}`;
-                        if (!speciesGroups.has(baseSpecies)) {
-                            speciesGroups.set(baseSpecies, []);
-                        }
-                        speciesGroups.get(baseSpecies)!.push(plant);
-                    }
-                });
-
-                // For each species group, decide what to keep
-                speciesGroups.forEach(group => {
-                    const subspeciesEntries = group.filter(plant => /\b(subsp\.|var\.|f\.)\b/.test(plant.scientificName));
-
-                    if (subspeciesEntries.length > 0) {
-                        // Keep subspecies, exclude base species
-                        result.push(...subspeciesEntries);
-                    } else {
-                        // No subspecies exist, keep everything in the group
-                        result.push(...group);
-                    }
-                });
-
-                return result;
-            }),
-            map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeStateAndProvinceCodes.size > 0
-                && !plantDatum.growthHabit.includes('Lichenous'))),
-            // Return as a deeply immutable array
-            map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
+    public get loadNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {
+        return this.nativePlantData.pipe(
             shareReplay(1),
             catchError(error => {
                 console.error('Error loading definite native plant data:', error);
@@ -168,8 +133,49 @@ export class GovPlantsDataService implements NativePlantSearch {
             }));
     }
 
+    private nativePlantData = this.getPlantDataFromCSV().pipe(
+        // Filters out non species listings
+        map((plantData: Readonly<PlantData>[]) => {
+            const speciesGroups = new Map<string, PlantData[]>();
+            const result: Readonly<PlantData>[] = [];
+
+            // Group by base species name
+            plantData.forEach(plant => {
+                const words = plant.scientificName.split(/\s+/);
+                if (words.length >= GovPlantsDataService.MINIMUM_SPECIES_NAME_WORDS) {
+                    const baseSpecies = `${words[0]} ${words[1]}`;
+                    if (!speciesGroups.has(baseSpecies)) {
+                        speciesGroups.set(baseSpecies, []);
+                    }
+                    speciesGroups.get(baseSpecies)!.push(plant);
+                }
+            });
+
+            // For each species group, decide what to keep
+            speciesGroups.forEach(group => {
+                const subspeciesEntries = group.filter(plant => /\b(subsp\.|var\.|f\.)\b/.test(plant.scientificName));
+
+                if (subspeciesEntries.length > 0) {
+                    // Keep subspecies, exclude base species
+                    result.push(...subspeciesEntries);
+                } else {
+                    // No subspecies exist, keep everything in the group
+                    result.push(...group);
+                }
+            });
+
+            return result;
+        }),
+        map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeStateAndProvinceCodes.size > 0
+            && !plantDatum.growthHabit.includes('Lichenous'))),
+        // Return as a deeply immutable array
+        map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
+        shareReplay(1),
+    );
+
+
     public getAllNativePlantIds(): Observable<Readonly<string[]>> {
-        return this.loadAllDefiniteNativePlantData().pipe(map((plantData: ReadonlyArray<Readonly<PlantData>>) => plantData.map(x => x.acceptedSymbol)));
+        return this.loadNativePlantData.pipe(map((plantData: ReadonlyArray<Readonly<PlantData>>) => plantData.map(x => x.acceptedSymbol)));
     }
 
     private getPlantDataFromCSV(): Observable<Readonly<PlantData>[]> {

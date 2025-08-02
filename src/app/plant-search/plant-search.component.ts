@@ -21,7 +21,7 @@ export class PlantSearchComponent {
   private _ngDestroy$: Subject<void> = new Subject<void>();
   public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
 
-  private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteNativePlantData()
+  private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadNativePlantData
     .pipe(takeUntil(this._ngDestroy$));
 
   private _filteredNativePlantsByState$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
@@ -54,7 +54,7 @@ export class PlantSearchComponent {
     this._filteredNativePlantsByCounty$,
   ]).pipe(
     tap(() => this.filterInProgress$.next(true)),
-    map(([growthHabit, plants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>]) =>this.filterForGrowthHabit(growthHabit, plants)),
+    map(([growthHabit, plants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>]) => this.filterForGrowthHabit(growthHabit, plants)),
     combineLatestWith(this._search$),
     map(([plants, searchString]) => this.filterPlantsBySearchString(plants, searchString)),
     tap((plants) => this.filteredData.emit(plants)),
@@ -66,20 +66,20 @@ export class PlantSearchComponent {
     return this._fullyFilteredNativePlants;
   }
 
-  private filterPlantsBySearchString(plants: ReadonlyArray<Readonly<PlantData>>, searchString: string): ReadonlyArray<Readonly<PlantData>>{
-    
+  private filterPlantsBySearchString(plants: ReadonlyArray<Readonly<PlantData>>, searchString: string): ReadonlyArray<Readonly<PlantData>> {
+
     return plants;
   }
 
   @Output() public filteredData: EventEmitter<ReadonlyArray<Readonly<PlantData>>> = new EventEmitter();
 
   public constructor(private readonly _plantService: GovPlantsDataService,
-  private readonly _positionService: PositionService,){
+    private readonly _positionService: PositionService,) {
     // HACK starts the plant retrieval, sets start value for search bar
     this._fullyFilteredNativePlants.subscribe();
     this._searchStarter$.next('');
   }
-  
+
   ngOnDestroy(): void {
     this._ngDestroy$.next();
     this._ngDestroy$.complete();
@@ -91,7 +91,7 @@ export class PlantSearchComponent {
   // TODO filtering system, make maybe the thing and above both into the search service??
   // TODO use input output to input unfiltered stuff output filtered stuff and display on the same html?? might work idk
 
-  public search(searchValue: string): void{
+  public search(searchValue: string): void {
     this._searchStarter$.next(searchValue);
   }
 
@@ -110,7 +110,7 @@ export class PlantSearchComponent {
     return plants.filter(plant => plant.nativeStateAndProvinceCodes?.has(state.abbreviation as LocationCode));
   }
 
-  private filterForCounty(county: County, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>>{
+  private filterForCounty(county: County, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
     return plants.filter(plant => plant.counties.some(plantCounty => county.FIP == plantCounty.FIP && plantCounty.stateFIP == county.stateFIP));
   }
 }
