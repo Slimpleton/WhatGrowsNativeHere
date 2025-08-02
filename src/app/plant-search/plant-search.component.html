@@ -1,3 +1,8 @@
 <section id="plant-search-container">
     <input type="text" name="searchbar" id="searchbar" #searchBar (change)="search(searchBar.value)">
+    <select (change)="changeGrowthHabit(growthHabitSelector.value)" name="growthHabitSelector" id="growthHabitSelector" #growthHabitSelector
+        [disabled]="filterInProgress$ | async">
+        <option *ngFor="let growthHabit of growthHabits" [value]="growthHabit">{{growthHabit}}</option>
+    </select>
+    <h2 class="filter-title" id="title">Native Plants Near You!</h2>
 </section>

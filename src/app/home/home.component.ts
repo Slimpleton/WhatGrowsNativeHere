@@ -1,79 +1,31 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { GbifService } from '../services/gbif.service';
-import { BehaviorSubject, combineLatest, map, Observable, shareReplay, Subject, switchMap, takeUntil, tap } from 'rxjs';
-import { AsyncPipe, NgFor } from '@angular/common';
-import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
-import { County, LocationCode, PlantData, StateInfo } from '../models/gov/models';
-import { GovPlantsDataService } from '../services/PLANTS_data.service';
-import { GrowthHabit } from '../models/gov/models';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { PositionService } from '../services/position.service';
 import { PlantSearchComponent } from '../plant-search/plant-search.component';
+import { GovPlantsDataService } from '../services/PLANTS_data.service';
+import { PlantData } from '../models/gov/models';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [AsyncPipe, FormsModule, ScrollingModule, NgFor, MatGridListModule, PlantSearchComponent],
+  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit, OnDestroy {
-  private _ngDestroy$: Subject<void> = new Subject<void>();
-  private _growthHabitEmitter$: Subject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
-  public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
+export class HomeComponent implements OnInit {
+    public usdaGovPlantProfileUrl: string = this._plantService.usdaGovPlantProfileUrl;
+    public plantData? : ReadonlyArray<Readonly<PlantData>>;
 
-  public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
-  public usdaGovPlantProfileUrl: string = this._plantService.usdaGovPlantProfileUrl;
-
-  private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadAllDefiniteNativePlantData()
-    .pipe(takeUntil(this._ngDestroy$));
-
-  private _filteredNativePlantsByState$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
-    this._positionService.stateEmitter$,
-    this._allNativePlants$])
-    .pipe(
-      map(([state, plants]: [StateInfo, ReadonlyArray<Readonly<PlantData>>]) => this.filterForState(state, plants)),
-      // TODO use state info to filter gbifoccurences ? 
-      takeUntil(this._ngDestroy$)
-    );
-
-  private _filteredNativePlantsByCounty$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
-    this._positionService.countyEmitter$,
-    this._filteredNativePlantsByState$
-  ]).pipe(
-    map(([county, plants]: [County, ReadonlyArray<Readonly<PlantData>>]) => this.filterForCounty(county, plants)),
-    takeUntil(this._ngDestroy$)
-  );
-
-  // Using a combineLatest to combine multiple state changes at once for filtering easy
-  private _fullyFilteredNativePlants: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
-    this._growthHabitEmitter$,
-    this._filteredNativePlantsByCounty$,
-    // this._filteredNativePlantsByState$
-  ]).pipe(
-    // tap((filteredPlants) => console.log('load filter',filteredPlants )),
-    tap(() => this.filterInProgress$.next(true)),
-    map(([growthHabit, plants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>]) =>
-       this.filterForGrowthHabit(growthHabit, plants)),
-    tap(() => this.filterInProgress$.next(false)),
-    takeUntil(this._ngDestroy$)
-  );
-
-  public get filteredNativePlants$(): Observable<ReadonlyArray<PlantData>> {
-    return this._fullyFilteredNativePlants;
-  }
-
-  private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
-  private _lastSearch$: Observable<GbifOccurrence[]> = this._lastUnfilteredSearch$.pipe(
-    //HACK gets all the non copies of plants
-    map((values) => {
-      const plantMap: Map<string, GbifOccurrence> = new Map<string, GbifOccurrence>()
-      values?.map((value: GbifOccurrence) => plantMap.set(value.species, value));
-      return ([...plantMap.values()] as GbifOccurrence[]);
-    }),
-    map((values) => values.sort((x, y) => x.acceptedScientificName.localeCompare(y.acceptedScientificName))),
+  // private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
+  // private _lastSearch$: Observable<GbifOccurrence[]> = this._lastUnfilteredSearch$.pipe(
+  //   //HACK gets all the non copies of plants
+  //   map((values) => {
+  //     const plantMap: Map<string, GbifOccurrence> = new Map<string, GbifOccurrence>()
+  //     values?.map((value: GbifOccurrence) => plantMap.set(value.species, value));
+  //     return ([...plantMap.values()] as GbifOccurrence[]);
+  //   }),
+  //   map((values) => values.sort((x, y) => x.acceptedScientificName.localeCompare(y.acceptedScientificName))),
     // tap((values) => console.log('without duplicates', values)),
     // switchMap((values) => from(values)),
     // // tap((occurrence) => {
@@ -89,12 +41,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     // TODO search each species to ensure its native somehow using gbif service again
     // TODO the socal area used to belong to the tongva people. visit the tongva community garden in pomona to learn more
-    shareReplay(1)
-  );
+    // shareReplay(1)
+  // );
 
-  public get lastSearch$(): Observable<GbifOccurrence[]> {
-    return this._lastSearch$;
-  }
+  // public get lastSearch$(): Observable<GbifOccurrence[]> {
+  //   return this._lastSearch$;
+  // }
 
   // PRIORITIES 
 
@@ -119,24 +71,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   // HIGHEST 
   // Remove some of the plants where native data is unsure aka on site it might say not in pfa
 
-  public constructor(
-    private readonly _gbifService: GbifService,
-    private readonly _plantService: GovPlantsDataService,
-    private readonly _positionService: PositionService,
+  public constructor(private readonly _plantService: GovPlantsDataService
+    // private readonly _gbifService: GbifService,
   ) { }
 
-  ngOnDestroy(): void {
-    this._ngDestroy$.next();
-    this._ngDestroy$.complete();
-  }
+
 
   ngOnInit(): void {
-    // Load plant data and share the result to avoid multiple HTTP requests
-    this._allNativePlants$.subscribe({
-      error: err => console.error(err)
-    });
-
-
     // this._positionEmitter$.pipe(
     //   switchMap((pos: GeolocationPosition) => this._gbifService.searchNativePlants(pos.coords.latitude, pos.coords.longitude)),
     // ).subscribe({
@@ -147,23 +88,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     // });
   }
 
-  public changeGrowthHabit(event: any) {
-    const target = event.target as HTMLSelectElement;
-    this._growthHabitEmitter$.next(target.value as GrowthHabit);
-  }
+ public updatePlantData(plantData: ReadonlyArray<Readonly<PlantData>>){
+  this.plantData = plantData;
+ }
 
-  private filterForGrowthHabit(growthHabit: GrowthHabit | null, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
-    if (growthHabit == 'Any') {
-      return plants;
-    }
-    return plants.filter(plant => plant.growthHabit?.some(x => x == growthHabit));
-  }
-
-  private filterForState(state: StateInfo, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
-    return plants.filter(plant => plant.nativeStateAndProvinceCodes?.has(state.abbreviation as LocationCode));
-  }
-
-  private filterForCounty(county: County, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>>{
-    return plants.filter(plant => plant.counties.some(plantCounty => county.FIP == plantCounty.FIP && plantCounty.stateFIP == county.stateFIP));
-  }
 }

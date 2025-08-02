@@ -6,23 +6,6 @@ h2{
     all: unset;
 }
 
-#filterSection {
-    top: 0;
-    position: sticky;
-    margin-left: .75vw;
-    display: flex;
-    align-items: center;
-    text-align: center;
-    padding-top: .5vh;
-    height: 2em;
-    width: 70%;
-}
-
-.filter-title{
-    flex: 2;
-    font-weight: 600;
-    font-size: 1.4em;
-}
 
 .container {
     margin-left: 1.5vw;

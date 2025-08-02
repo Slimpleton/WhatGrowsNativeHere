@@ -1,16 +1,9 @@
-<section id="filterSection">
-    <select (change)="changeGrowthHabit($event)" name="growthHabitSelector" id="growthHabitSelector"
-        [disabled]="filterInProgress$ | async">
-        <option *ngFor="let growthHabit of growthHabits" [value]="growthHabit">{{growthHabit}}</option>
-    </select>
-    <h2 class="filter-title" id="title">Native Plants Near You!</h2>
-</section>
-<plant-search></plant-search>
+<plant-search (filteredData)="updatePlantData($event)"></plant-search>
 <body class="container" id="container">
     <article class="result-container" id="gov-container">
         <cdk-virtual-scroll-viewport itemSize="var(--item-size)" id="gov-container-scrollport" class="gov-container-scrollport">
             <mat-grid-list cols="4" rowHeight="1.75:1">
-                <mat-grid-tile *cdkVirtualFor="let plant of filteredNativePlants$ | async; let i = index;"
+                <mat-grid-tile *cdkVirtualFor="let plant of plantData; let i = index;"
                     class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">
                     <section class="plant-holder" id="plant-holder-{{i}}">
                         <h1 class="result-scientific-name" id="plant-scientific-name-{{i}}">{{plant.scientificName}}</h1>
