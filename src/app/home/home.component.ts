@@ -164,6 +164,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private filterForCounty(county: County, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>>{
-    return plants.filter(plant => plant.counties.some(plantCounty => county.FIP == plantCounty.FIP));
+    return plants.filter(plant => plant.counties.some(plantCounty => county.FIP == plantCounty.FIP && plantCounty.stateFIP == county.stateFIP));
   }
 }

@@ -15,4 +15,9 @@ export class PlantSearchComponent {
   // TODO filtering system, make maybe the thing and above both into the search service??
   // TODO use input output to input unfiltered stuff output filtered stuff and display on the same html?? might work idk
 
+  public search(searchValue: string): void{
+    // debounce and distinctUntilChanged for this search shit
+    console.log(searchValue);
+
+  }
 }
