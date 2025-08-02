@@ -67,6 +67,11 @@ export class HomeComponent implements OnInit {
   // TODO use inaturalist api for occurrences as well, research grade only, use for occurrences because its community driven
   // https://explorer.natureserve.org/api-docs/#_species_search OnlyNatives for locationCriteria will get only the native species we search !! might have some info on occurrences here too not sure could also get a combined accurate record of native plants 
   // TODO trefle api has open source botanical indexed plants and stuff too, probably use for occurrences because native declaration is weak
+  // TODO create indexing file so that searching via common name / scientific name / symbol be fast as fuck boi
+  // TODO three different index files ??? one for each search variant? can execute all three separately on the same file and combine the results ?? 
+  // I think we do this by analyzing how many different combinations of letters exist within the name??? 
+  // i dont fully remember but it was probably a hashmap of letter groups to symbols would work
+  //
 
   // HIGHEST 
   // Remove some of the plants where native data is unsure aka on site it might say not in pfa

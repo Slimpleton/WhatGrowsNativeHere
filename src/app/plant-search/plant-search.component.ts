@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { County, GrowthHabit, LocationCode, PlantData, StateInfo } from '../models/gov/models';
 import { Subject } from 'rxjs/internal/Subject';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
@@ -6,7 +6,7 @@ import { AsyncPipe, NgFor } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
-import { combineLatest, map, takeUntil, tap } from 'rxjs';
+import { combineLatest, combineLatestWith, debounceTime, distinctUntilChanged, map, startWith, takeUntil, tap } from 'rxjs';
 
 @Component({
   selector: 'plant-search',
@@ -41,6 +41,13 @@ export class PlantSearchComponent {
     takeUntil(this._ngDestroy$)
   );
 
+  private _searchStarter$: Subject<string> = new Subject<string>();
+  private _search$: Observable<string> = this._searchStarter$.pipe(
+    debounceTime(75),
+    distinctUntilChanged(),
+    tap((value) => console.log(value)),
+  );
+
   // Using a combineLatest to combine multiple state changes at once for filtering easy
   private _fullyFilteredNativePlants: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._growthHabitEmitter$,
@@ -48,6 +55,8 @@ export class PlantSearchComponent {
   ]).pipe(
     tap(() => this.filterInProgress$.next(true)),
     map(([growthHabit, plants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>]) =>this.filterForGrowthHabit(growthHabit, plants)),
+    combineLatestWith(this._search$),
+    map(([plants, searchString]) => this.filterPlantsBySearchString(plants, searchString)),
     tap((plants) => this.filteredData.emit(plants)),
     tap(() => this.filterInProgress$.next(false)),
     takeUntil(this._ngDestroy$)
@@ -57,11 +66,18 @@ export class PlantSearchComponent {
     return this._fullyFilteredNativePlants;
   }
 
+  private filterPlantsBySearchString(plants: ReadonlyArray<Readonly<PlantData>>, searchString: string): ReadonlyArray<Readonly<PlantData>>{
+    
+    return plants;
+  }
+
   @Output() public filteredData: EventEmitter<ReadonlyArray<Readonly<PlantData>>> = new EventEmitter();
 
   public constructor(private readonly _plantService: GovPlantsDataService,
   private readonly _positionService: PositionService,){
+    // HACK starts the plant retrieval, sets start value for search bar
     this._fullyFilteredNativePlants.subscribe();
+    this._searchStarter$.next('');
   }
   
   ngOnDestroy(): void {
@@ -76,9 +92,7 @@ export class PlantSearchComponent {
   // TODO use input output to input unfiltered stuff output filtered stuff and display on the same html?? might work idk
 
   public search(searchValue: string): void{
-    // debounce and distinctUntilChanged for this search shit
-    console.log(searchValue);
-
+    this._searchStarter$.next(searchValue);
   }
 
   public changeGrowthHabit(habit: string) {
