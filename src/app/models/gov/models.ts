@@ -312,7 +312,7 @@ export type PlantData = Readonly<{
     growthHabit: GrowthHabit[];
     // Replace with type StateToCountyMapping aka Record<LocationCode, County[]>
     nativeStateAndProvinceCodes: Set<LocationCode>;
-    counties: County[];
+    combinedCountyFIPs: string[];
     characteristicsData: boolean;
     activeGrowthPeriod: ReadonlyArray<Season> | Season;
     afterHarvestRegrowthRate: Rate;
@@ -401,13 +401,13 @@ export type PlantData = Readonly<{
 }>;
 
 export type County = Readonly<{
-    name: string;
+    // name: string;
     FIP: string;
     stateFIP: number | string;
 }>;
 
 export type ExtraInfo = Readonly<{
-    counties: County[];
+    combinedFIPs: string[];
     commonName: string;
 }>;
 // TODO convert to map we are gonna be retrieving by symbol this increases sspeed

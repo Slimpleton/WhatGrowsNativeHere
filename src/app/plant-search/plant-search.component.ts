@@ -6,7 +6,7 @@ import { AsyncPipe, NgFor } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
-import { combineLatest, combineLatestWith, debounceTime, distinctUntilChanged, map, startWith, takeUntil, tap } from 'rxjs';
+import { combineLatest, combineLatestWith, debounceTime, distinctUntilChanged, map, takeUntil, tap } from 'rxjs';
 
 @Component({
   selector: 'plant-search',
@@ -111,6 +111,7 @@ export class PlantSearchComponent {
   }
 
   private filterForCounty(county: County, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
-    return plants.filter(plant => plant.counties.some(plantCounty => county.FIP == plantCounty.FIP && plantCounty.stateFIP == county.stateFIP));
+    return plants.filter(plant => plant.combinedCountyFIPs.some(plantCounty => plantCounty ==
+      county.stateFIP.toString().padStart(2, '0') + county.FIP.padStart(3, '0')));
   }
 }
