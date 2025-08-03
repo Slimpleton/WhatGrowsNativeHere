@@ -67,7 +67,7 @@ export class PlantSearchComponent {
   }
 
   private filterPlantsBySearchString(plants: ReadonlyArray<Readonly<PlantData>>, searchString: string): ReadonlyArray<Readonly<PlantData>>{
-    
+
     return plants;
   }
 
@@ -111,6 +111,7 @@ export class PlantSearchComponent {
   }
 
   private filterForCounty(county: County, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>>{
-    return plants.filter(plant => plant.counties.some(plantCounty => county.FIP == plantCounty.FIP && plantCounty.stateFIP == county.stateFIP));
+    return plants.filter(plant => plant.combinedCountyFIPs.some(plantCounty => plantCounty ==
+      county.stateFIP.toString().padStart(2,'0') + county.FIP.padStart(3,'0')));
   }
 }

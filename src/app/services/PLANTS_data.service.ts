@@ -324,10 +324,10 @@ export class GovPlantsDataService implements NativePlantSearch {
         const relevantExtraInfo = extraInfo.get(symbol);
 
         // Insert common name and region mapping
-        const countiesKey = 'counties' as keyof PlantData;
+        const combinedCountyFipsKey = 'combinedCountyFIPs' as keyof PlantData;
         const commonNameKey = 'commonName' as keyof PlantData;
 
-        result[countiesKey] = relevantExtraInfo?.counties ?? [];
+        result[combinedCountyFipsKey] = relevantExtraInfo?.combinedFIPs ?? [];
         result[commonNameKey] = relevantExtraInfo?.commonName;
 
         // Map each property using our predefined mapping
