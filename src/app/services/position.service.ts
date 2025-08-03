@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { filter, Observable, shareReplay, Subject, takeUntil, tap } from 'rxjs';
+import { filter, Observable, shareReplay, Subject, takeUntil } from 'rxjs';
 import { County, StateInfo } from '../models/gov/models';
 import { StateGeometryService  } from './state-geometry.service';
 

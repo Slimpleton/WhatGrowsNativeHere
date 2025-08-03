@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, OnDestroy } from "@angular/core";
-import { combineLatestWith, filter, from, map, Observable, OperatorFunction, pipe, reduce, scan, shareReplay, skip, Subject, switchMap, takeUntil, tap, toArray, UnaryFunction } from "rxjs";
-import { County, CountyCSVItem, ExtraInfo, StateCSVItem } from "../models/gov/models";
+import { combineLatestWith, from, map, Observable, OperatorFunction, pipe, reduce, shareReplay, skip, Subject, switchMap, takeUntil, tap, toArray, UnaryFunction } from "rxjs";
+import { CountyCSVItem, ExtraInfo, StateCSVItem } from "../models/gov/models";
 
 @Injectable({ providedIn: 'root' })
 export class FileService implements OnDestroy {

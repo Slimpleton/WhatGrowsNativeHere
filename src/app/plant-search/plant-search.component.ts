@@ -6,7 +6,7 @@ import { AsyncPipe, NgFor } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
-import { combineLatest, combineLatestWith, debounceTime, distinctUntilChanged, map, startWith, takeUntil, tap } from 'rxjs';
+import { combineLatest, combineLatestWith, debounceTime, distinctUntilChanged, map, takeUntil, tap } from 'rxjs';
 
 @Component({
   selector: 'plant-search',
