@@ -61,7 +61,7 @@ export class FileService implements OnDestroy {
     public constructor(private readonly _client: HttpClient) { }
 
     private parseState(line: string): StateCSVItem {
-        const lineValues: string[] = line.split(',');
+        const lineValues: string[] = line.split(',', 4);
         return <StateCSVItem>{
             fip: Number.parseInt(lineValues[0]),
             abbrev: lineValues[1],
@@ -71,12 +71,11 @@ export class FileService implements OnDestroy {
     }
 
     private parseCounty(line: string): CountyCSVItem {
-        const lineValues: string[] = line.split(',');
+        const lineValues: string[] = line.split(',', 3);
         return <CountyCSVItem>{
             stateAbbrev: lineValues[0],
             stateFip: Number.parseInt(lineValues[1]),
             countyFip: lineValues[2],
-            countyName: lineValues[4],
         };
     }
 
@@ -101,9 +100,9 @@ export class FileService implements OnDestroy {
     public getCountyCSVItemAsync(): UnaryFunction<Observable<string>, Observable<CountyCSVItem | undefined>> {
         return pipe(
             combineLatestWith(this.counties$),
-            tap(([_,counties]) => console.log(counties)),
+            tap(([_, counties]) => console.log(counties)),
             map(([fip, counties]: [string, CountyCSVItem[]]) => {
-                const stateFip = parseInt(fip.substring(0,2));
+                const stateFip = parseInt(fip.substring(0, 2));
                 const countyFip = fip.substring(2);
                 return counties.find(x => x.countyFip == countyFip && x.stateFip == stateFip);
             })

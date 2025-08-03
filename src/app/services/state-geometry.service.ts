@@ -49,13 +49,10 @@ export class StateGeometryService {
         if (county == undefined || county == null)
           return of(null);
 
-        return forkJoin([
-          of(county),
-          of(county.id).pipe(this._fipsFileService.getCountyCSVItemAsync())
-        ]).pipe(
-          map(([feature, countyItem]: [any, CountyCSVItem | undefined]) => countyItem ? <County>{
-            FIP:countyItem.countyFip,
-            name: countyItem.countyName,
+        return of(county.id).pipe(
+          this._fipsFileService.getCountyCSVItemAsync(),
+          map((countyItem: CountyCSVItem | undefined) => countyItem ? <County>{
+            FIP: countyItem.countyFip,
             stateFIP: countyItem.stateFip
           } : null),
         );
