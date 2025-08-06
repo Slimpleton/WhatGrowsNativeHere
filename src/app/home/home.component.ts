@@ -14,8 +14,8 @@ import { PlantData } from '../models/gov/models';
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
-    public usdaGovPlantProfileUrl: string = this._plantService.usdaGovPlantProfileUrl;
-    public plantData? : ReadonlyArray<Readonly<PlantData>>;
+  public usdaGovPlantProfileUrl: string = this._plantService.usdaGovPlantProfileUrl;
+  public plantData?: ReadonlyArray<Readonly<PlantData>>;
 
   // private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
   // private _lastSearch$: Observable<GbifOccurrence[]> = this._lastUnfilteredSearch$.pipe(
@@ -26,22 +26,22 @@ export class HomeComponent implements OnInit {
   //     return ([...plantMap.values()] as GbifOccurrence[]);
   //   }),
   //   map((values) => values.sort((x, y) => x.acceptedScientificName.localeCompare(y.acceptedScientificName))),
-    // tap((values) => console.log('without duplicates', values)),
-    // switchMap((values) => from(values)),
-    // // tap((occurrence) => {
-    // //   this._gbifService.searchLiterature(occurrence.speciesKey).subscribe((value) => console.log(value));
-    // // }),
-    // // switchMap((occurrence: GbifOccurrence) => forkJoin([of(occurrence), this._gbifService.isNativeSpecies(occurrence.speciesKey)])),
-    // // filter((value: [GbifOccurrence, boolean]) => value[1]),
-    // // map((value: [GbifOccurrence, boolean]) => value[0]),
-    // reduce((aggregate: GbifOccurrence[], current: GbifOccurrence) => {
-    //   aggregate.push(current);
-    //   return aggregate;
-    // }, [] as GbifOccurrence[]),
+  // tap((values) => console.log('without duplicates', values)),
+  // switchMap((values) => from(values)),
+  // // tap((occurrence) => {
+  // //   this._gbifService.searchLiterature(occurrence.speciesKey).subscribe((value) => console.log(value));
+  // // }),
+  // // switchMap((occurrence: GbifOccurrence) => forkJoin([of(occurrence), this._gbifService.isNativeSpecies(occurrence.speciesKey)])),
+  // // filter((value: [GbifOccurrence, boolean]) => value[1]),
+  // // map((value: [GbifOccurrence, boolean]) => value[0]),
+  // reduce((aggregate: GbifOccurrence[], current: GbifOccurrence) => {
+  //   aggregate.push(current);
+  //   return aggregate;
+  // }, [] as GbifOccurrence[]),
 
-    // TODO search each species to ensure its native somehow using gbif service again
-    // TODO the socal area used to belong to the tongva people. visit the tongva community garden in pomona to learn more
-    // shareReplay(1)
+  // TODO search each species to ensure its native somehow using gbif service again
+  // TODO the socal area used to belong to the tongva people. visit the tongva community garden in pomona to learn more
+  // shareReplay(1)
   // );
 
   // public get lastSearch$(): Observable<GbifOccurrence[]> {
@@ -93,8 +93,7 @@ export class HomeComponent implements OnInit {
     // });
   }
 
- public updatePlantData(plantData: ReadonlyArray<Readonly<PlantData>>){
-  this.plantData = plantData;
- }
-
+  public updatePlantData(plantData: ReadonlyArray<Readonly<PlantData>>) {
+    this.plantData = plantData;
+  }
 }
