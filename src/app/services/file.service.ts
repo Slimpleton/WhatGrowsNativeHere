@@ -1,40 +1,19 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, OnDestroy } from "@angular/core";
-import { combineLatestWith, from, map, Observable, OperatorFunction, pipe, reduce, shareReplay, skip, Subject, switchMap, takeUntil, tap, toArray, UnaryFunction } from "rxjs";
+import { combineLatestWith, from, map, Observable, OperatorFunction, pipe, reduce, shareReplay, skip, Subject, switchMap, takeUntil, toArray, UnaryFunction } from "rxjs";
 import { CountyCSVItem, ExtraInfo, StateCSVItem } from "../models/gov/models";
 
 @Injectable({ providedIn: 'root' })
 export class FileService implements OnDestroy {
-    private readonly _extraDataJsonUrl: string = 'assets/PLANTS_EXTRA_DATA.json';
     private readonly _extraDataCSVUrl: string = 'assets/PLANTS_EXTRA_DATA.csv';
     private readonly _stateCSVUrl: string = 'assets/statesFipsInfo.csv';
     private readonly _countyCSVUrl: string = 'assets/countyInfo.csv';
     private readonly _ngDestroy$: Subject<void> = new Subject<void>();
 
-    private readonly _JSON_OBJECT_START = `{"symbol":"`;
-    private readonly _JSON_OBJECT_GAP_1 = `","commonName":"`;
-
     private readonly _extraInfo$: Observable<Map<string, ExtraInfo>> = this._client.get(this._extraDataCSVUrl, { responseType: 'text' }).pipe(
         this.getDataLines(),
         this.parseMap(),
-        tap((value) => console.log(value)),
         shareReplay(),
-        // toArray(),
-        // filter((x) => x != '' && x != ']' && x != '\r\n' && x != '\r'),
-        // reduce((map: Map<string, ExtraInfo>, line: string) => {
-        //     let reducedLine = line.substring(this._JSON_OBJECT_START.length, line.length - 3);
-
-        //     let quotationIndex = reducedLine.indexOf('"');
-        //     const symbol = reducedLine.substring(0, quotationIndex);
-        //     reducedLine = reducedLine.substring(quotationIndex + this._JSON_OBJECT_GAP_1.length);
-
-        //     quotationIndex = reducedLine.indexOf('"');
-        //     const commonName = reducedLine.substring(0, quotationIndex);
-        //     reducedLine = reducedLine.substring(reducedLine.indexOf('['));
-
-        //     const counties: County[] = reducedLine.length < 3 ? [] : JSON.parse(reducedLine);
-        //     return map.set(symbol, { counties: counties, commonName: commonName });
-        // }, new Map<string, ExtraInfo>()),
         takeUntil(this._ngDestroy$));
 
     private readonly _states$: Observable<StateCSVItem[]> = this._client.get(this._stateCSVUrl, { responseType: 'text' }).pipe(
@@ -76,11 +55,13 @@ export class FileService implements OnDestroy {
     }
 
     private parseCounty(line: string): CountyCSVItem {
-        const lineValues: string[] = line.split(',', 3);
+        const lineValues: string[] = line.split(',', 5);
+        console.log(lineValues);
         return <CountyCSVItem>{
             stateAbbrev: lineValues[0],
             stateFip: Number.parseInt(lineValues[1]),
             countyFip: lineValues[2],
+            countyName: lineValues[4],
         };
     }
 
@@ -105,8 +86,8 @@ export class FileService implements OnDestroy {
         }, new Map<string, ExtraInfo>());
     }
 
-    private parseValue(value: string) : string{
-        return value?.substring(1, value.length-1);
+    private parseValue(value: string): string {
+        return value?.substring(1, value.length - 1);
     }
 
     public getStateCSVItemAsync(): UnaryFunction<Observable<string | number>, Observable<StateCSVItem | undefined>> {
@@ -119,7 +100,7 @@ export class FileService implements OnDestroy {
     public getCountyCSVItemAsync(): UnaryFunction<Observable<string>, Observable<CountyCSVItem | undefined>> {
         return pipe(
             combineLatestWith(this.counties$),
-            tap(([_, counties]) => console.log(counties)),
+            // tap(([_, counties]) => console.log(counties)),
             map(([fip, counties]: [string, CountyCSVItem[]]) => {
                 const stateFip = parseInt(fip.substring(0, 2));
                 const countyFip = fip.substring(2);

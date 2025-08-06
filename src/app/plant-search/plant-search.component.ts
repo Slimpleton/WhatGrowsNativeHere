@@ -6,7 +6,10 @@ import { AsyncPipe, NgFor } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
-import { combineLatest, combineLatestWith, debounceTime, distinctUntilChanged, map, takeUntil, tap } from 'rxjs';
+import { combineLatest, combineLatestWith, debounceTime, distinctUntilChanged, filter, map, takeUntil, tap } from 'rxjs';
+import { FileService } from '../services/file.service';
+
+export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol' | 'growthHabit'>;
 
 @Component({
   selector: 'plant-search',
@@ -18,8 +21,17 @@ export class PlantSearchComponent {
   public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
   private _growthHabitEmitter$: Subject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
+  // TODO make the sort options thing
+  public sortOptions: SortOption[] = ['commonName', 'scientificName', 'growthHabit'];
+  private _sortOptionsEmitter$: Subject<SortOption> = new BehaviorSubject<SortOption>('commonName');
+  private get sortOptionsEmitter$(): Observable<SortOption> {
+    return this._sortOptionsEmitter$.asObservable();
+  }
+
   private _ngDestroy$: Subject<void> = new Subject<void>();
   public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
+
+  public countyName: string = '';
 
   private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadNativePlantData
     .pipe(takeUntil(this._ngDestroy$));
@@ -57,6 +69,23 @@ export class PlantSearchComponent {
     map(([growthHabit, plants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>]) => this.filterForGrowthHabit(growthHabit, plants)),
     combineLatestWith(this._search$),
     map(([plants, searchString]) => this.filterPlantsBySearchString(plants, searchString)),
+    combineLatestWith(this.sortOptionsEmitter$),
+    map(([plants, sort]: [ReadonlyArray<Readonly<PlantData>>, SortOption]) => {
+      return [...plants].sort((x, y) => {
+        let xValue, yValue;
+        if (sort === 'growthHabit') {
+          xValue = x[sort][0];
+          yValue = y[sort][0];
+
+        }
+        else {
+          xValue = x[sort];
+          yValue = y[sort];
+        }
+        return xValue.localeCompare(yValue);
+
+      });
+    }),
     tap((plants) => this.filteredData.emit(plants)),
     tap(() => this.filterInProgress$.next(false)),
     takeUntil(this._ngDestroy$)
@@ -67,17 +96,33 @@ export class PlantSearchComponent {
   }
 
   private filterPlantsBySearchString(plants: ReadonlyArray<Readonly<PlantData>>, searchString: string): ReadonlyArray<Readonly<PlantData>> {
-
-    return plants;
+    searchString = searchString.toLowerCase();
+    return plants.filter(plant => plant.commonName.toLowerCase().includes(searchString) || plant.scientificName.toLowerCase().includes(searchString));
   }
 
   @Output() public filteredData: EventEmitter<ReadonlyArray<Readonly<PlantData>>> = new EventEmitter();
 
   public constructor(private readonly _plantService: GovPlantsDataService,
-    private readonly _positionService: PositionService,) {
+    private readonly _positionService: PositionService,
+    private readonly _fileService: FileService) {
     // HACK starts the plant retrieval, sets start value for search bar
     this._fullyFilteredNativePlants.subscribe();
     this._searchStarter$.next('');
+    this._sortOptionsEmitter$.next('commonName');
+
+    this._positionService.countyEmitter$.pipe(
+      filter((x) => x != null && x != undefined),
+      map((x) => combineCountyFIP(x)),
+      tap((x) => console.log(x)),
+      this._fileService.getCountyCSVItemAsync(),
+    ).subscribe({
+      next: (value) => {
+        console.log(value);
+        if (value)
+          this.countyName = value.countyName;
+      },
+      error: err => console.error(err),
+    });
   }
 
   ngOnDestroy(): void {
@@ -93,6 +138,10 @@ export class PlantSearchComponent {
 
   public search(searchValue: string): void {
     this._searchStarter$.next(searchValue);
+  }
+
+  public changeSortOption(option: string) {
+    this._sortOptionsEmitter$.next(option as SortOption);
   }
 
   public changeGrowthHabit(habit: string) {
@@ -112,6 +161,11 @@ export class PlantSearchComponent {
 
   private filterForCounty(county: County, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
     return plants.filter(plant => plant.combinedCountyFIPs.some(plantCounty => plantCounty ==
-      county.stateFIP.toString().padStart(2, '0') + county.FIP.padStart(3, '0')));
+      combineCountyFIP(county)));
   }
 }
+
+function combineCountyFIP(county: Readonly<County>) {
+  return county.stateFIP.toString().padStart(2, '0') + county.FIP.padStart(3, '0');
+}
+

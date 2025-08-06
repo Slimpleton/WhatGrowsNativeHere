@@ -122,7 +122,7 @@ export const validLocationCodes: Set<LocationCode> = new Set([
 export const LocationToNativeRegion: Record<LocationCode, NativeLocationCode[]> = {
     // US States (Lower 48)
     'AL': ['L48', 'NA'], 'AR': ['L48', 'NA'], 'AZ': ['L48', 'NA'], 'CA': ['L48', 'NA'], 'CO': ['L48', 'NA'],
-    'CT': ['L48', 'NA'], 'DC': ['L48', 'NA'], 'DE': ['L48', 'NA'], 'FL': ['L48', 'NA'], 'GA': ['L48', 'NA'], 
+    'CT': ['L48', 'NA'], 'DC': ['L48', 'NA'], 'DE': ['L48', 'NA'], 'FL': ['L48', 'NA'], 'GA': ['L48', 'NA'],
     'IL': ['L48', 'NA'], 'IN': ['L48', 'NA'], 'IA': ['L48', 'NA'], 'KS': ['L48', 'NA'], 'KY': ['L48', 'NA'],
     'LA': ['L48', 'NA'], 'ME': ['L48', 'NA'], 'MD': ['L48', 'NA'], 'MA': ['L48', 'NA'], 'MI': ['L48', 'NA'],
     'MN': ['L48', 'NA'], 'MS': ['L48', 'NA'], 'MO': ['L48', 'NA'], 'MT': ['L48', 'NA'], 'NE': ['L48', 'NA'],
@@ -401,7 +401,6 @@ export type PlantData = Readonly<{
 }>;
 
 export type County = Readonly<{
-    // name: string;
     FIP: string;
     stateFIP: number | string;
 }>;
@@ -410,9 +409,8 @@ export type ExtraInfo = Readonly<{
     combinedFIPs: string[];
     commonName: string;
 }>;
-// TODO convert to map we are gonna be retrieving by symbol this increases sspeed
 
-export interface State{
+export interface State {
     name: string;
     FIP: number | string;
 }
@@ -432,12 +430,12 @@ export interface CountyCSVItem {
 }
 
 export interface StateInfo {
-  fip: number | string,
-  abbreviation: string;
-  name: string;
-  properties?: any;
-  country?: string;
-  gnisid?: string;
+    fip: number | string,
+    abbreviation: string;
+    name: string;
+    properties?: any;
+    country?: string;
+    gnisid?: string;
 }
 
 
