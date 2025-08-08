@@ -37,17 +37,15 @@
                             }
                             }
                             @if(plant.duration != null){
-                            <span style="font-size: 1.75em;">
-                                @switch ((plant.duration)) {
-                                @case ('Biennial') {
+                            <span style="font-size: 1.75em; place-items: center;">
+                                @if (plant.duration.includes('Biennial' )) {
                                 &#9863;
                                 }
-                                @case('Annual'){
+                                @if(plant.duration.includes('Annual') || plant.duration.includes('AN')){
                                 &#8857;
                                 }
-                                @case ('Perennial') {
+                                @if (plant.duration.includes('Perennial')) {
                                 &#9854;
-                                }
                                 }
 
                             </span>

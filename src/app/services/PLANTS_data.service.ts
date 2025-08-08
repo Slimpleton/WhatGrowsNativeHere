@@ -232,8 +232,6 @@ export class GovPlantsDataService {
 
     // Helper to handle quoted values and commas within fields
     private parseCsvLine(line: string): string[] {
-        // TODO fix this, its not properly separating values and headers, we have mismatches
-        // we dont need to store current characters.... we can just detect if its in quotes or not lol
         const result: string[] = [];
         let startIndex = 0;
         let inQuotes = false;
@@ -253,75 +251,6 @@ export class GovPlantsDataService {
         // Add the last field
         result.push(line.substring(startIndex));
         return result;
-    }
-
-    
-    // Helper to handle quoted values and commas within fields
-    private parseCsvLine1(line: string): string[] {
-        // TODO fix this, its not properly separating values and headers, we have mismatches
-        // we dont need to store current characters.... we can just detect if its in quotes or not lol
-        const result: string[] = [];
-        let startIndex = 0;
-        let inQuotes = false;
-
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-
-            if (char === '"') {
-                inQuotes = !inQuotes;
-            } else if (char === ',' && !inQuotes) {
-                result.push(line.substring(startIndex, i));
-                startIndex = i + 1;
-            }
-        }
-
-        // Add the last field
-        result.push(line.substring(startIndex));
-        return result;
-    }
-
-    // Helper to handle quoted values and commas within fields
-    private parseCsvLine2(line: string): string[] {
-        // TODO fix this, its not properly separating values and headers, we have mismatches
-        // we dont need to store current characters.... we can just detect if its in quotes or not lol
-        let result: string[] = [];
-        let nextStartIndex: number = 0;
-
-        while (line.length > nextStartIndex) {
-            const charAtStartIndex: string = line[nextStartIndex];
-            const isEmpty: boolean = charAtStartIndex == ',';
-            const inQuotes: boolean = charAtStartIndex == `"`;
-            let value: string = '';
-            if (isEmpty) { ++nextStartIndex;}
-            else if (inQuotes) {
-                console.log('quote');
-                const nextSeparatorIndex: number = GovPlantsDataService.findNextSingleQuoteIndex(line, nextStartIndex + 1) + 1;
-                value = line.substring(nextStartIndex + 1, nextSeparatorIndex);
-                nextStartIndex = nextSeparatorIndex + 1;
-
-            } else {
-                const nextSeparatorIndex: number = line.indexOf(',', nextStartIndex);
-                value = line.substring(nextStartIndex, nextSeparatorIndex);
-                nextStartIndex = nextSeparatorIndex + 1;
-            }
-
-            console.log(charAtStartIndex, value);
-            result.push(value);
-        }
-
-        return result;
-    }
-
-    private static findNextSingleQuoteIndex(line: string, startIndex: number): number {
-        let singleQuoteIndex: number = line.indexOf('"', startIndex);
-        let doubleQuoteIndex: number = line.indexOf('""', startIndex);
-        while (singleQuoteIndex != doubleQuoteIndex && singleQuoteIndex - 1 != doubleQuoteIndex) {
-            startIndex = doubleQuoteIndex + 2;
-            singleQuoteIndex = line.indexOf('"', startIndex);
-            doubleQuoteIndex = line.indexOf('""', startIndex);
-        }
-        console.log('singleQuoteIndex: ' + singleQuoteIndex);
-        return singleQuoteIndex;
     }
 
     private parseGrowthHabit(habitCsvValue: string): ReadonlyArray<GrowthHabit> {
@@ -411,7 +340,12 @@ export class GovPlantsDataService {
             if (key in this._headerMapping) {
                 const camelKey = this._headerMapping[key] as keyof PlantData;
 
-                if (camelKey === 'nativeStateAndProvinceCodes') {
+                if(camelKey === 'characteristicsData'){
+                    result[camelKey] = value == 'Yes';
+                    if(value == 'No')
+                        return;
+                }
+                else if (camelKey === 'nativeStateAndProvinceCodes') {
                     result[camelKey] = nativeStatusValues;
                 }
                 else if (camelKey === 'stateAndProvince') {
