@@ -1,14 +1,18 @@
-import { Injectable } from "@angular/core";
-import { catchError, combineLatestWith, map, Observable, of, shareReplay } from "rxjs";
+import { inject, Injectable } from "@angular/core";
 import { CountyCSVItem, ExtraInfo, getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, validLocationCodes } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 import { FileService } from "./file.service";
-import { ActivatedRouteSnapshot, MaybeAsync, RedirectCommand, Resolve, RouterStateSnapshot } from "@angular/router";
+import { ResolveFn } from "@angular/router";
+import { catchError, combineLatestWith, map, Observable, of, shareReplay } from "rxjs";
+
+export const csvResolver : ResolveFn<ReadonlyArray<Readonly<PlantData>>> = (_, __) => {
+    return inject(GovPlantsDataService).loadNativePlantData;
+};
 
 @Injectable({
     providedIn: 'root'
 })
-export class GovPlantsDataService implements Resolve<ReadonlyArray<Readonly<PlantData>>> {
+export class GovPlantsDataService{
     public usdaGovPlantProfileUrl: string = 'https://plants.usda.gov/plant-profile/';
     private readonly _headerMapping: Record<string, keyof PlantData> = {
         "Accepted Symbol": "acceptedSymbol",
@@ -112,10 +116,6 @@ export class GovPlantsDataService implements Resolve<ReadonlyArray<Readonly<Plan
     private static readonly MINIMUM_SPECIES_NAME_WORDS = 2;
 
     public constructor(private readonly http: HttpClient, private readonly _fileService: FileService) {
-    }
-
-    resolve(_: ActivatedRouteSnapshot, __: RouterStateSnapshot): Observable<ReadonlyArray<Readonly<PlantData>>> {
-        return this.loadNativePlantData;
     }
 
     public getAllDefiniteNativePlantIds(): Observable<ReadonlyArray<Readonly<string>>> {

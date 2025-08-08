@@ -8,12 +8,14 @@ import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
 import { combineLatest, combineLatestWith, debounceTime, distinctUntilChanged, filter, map, takeUntil, tap } from 'rxjs';
 import { FileService } from '../services/file.service';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol' | 'growthHabit'>;
 
 @Component({
   selector: 'plant-search',
-  imports: [AsyncPipe, NgFor],
+  imports: [AsyncPipe, NgFor, MatIconModule, MatButtonModule],
   templateUrl: './plant-search.component.html',
   styleUrl: './plant-search.component.css'
 })
@@ -21,7 +23,20 @@ export class PlantSearchComponent {
   public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
   private _growthHabitEmitter$: Subject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
-  // TODO make the sort options thing
+  private _isSortOptionAlphabeticOrderEmitter$: Subject<boolean> = new BehaviorSubject<boolean>(true);
+  private get isSortOptionAlphabeticOrderEmitter$(): Observable<boolean>{
+    return this._isSortOptionAlphabeticOrderEmitter$.asObservable();
+  }
+  private _sortOptionDirection : 'A-Z' | 'Z-A' = 'A-Z';
+  public get sortOptionDirection():'A-Z' | 'Z-A'{
+    return this._sortOptionDirection;
+  }
+
+  public toggleSortOptionDirection(): void{
+    this._sortOptionDirection = this._sortOptionDirection ==  'Z-A' ? 'A-Z' : 'Z-A';
+    this._isSortOptionAlphabeticOrderEmitter$.next(this._sortOptionDirection === 'A-Z');
+  }
+
   public sortOptions: SortOption[] = ['commonName', 'scientificName', 'growthHabit'];
   private _sortOptionsEmitter$: Subject<SortOption> = new BehaviorSubject<SortOption>('commonName');
   private get sortOptionsEmitter$(): Observable<SortOption> {
@@ -69,8 +84,8 @@ export class PlantSearchComponent {
     map(([growthHabit, plants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>]) => this.filterForGrowthHabit(growthHabit, plants)),
     combineLatestWith(this._search$),
     map(([plants, searchString]) => this.filterPlantsBySearchString(plants, searchString)),
-    combineLatestWith(this.sortOptionsEmitter$),
-    map(([plants, sort]: [ReadonlyArray<Readonly<PlantData>>, SortOption]) => {
+    combineLatestWith(this.sortOptionsEmitter$, this.isSortOptionAlphabeticOrderEmitter$),
+    map(([plants, sort, isSortAlphabeticOrder]: [ReadonlyArray<Readonly<PlantData>>, SortOption, boolean]) => {
       return [...plants].sort((x, y) => {
         let xValue, yValue;
         if (sort === 'growthHabit') {
@@ -82,8 +97,8 @@ export class PlantSearchComponent {
           xValue = x[sort];
           yValue = y[sort];
         }
-        return xValue.localeCompare(yValue);
-
+        const comparison: number = xValue.localeCompare(yValue);
+        return isSortAlphabeticOrder ? comparison : -comparison;
       });
     }),
     tap((plants) => this.filteredData.emit(plants)),

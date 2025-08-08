@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { GovPlantsDataService } from './services/PLANTS_data.service';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +10,6 @@ import { GovPlantsDataService } from './services/PLANTS_data.service';
 export class AppComponent {
   title = 'PlantMapper';
 
-  public constructor(private readonly _plantService: GovPlantsDataService) {
-    this._plantService.loadNativePlantData.subscribe();
+  public constructor() {
   }
 }
