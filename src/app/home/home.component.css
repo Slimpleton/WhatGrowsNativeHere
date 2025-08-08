@@ -33,3 +33,21 @@ h2{
 .result-property{
     margin-bottom: 0;
 }
+
+.symbolAndShadeRow{
+    display: inline-flex;
+    gap: .25em;
+    place-items: center;
+}
+
+.overlapped-icon{
+    grid-area: 1/1/2/2;
+}
+
+.overlapped-sun{
+    padding-left: 12px;
+}
+
+.overlapped-cloud{
+    color: grey;
+}
