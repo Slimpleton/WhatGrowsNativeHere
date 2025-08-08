@@ -6,15 +6,45 @@ h2{
     all: unset;
 }
 
+.result-scientific-name{
+    font-style: italic;
+}
 
 .container {
-    margin-left: 1.5vw;
+    background-color: rgb(162, 192, 162);
+    padding-left: 1.5vw;
     height: calc(100vh - .5vh - 4em);
 }
 
 .result-container{
     height: inherit;
 }
+
+/* .gov-container-scrollport::-webkit-scrollbar{
+    background-color: var(--wood-brown);
+}
+.gov-container-scrollport::-webkit-scrollbar-thumb{
+    background: rgb(68, 51, 29);
+    border-radius: .25em;
+} */
+
+/* For browsers that support `scrollbar-*` properties */
+@supports (scrollbar-color: auto) {
+  .gov-container-scrollport{
+    scrollbar-color:rgb(68, 51, 29) var(--wood-brown);
+  }
+}
+
+/* Otherwise, use `::-webkit-scrollbar-*` pseudo-elements */
+@supports selector(::-webkit-scrollbar) {
+  .gov-container-scrollport::-webkit-scrollbar {
+    background:rgb(68, 51, 29);
+  }
+  .gov-container-scrollport:-webkit-scrollbar-thumb {
+    background: var(--wood-brown);
+  }
+}
+
 .gov-container-scrollport {
     width: 100%;
     height: 100%;
@@ -48,6 +78,10 @@ h2{
     padding-left: 12px;
 }
 
-.overlapped-cloud{
+.sun, .overlapped-sun{
+    color: rgb(255, 208, 0);
+}
+
+.overlapped-cloud, .cloud{
     color: grey;
 }

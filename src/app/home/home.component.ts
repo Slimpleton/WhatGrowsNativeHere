@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -6,11 +6,13 @@ import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PlantData } from '../models/gov/models';
 import { MatIconModule } from '@angular/material/icon';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent, MatIconModule ],
+  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent, MatIconModule, TitleCasePipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

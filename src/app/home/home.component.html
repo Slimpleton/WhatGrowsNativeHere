@@ -8,9 +8,11 @@
                 <mat-grid-tile *cdkVirtualFor="let plant of plantData; let i = index;"
                     class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">
                     <section class="plant-holder" id="plant-holder-{{i}}">
-                        <h1 class="result-scientific-name" id="plant-scientific-name-{{i}}">{{plant.scientificName}}
+                        <h1 class="result-common-name" id="plant-common-name-{{i}}">{{plant.commonName | titlecase}}
                         </h1>
-                        <h2 class="result-common-name" id="plant-common-name-{{i}}">{{plant.commonName}}</h2>
+                        <h2 class="result-scientific-name" id="plant-scientific-name-{{i}}">{{plant.scientificName |
+                            titlecase}}
+                        </h2>
                         <span class="symbolAndShadeRow">
                             <a target="_blank" rel="noopener noreferrer"
                                 [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol" class=""
@@ -21,16 +23,16 @@
                             @case ('Intermediate') {
                             <div style="display: grid; grid: 1fr 1fr;">
                                 <mat-icon class="overlapped-icon overlapped-sun">sunny</mat-icon>
-                                <mat-icon class="overlapped-icon overlapped-cloud">cloud</mat-icon>
+                                <mat-icon class="overlapped-icon cloud overlapped-cloud">cloud</mat-icon>
                             </div>
                             }
                             @case('Intolerant'){
-                            <mat-icon>
+                            <mat-icon class="sun">
                                 sunny
                             </mat-icon>
                             }
                             @case('Tolerant'){
-                            <mat-icon style="color: grey;">
+                            <mat-icon class="cloud">
                                 cloud
                             </mat-icon>
                             }
