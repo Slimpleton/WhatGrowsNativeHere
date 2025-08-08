@@ -5,18 +5,18 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PlantData } from '../models/gov/models';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent],
+  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent, MatIconModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
   public usdaGovPlantProfileUrl: string = this._plantService.usdaGovPlantProfileUrl;
   public plantData?: ReadonlyArray<Readonly<PlantData>>;
-
   // private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
   // private _lastSearch$: Observable<GbifOccurrence[]> = this._lastUnfilteredSearch$.pipe(
   //   //HACK gets all the non copies of plants

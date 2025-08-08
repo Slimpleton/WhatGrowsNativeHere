@@ -56,7 +56,6 @@ export class FileService implements OnDestroy {
 
     private parseCounty(line: string): CountyCSVItem {
         const lineValues: string[] = line.split(',', 5);
-        console.log(lineValues);
         return <CountyCSVItem>{
             stateAbbrev: lineValues[0],
             stateFip: Number.parseInt(lineValues[1]),

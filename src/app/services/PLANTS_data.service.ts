@@ -1,18 +1,18 @@
 import { inject, Injectable } from "@angular/core";
-import { CountyCSVItem, ExtraInfo, getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, validLocationCodes } from "../models/gov/models";
+import { CountyCSVItem, ExtraInfo, getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, ShadeTolerance, validLocationCodes } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 import { FileService } from "./file.service";
 import { ResolveFn } from "@angular/router";
 import { catchError, combineLatestWith, map, Observable, of, shareReplay } from "rxjs";
 
-export const csvResolver : ResolveFn<ReadonlyArray<Readonly<PlantData>>> = (_, __) => {
+export const csvResolver: ResolveFn<ReadonlyArray<Readonly<PlantData>>> = (_, __) => {
     return inject(GovPlantsDataService).loadNativePlantData;
 };
 
 @Injectable({
     providedIn: 'root'
 })
-export class GovPlantsDataService{
+export class GovPlantsDataService {
     public usdaGovPlantProfileUrl: string = 'https://plants.usda.gov/plant-profile/';
     private readonly _headerMapping: Record<string, keyof PlantData> = {
         "Accepted Symbol": "acceptedSymbol",
@@ -181,9 +181,9 @@ export class GovPlantsDataService{
     private getPlantDataFromCSV(): Observable<Readonly<PlantData>[]> {
         return this.getRecordsFromCSV().pipe(
             // Convert each row to PlantData object and filter for native plants
-            combineLatestWith(this._fileService.counties$, this._fileService.extraInfo$),
-            map(([csvData, counties, extraInfo]: [Record<string, string>[], CountyCSVItem[], Map<string, ExtraInfo>]) =>
-                csvData.map((row: Record<string, string>) => (this.convertCsvRowToPlantData(row, counties, extraInfo)) as Readonly<PlantData>)));
+            combineLatestWith(this._fileService.extraInfo$),
+            map(([csvData, extraInfo]: [Record<string, string>[], Map<string, ExtraInfo>]) =>
+                csvData.map((row: Record<string, string>) => (this.convertCsvRowToPlantData(row, extraInfo)) as Readonly<PlantData>)));
     }
 
     /**
@@ -196,11 +196,11 @@ export class GovPlantsDataService{
     }
 
     private parseCsv(csvText: string): Record<string, string>[] {
-        const lines = csvText.split('\n');
-        const headers = lines[0].split(',').map(header => header.trim());
+        const lines = csvText.split('\r\n');
+        const headers = this.parseCsvLine(lines[0]);
 
+        console.log(headers);
         return lines.slice(1)
-            .filter(line => line.trim() !== '') // Skip empty lines
             .map(line => {
                 const values = this.parseCsvLine(line);
                 const row: Record<string, string> = {};
@@ -232,8 +232,10 @@ export class GovPlantsDataService{
 
     // Helper to handle quoted values and commas within fields
     private parseCsvLine(line: string): string[] {
+        // TODO fix this, its not properly separating values and headers, we have mismatches
+        // we dont need to store current characters.... we can just detect if its in quotes or not lol
         const result: string[] = [];
-        let current = '';
+        let startIndex = 0;
         let inQuotes = false;
 
         for (let i = 0; i < line.length; i++) {
@@ -242,16 +244,84 @@ export class GovPlantsDataService{
             if (char === '"') {
                 inQuotes = !inQuotes;
             } else if (char === ',' && !inQuotes) {
-                result.push(current.trim());
-                current = '';
-            } else {
-                current += char;
+                const value =line[startIndex] == '"' ? line.substring(startIndex + 1, i -1) :line.substring(startIndex, i);
+                result.push(value);
+                startIndex = i + 1;
             }
         }
 
         // Add the last field
-        result.push(current.trim());
+        result.push(line.substring(startIndex));
         return result;
+    }
+
+    
+    // Helper to handle quoted values and commas within fields
+    private parseCsvLine1(line: string): string[] {
+        // TODO fix this, its not properly separating values and headers, we have mismatches
+        // we dont need to store current characters.... we can just detect if its in quotes or not lol
+        const result: string[] = [];
+        let startIndex = 0;
+        let inQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(line.substring(startIndex, i));
+                startIndex = i + 1;
+            }
+        }
+
+        // Add the last field
+        result.push(line.substring(startIndex));
+        return result;
+    }
+
+    // Helper to handle quoted values and commas within fields
+    private parseCsvLine2(line: string): string[] {
+        // TODO fix this, its not properly separating values and headers, we have mismatches
+        // we dont need to store current characters.... we can just detect if its in quotes or not lol
+        let result: string[] = [];
+        let nextStartIndex: number = 0;
+
+        while (line.length > nextStartIndex) {
+            const charAtStartIndex: string = line[nextStartIndex];
+            const isEmpty: boolean = charAtStartIndex == ',';
+            const inQuotes: boolean = charAtStartIndex == `"`;
+            let value: string = '';
+            if (isEmpty) { ++nextStartIndex;}
+            else if (inQuotes) {
+                console.log('quote');
+                const nextSeparatorIndex: number = GovPlantsDataService.findNextSingleQuoteIndex(line, nextStartIndex + 1) + 1;
+                value = line.substring(nextStartIndex + 1, nextSeparatorIndex);
+                nextStartIndex = nextSeparatorIndex + 1;
+
+            } else {
+                const nextSeparatorIndex: number = line.indexOf(',', nextStartIndex);
+                value = line.substring(nextStartIndex, nextSeparatorIndex);
+                nextStartIndex = nextSeparatorIndex + 1;
+            }
+
+            console.log(charAtStartIndex, value);
+            result.push(value);
+        }
+
+        return result;
+    }
+
+    private static findNextSingleQuoteIndex(line: string, startIndex: number): number {
+        let singleQuoteIndex: number = line.indexOf('"', startIndex);
+        let doubleQuoteIndex: number = line.indexOf('""', startIndex);
+        while (singleQuoteIndex != doubleQuoteIndex && singleQuoteIndex - 1 != doubleQuoteIndex) {
+            startIndex = doubleQuoteIndex + 2;
+            singleQuoteIndex = line.indexOf('"', startIndex);
+            doubleQuoteIndex = line.indexOf('""', startIndex);
+        }
+        console.log('singleQuoteIndex: ' + singleQuoteIndex);
+        return singleQuoteIndex;
     }
 
     private parseGrowthHabit(habitCsvValue: string): ReadonlyArray<GrowthHabit> {
@@ -313,7 +383,7 @@ export class GovPlantsDataService{
         return new Set(result);
     }
 
-    private convertCsvRowToPlantData(csvRow: Record<string, string>, counties: CountyCSVItem[], extraInfo: Map<string, ExtraInfo>): Readonly<PlantData> {
+    private convertCsvRowToPlantData(csvRow: Record<string, string>, extraInfo: Map<string, ExtraInfo>): Readonly<PlantData> {
         const result: Record<string, any> = {};
         const rowKeys = Object.keys(csvRow);
 
@@ -350,6 +420,10 @@ export class GovPlantsDataService{
                 }
                 else if (camelKey === 'growthHabit') {
                     result[camelKey] = this.parseGrowthHabit(value);
+                }
+                else if (camelKey === 'shadeTolerance') {
+                    // console.log(camelKey, value);
+                    result[camelKey] = value;
                 }
                 // Handle different data types
                 else if (value === 'true' || value === 'yes' || value === 'y') {

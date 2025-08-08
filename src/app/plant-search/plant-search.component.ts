@@ -101,8 +101,11 @@ export class PlantSearchComponent {
         return isSortAlphabeticOrder ? comparison : -comparison;
       });
     }),
-    tap((plants) => this.filteredData.emit(plants)),
-    tap(() => this.filterInProgress$.next(false)),
+    tap((plants) => {
+      this.filteredData.emit(plants);
+      this.filterInProgress$.next(false);
+      console.log(plants);
+    }),
     takeUntil(this._ngDestroy$)
   );
 
