@@ -20,6 +20,7 @@
     "@angular/platform-browser": "^20.1.2",
     "@angular/platform-browser-dynamic": "^20.1.2",
     "@angular/router": "^20.1.2",
+    "@jsverse/transloco": "^7.6.1",
     "d3-geo": "^3.1.1",
     "rxjs": "~7.8.0",
     "topojson-client": "^3.1.0",

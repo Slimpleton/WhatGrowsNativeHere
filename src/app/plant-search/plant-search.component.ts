@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { County, GrowthHabit, LocationCode, PlantData, StateInfo } from '../models/gov/models';
 import { Subject } from 'rxjs/internal/Subject';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
@@ -11,12 +11,13 @@ import { FileService } from '../services/file.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select'
+import { TranslocoPipe } from '@jsverse/transloco';
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol' | 'growthHabit'>;
 
 @Component({
   selector: 'plant-search',
-  imports: [AsyncPipe, MatIconModule, MatButtonModule, MatSelectModule],
+  imports: [AsyncPipe, MatIconModule, MatButtonModule, MatSelectModule, TranslocoPipe, UpperCasePipe],
   templateUrl: './plant-search.component.html',
   styleUrl: './plant-search.component.css'
 })

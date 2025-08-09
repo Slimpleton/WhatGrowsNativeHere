@@ -1,0 +1,19 @@
+{
+    "SORT_OPTIONS":{
+        "COMMONNAME":"Common Name",
+        "SCIENTIFICNAME":"Scientific Name",
+        "GROWTHHABIT":"Growth Habit"
+    },
+    "GROWTH_HABIT_FILTER_OPTIONS":{
+        "ANY":"Any", 
+        "GRAMINOID":"Grasslike",
+        "SHRUB":"Shrub",
+        "SUBSHRUB":"Subshrub",
+        "TREE":"Tree",
+        "VINE":"Vine",
+        "NONVASCULAR":"Nonvascular",
+        "FORB/HERB":"Herb"
+    },
+    "NATIVE_PLANTS_IN":"Native Plants In "
+}
+
