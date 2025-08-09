@@ -20,25 +20,16 @@ h2{
     height: inherit;
 }
 
-/* .gov-container-scrollport::-webkit-scrollbar{
-    background-color: var(--wood-brown);
-}
-.gov-container-scrollport::-webkit-scrollbar-thumb{
-    background: rgb(68, 51, 29);
-    border-radius: .25em;
-} */
 
-/* For browsers that support `scrollbar-*` properties */
 @supports (scrollbar-color: auto) {
   .gov-container-scrollport{
-    scrollbar-color:rgb(68, 51, 29) var(--wood-brown);
+    scrollbar-color:var(--wood-dark-brown) var(--wood-brown);
   }
 }
 
-/* Otherwise, use `::-webkit-scrollbar-*` pseudo-elements */
 @supports selector(::-webkit-scrollbar) {
   .gov-container-scrollport::-webkit-scrollbar {
-    background:rgb(68, 51, 29);
+    background:var(--wood-dark-brown);
   }
   .gov-container-scrollport:-webkit-scrollbar-thumb {
     background: var(--wood-brown);

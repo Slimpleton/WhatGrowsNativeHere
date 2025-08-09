@@ -2,20 +2,21 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { County, GrowthHabit, LocationCode, PlantData, StateInfo } from '../models/gov/models';
 import { Subject } from 'rxjs/internal/Subject';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { AsyncPipe, NgFor } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
 import { combineLatest, combineLatestWith, debounceTime, distinctUntilChanged, filter, map, takeUntil, tap } from 'rxjs';
 import { FileService } from '../services/file.service';
-import {MatIconModule} from '@angular/material/icon';
-import {MatButtonModule} from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select'
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol' | 'growthHabit'>;
 
 @Component({
   selector: 'plant-search',
-  imports: [AsyncPipe, NgFor, MatIconModule, MatButtonModule],
+  imports: [AsyncPipe, MatIconModule, MatButtonModule, MatSelectModule],
   templateUrl: './plant-search.component.html',
   styleUrl: './plant-search.component.css'
 })
@@ -24,16 +25,16 @@ export class PlantSearchComponent {
   private _growthHabitEmitter$: Subject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
   private _isSortOptionAlphabeticOrderEmitter$: Subject<boolean> = new BehaviorSubject<boolean>(true);
-  private get isSortOptionAlphabeticOrderEmitter$(): Observable<boolean>{
+  private get isSortOptionAlphabeticOrderEmitter$(): Observable<boolean> {
     return this._isSortOptionAlphabeticOrderEmitter$.asObservable();
   }
-  private _sortOptionDirection : 'A-Z' | 'Z-A' = 'A-Z';
-  public get sortOptionDirection():'A-Z' | 'Z-A'{
+  private _sortOptionDirection: 'A-Z' | 'Z-A' = 'A-Z';
+  public get sortOptionDirection(): 'A-Z' | 'Z-A' {
     return this._sortOptionDirection;
   }
 
-  public toggleSortOptionDirection(): void{
-    this._sortOptionDirection = this._sortOptionDirection ==  'Z-A' ? 'A-Z' : 'Z-A';
+  public toggleSortOptionDirection(): void {
+    this._sortOptionDirection = this._sortOptionDirection == 'Z-A' ? 'A-Z' : 'Z-A';
     this._isSortOptionAlphabeticOrderEmitter$.next(this._sortOptionDirection === 'A-Z');
   }
 

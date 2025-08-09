@@ -6,6 +6,7 @@ import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PlantData } from '../models/gov/models';
 import { MatIconModule } from '@angular/material/icon';
+
 import { TitleCasePipe } from '@angular/common';
 
 @Component({
@@ -53,24 +54,25 @@ export class HomeComponent implements OnInit {
   // PRIORITIES 
 
   // LOW 
-  // TODO make a json reader for the plant_list_2024012.json.gz aka zenodo.org records low prior because no occurence / nativity data
+  // TODO possibly use webcrawlers to gather information about local flora using more local websites?? 
 
   // MEDIUM 
-  // TODO possibly use webcrawlers to gather information about local flora using more local websites?? low priority
-  // TODO make a calflora service cuz their db is extensive possibly with many records
   // TODO on search, might be cool to scrape the web for results on most common name associated with scientific name if i cant find an official mapping 
+  // TODO make a calflora service cuz their db is extensive possibly with many records
+  // TODO use d3-geo / us-atlas maps to display gbif occurence data and other occurence data??? 
+  // TODO use inaturalist api for occurrences as well, research grade only, use for occurrences because its community driven
+  // https://explorer.natureserve.org/api-docs/#_species_search OnlyNatives for locationCriteria will get only the native species we search !! might have some info on occurrences here too not sure could also get a combined accurate record of native plants 
+  // TODO trefle api has open source botanical indexed plants and stuff too, probably use for occurrences because native declaration is weak
 
 
   // HIGH 
   // TODO make a reader for the gbif occurrence download records
   // TODO use d3-geo and us-atlas to display maps of the geo locations
   // Maps are drawn on canvas btw its not like ur unfamiliar with it
-  // TODO use d3-geo / us-atlas maps to display gbif occurence data and other occurence data??? 
-  // TODO use inaturalist api for occurrences as well, research grade only, use for occurrences because its community driven
-  // https://explorer.natureserve.org/api-docs/#_species_search OnlyNatives for locationCriteria will get only the native species we search !! might have some info on occurrences here too not sure could also get a combined accurate record of native plants 
-  // TODO trefle api has open source botanical indexed plants and stuff too, probably use for occurrences because native declaration is weak
   // TODO create indexing file so that searching via common name / scientific name / symbol be fast as fuck boi
-  // TODO three different index files ??? one for each search variant? can execute all three separately on the same file and combine the results ?? 
+
+  // TODO use server side prerendering and  https://angular.dev/guide/ssr && https://angular.dev/guide/hydration to work to get the results of searches prerendered in html, therefore allowing better indexing / search times
+  // TODO  different index files ??? one for each search variant? can execute all separately on the same file and combine the results ?? <- only good when ssr and prerender and hyrdation
   // I think we do this by analyzing how many different combinations of letters exist within the name??? 
   // i dont fully remember but it was probably a hashmap of letter groups to symbols would work
   //
