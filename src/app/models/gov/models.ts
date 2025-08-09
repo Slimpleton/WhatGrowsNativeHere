@@ -311,7 +311,7 @@ export type PlantData = Readonly<{
     nativeStateAndProvinceCodes: Set<LocationCode>;
     combinedCountyFIPs: string[];
     characteristicsData: boolean;
-    activeGrowthPeriod: ReadonlyArray<Season> | Season;
+    activeGrowthPeriod: ReadonlyArray<Season>;
     afterHarvestRegrowthRate: Rate;
     bloat: Level;
     cnRatio: Level;

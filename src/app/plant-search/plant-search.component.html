@@ -1,6 +1,6 @@
 <section id="plant-search-container">
     <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
-        placeholder="e.g. Lupinus agardhianus, Apache plume,...,">
+        [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco">
     <select name="sortSelector" id="sortSelector" #sortSelector (change)="changeSortOption(sortSelector.value)">
         @for (option of sortOptions; track $index) {
         <option [value]="option">{{ 'SORT_OPTIONS.' + option | uppercase | transloco}}</option>

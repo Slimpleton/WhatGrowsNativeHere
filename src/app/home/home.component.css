@@ -12,7 +12,6 @@ h2{
 
 .container {
     background-color: rgb(162, 192, 162);
-    padding-left: 1.5vw;
     height: calc(100vh - .5vh - 4em);
 }
 
@@ -45,6 +44,14 @@ h2{
 .positional-plant-result-container {
     height: var(--item-size);
 }
+
+.positional-plant-result-container{
+    border: .25em var(--wood-brown) solid;
+}
+.positional-plant-result-container:nth-child(5n + 1){
+    border-left: none;  
+}
+
 
 .plant-holder {
     display: flex;

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -8,6 +8,7 @@ import { PlantData } from '../models/gov/models';
 import { MatIconModule } from '@angular/material/icon';
 import { TitleCasePipe, UpperCasePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { fromEvent, map, startWith, tap } from 'rxjs';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,6 +71,8 @@ export class HomeComponent implements OnInit {
   // TODO use d3-geo and us-atlas to display maps of the geo locations
   // Maps are drawn on canvas btw its not like ur unfamiliar with it
   // TODO create indexing file so that searching via common name / scientific name / symbol be fast as fuck boi
+  // TODO better home screen scaling
+
 
   // TODO use server side prerendering and  https://angular.dev/guide/ssr && https://angular.dev/guide/hydration to work to get the results of searches prerendered in html, therefore allowing better indexing / search times
   // TODO  different index files ??? one for each search variant? can execute all separately on the same file and combine the results ?? <- only good when ssr and prerender and hyrdation
@@ -79,11 +82,29 @@ export class HomeComponent implements OnInit {
 
   // HIGHEST 
   // Remove some of the plants where native data is unsure aka on site it might say not in pfa
+  public columns: number = 5;
+  public itemSize: string = '8em';
 
   public constructor(private readonly _plantService: GovPlantsDataService
     // private readonly _gbifService: GbifService,
-  ) { }
+  ) {
+    fromEvent(window, 'resize')
+      .pipe(
+        map(event => [(event.target as any).innerWidth, (event.target as any).fontSize]),
+        tap((value) => console.log(value)),
+      ).subscribe(([width, fontSize]) => {
+        this.columns = width / (Number.parseInt(this.itemSize.slice(0, this.itemSize.length - 2)) * fontSize);
+      });
+  }
 
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    const width = (event.target as any).innerWidth;
+    const fontSize = Number.parseInt(window.getComputedStyle(event.target as HTMLElement).getPropertyValue('font-size'));
+    console.log(width,fontSize);
+    this.columns = width / (Number.parseInt(this.itemSize) * fontSize);
+  }
 
 
   ngOnInit(): void {

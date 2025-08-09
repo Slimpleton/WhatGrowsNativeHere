@@ -14,6 +14,7 @@
         "NONVASCULAR":"Nonvascular",
         "FORB/HERB":"Herb"
     },
-    "NATIVE_PLANTS_IN":"Native Plants In "
+    "NATIVE_PLANTS_IN":"Native Plants In ",
+    "SEARCHBAR_PLACEHOLDER":"e.g. Lupinus agardhianus, Apache plume,...,"
 }
 

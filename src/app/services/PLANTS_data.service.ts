@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { CountyCSVItem, ExtraInfo, getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, ShadeTolerance, validLocationCodes } from "../models/gov/models";
+import { CountyCSVItem, ExtraInfo, getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, Season, ShadeTolerance, validLocationCodes } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 import { FileService } from "./file.service";
 import { ResolveFn } from "@angular/router";
@@ -257,6 +257,11 @@ export class GovPlantsDataService {
         return Object.freeze(habitCsvValue.split(',').map(v => v.trim() as GrowthHabit));
     }
 
+    parseActiveGrowthPeriod(value: string): ReadonlyArray<Season> {
+        return Object.freeze(
+            value.split(',').flatMap(
+                (value: string) => value.split(' and ').map(v => v.trim() as Season)));
+    }
 
     /**
      * Converts the csv value for nativeStatus into the indexed array searchable for locationCodes
@@ -355,6 +360,9 @@ export class GovPlantsDataService {
                 else if (camelKey === 'growthHabit') {
                     result[camelKey] = this.parseGrowthHabit(value);
                 }
+                else if(camelKey == 'activeGrowthPeriod'){
+                    result[camelKey] = this.parseActiveGrowthPeriod(value);
+                }
                 else if (camelKey === 'shadeTolerance') {
                     // console.log(camelKey, value);
                     result[camelKey] = value;
@@ -368,7 +376,6 @@ export class GovPlantsDataService {
                     result[camelKey] = Number(value);
                 } else if (value.includes(',')) {
                     // Handle array values (comma-separated strings)
-                    // Make the array immutable using Object.freeze
                     result[camelKey] = Object.freeze(value.split(',').map(v => v.trim()));
                 } else {
                     result[camelKey] = value;
@@ -378,4 +385,5 @@ export class GovPlantsDataService {
         // Return as a deeply immutable object
         return Object.freeze(result) as PlantData;
     }
+
 }
