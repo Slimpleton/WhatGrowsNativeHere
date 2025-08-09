@@ -4,7 +4,7 @@
         "SCIENTIFICNAME":"Scientific Name",
         "GROWTHHABIT":"Growth Habit"
     },
-    "GROWTH_HABIT_FILTER_OPTIONS":{
+    "GROWTH_HABITS":{
         "ANY":"Any", 
         "GRAMINOID":"Grasslike",
         "SHRUB":"Shrub",

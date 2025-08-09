@@ -12,7 +12,7 @@
     <select (change)="changeGrowthHabit(growthHabitSelector.value)" name="growthHabitSelector" id="growthHabitSelector"
         #growthHabitSelector [disabled]="filterInProgress$ | async">
         @for (growthHabit of growthHabits; track $index) {
-        <option [value]="growthHabit">{{'GROWTH_HABIT_FILTER_OPTIONS.' + growthHabit| uppercase | transloco}}</option>
+        <option [value]="growthHabit">{{'GROWTH_HABITS.' + growthHabit| uppercase | transloco}}</option>
         }
     </select>
     <h2 class="filter-title" id="title">{{'NATIVE_PLANTS_IN' | transloco}} {{countyName}}</h2>

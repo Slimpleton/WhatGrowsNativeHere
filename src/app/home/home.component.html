@@ -53,7 +53,10 @@
                             </span>
                             }
                         </span>
-                        <h4 class="result-property" id="plant-growth-habit-{{i}}">{{plant.growthHabit}}</h4>
+                        <h4 class="result-property" id="plant-growth-habit-{{i}}">
+                            @for (growthHabit of plant.growthHabit; track $index) {
+                            {{'GROWTH_HABITS.' + growthHabit | uppercase | transloco}}{{ $index + 1 <
+                                plant.growthHabit.length ? ',' : '' }} } </h4>
                     </section>
                 </mat-grid-tile>
             </mat-grid-list>

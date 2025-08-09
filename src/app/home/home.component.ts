@@ -6,14 +6,14 @@ import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PlantData } from '../models/gov/models';
 import { MatIconModule } from '@angular/material/icon';
-
-import { TitleCasePipe } from '@angular/common';
+import { TitleCasePipe, UpperCasePipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent, MatIconModule, TitleCasePipe],
+  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent, MatIconModule, TitleCasePipe, TranslocoPipe, UpperCasePipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
