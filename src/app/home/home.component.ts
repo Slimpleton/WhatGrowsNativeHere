@@ -8,13 +8,14 @@ import { PlantData } from '../models/gov/models';
 import { MatIconModule } from '@angular/material/icon';
 import { TitleCasePipe, UpperCasePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { fromEvent, map, startWith, tap } from 'rxjs';
+import { fromEvent, map, tap } from 'rxjs';
+import { ShadyIconComponent } from '../shady-icon/shady-icon.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent, MatIconModule, TitleCasePipe, TranslocoPipe, UpperCasePipe],
+  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent, MatIconModule, TitleCasePipe, TranslocoPipe, UpperCasePipe, ShadyIconComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -82,28 +83,19 @@ export class HomeComponent implements OnInit {
 
   // HIGHEST 
   // Remove some of the plants where native data is unsure aka on site it might say not in pfa
-  public columns: number = 5;
-  public itemSize: string = '8em';
+  public itemSize: string = '96px';
+  public columns: number = window.innerWidth / (Number.parseInt(this.itemSize) * 4);
 
   public constructor(private readonly _plantService: GovPlantsDataService
     // private readonly _gbifService: GbifService,
   ) {
-    fromEvent(window, 'resize')
-      .pipe(
-        map(event => [(event.target as any).innerWidth, (event.target as any).fontSize]),
-        tap((value) => console.log(value)),
-      ).subscribe(([width, fontSize]) => {
-        this.columns = width / (Number.parseInt(this.itemSize.slice(0, this.itemSize.length - 2)) * fontSize);
-      });
   }
 
-
+  @HostListener('screen.orientation.change', ['$event'])
   @HostListener('window:resize', ['$event'])
-  onResize(event: Event) {
+  onResizeOrRotate(event: Event) {
     const width = (event.target as any).innerWidth;
-    const fontSize = Number.parseInt(window.getComputedStyle(event.target as HTMLElement).getPropertyValue('font-size'));
-    console.log(width,fontSize);
-    this.columns = width / (Number.parseInt(this.itemSize) * fontSize);
+    this.columns = width / (Number.parseInt(this.itemSize) * 5);
   }
 
 

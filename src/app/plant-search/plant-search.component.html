@@ -1,19 +1,23 @@
 <section id="plant-search-container">
-    <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
-        [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco">
-    <select name="sortSelector" id="sortSelector" #sortSelector (change)="changeSortOption(sortSelector.value)">
-        @for (option of sortOptions; track $index) {
-        <option [value]="option">{{ 'SORT_OPTIONS.' + option | uppercase | transloco}}</option>
-        }
-    </select>
-    <button matIconButton class="sortOrderButton" id="sortOrderButton" (click)="toggleSortOptionDirection()">
-        <mat-icon>sort_by_alpha</mat-icon>
-    </button>
-    <select (change)="changeGrowthHabit(growthHabitSelector.value)" name="growthHabitSelector" id="growthHabitSelector"
-        #growthHabitSelector [disabled]="filterInProgress$ | async">
-        @for (growthHabit of growthHabits; track $index) {
-        <option [value]="growthHabit">{{'GROWTH_HABITS.' + growthHabit| uppercase | transloco}}</option>
-        }
-    </select>
+    <div class="search-container">
+        <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
+            [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco" class="searchbar">
+        <div class="row">
+            <select name="sortSelector" id="sortSelector" #sortSelector (change)="changeSortOption(sortSelector.value)">
+                @for (option of sortOptions; track $index) {
+                <option [value]="option">{{ 'SORT_OPTIONS.' + option | uppercase | transloco}}</option>
+                }
+            </select>
+            <select (change)="changeGrowthHabit(growthHabitSelector.value)" name="growthHabitSelector"
+                id="growthHabitSelector" #growthHabitSelector [disabled]="filterInProgress$ | async">
+                @for (growthHabit of growthHabits; track $index) {
+                <option [value]="growthHabit">{{'GROWTH_HABITS.' + growthHabit| uppercase | transloco}}</option>
+                }
+            </select>
+            <button matIconButton class="sortOrderButton" id="sortOrderButton" (click)="toggleSortOptionDirection()">
+                <mat-icon>sort_by_alpha</mat-icon>
+            </button>
+        </div>
+    </div>
     <h2 class="filter-title" id="title">{{'NATIVE_PLANTS_IN' | transloco}} {{countyName}}</h2>
 </section>

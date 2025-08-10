@@ -21,10 +21,7 @@
                             @if (plant.shadeTolerance != null) {
                             @switch (plant.shadeTolerance) {
                             @case ('Intermediate') {
-                            <div style="display: grid; grid: 1fr 1fr;">
-                                <mat-icon class="overlapped-icon overlapped-sun">sunny</mat-icon>
-                                <mat-icon class="overlapped-icon cloud overlapped-cloud">cloud</mat-icon>
-                            </div>
+                            <shady-icon></shady-icon>
                             }
                             @case('Intolerant'){
                             <mat-icon class="sun">
@@ -60,7 +57,6 @@
                             @for (growthHabit of plant.growthHabit; track $index) {
                             {{'GROWTH_HABITS.' + growthHabit | uppercase | transloco}}{{ $index + 1 <
                                 plant.growthHabit.length ? ',' : '' }} } </h4>
-
                                 }
 
                                 @if(plant.activeGrowthPeriod.length > 0){
