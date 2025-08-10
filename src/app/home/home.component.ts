@@ -84,7 +84,7 @@ export class HomeComponent implements OnInit {
   // HIGHEST 
   // Remove some of the plants where native data is unsure aka on site it might say not in pfa
   public itemSize: string = '96px';
-  public columns: number = window.innerWidth / (Number.parseInt(this.itemSize) * 4);
+  public columns: number = Math.min(window.innerWidth / (Number.parseInt(this.itemSize) * 3), 6);
 
   public constructor(private readonly _plantService: GovPlantsDataService
     // private readonly _gbifService: GbifService,

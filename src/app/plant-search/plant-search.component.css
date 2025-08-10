@@ -7,17 +7,33 @@
     align-items: center;
     text-align: center;
     padding-top: .5vh;
-    height: 4em;
+    height: 6em;
     width: calc(100% - .75vw);
     background-color: var(--wood-brown);
+    gap: .5em;
 }
 
 .filter-title{
-    flex: 2;
+    flex: 1;
     font-weight: 600;
     font-size: clamp(1.75vw, 1.75em ,4em);
 }
 
+.search-container{
+    text-align: left;
+}
+
 .searchbar{
-    width: 100%;
+    align-self: flex-start;
+    width: 85%;
+}
+
+.row{
+    display: flex;
+    flex-direction: row;
+}
+
+.select-columns{
+    display: flex;
+    flex-direction: column;
 }
