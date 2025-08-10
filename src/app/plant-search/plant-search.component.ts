@@ -132,7 +132,7 @@ export class PlantSearchComponent {
 
     this._positionService.countyEmitter$.pipe(
       filter((x) => x != null && x != undefined),
-      map((x) => combineCountyFIP(x)),
+      map((x) => PlantSearchComponent.combineCountyFIP(x)),
       tap((x) => console.log(x)),
       this._fileService.getCountyCSVItemAsync(),
     ).subscribe({
@@ -150,11 +150,8 @@ export class PlantSearchComponent {
     this._ngDestroy$.complete();
   }
 
-  // TODO sorting system, want to be able to sort by common name / scientific name asc / desc
   // TODO swap between user location and specific location // county and state
   // TODO figure out use case when the plant is native to state but has no county data? do i just include all or none for now
-  // TODO filtering system, make maybe the thing and above both into the search service??
-  // TODO use input output to input unfiltered stuff output filtered stuff and display on the same html?? might work idk
 
   public search(searchValue: string): void {
     this._searchStarter$.next(searchValue);
@@ -181,11 +178,11 @@ export class PlantSearchComponent {
 
   private filterForCounty(county: County, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
     return plants.filter(plant => plant.combinedCountyFIPs.some(plantCounty => plantCounty ==
-      combineCountyFIP(county)));
+      PlantSearchComponent.combineCountyFIP(county)));
   }
-}
-
-function combineCountyFIP(county: Readonly<County>) {
-  return county.stateFIP.toString().padStart(2, '0') + county.FIP.padStart(3, '0');
+  
+  private static combineCountyFIP(county: Readonly<County>) {
+    return county.stateFIP.toString().padStart(2, '0') + county.FIP.padStart(3, '0');
+  }
 }
 

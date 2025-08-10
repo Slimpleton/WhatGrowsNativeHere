@@ -47,7 +47,7 @@
 
 .sortOrderButton{
     background-color: var(--grass-light-green);
-    border-radius: 0;
+    color: var(--wood-dark-brown)
 }
 
 .selector{
