@@ -11,7 +11,7 @@ h2{
 }
 
 .container {
-    background-color: rgb(162, 192, 162);
+    background-color: var(--grass-light-green);
     height: calc(100vh - .5vh - 6em);
 }
 

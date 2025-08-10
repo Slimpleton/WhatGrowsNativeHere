@@ -17,6 +17,7 @@
     flex: 1;
     font-weight: 600;
     font-size: clamp(1.75vw, 1.75em ,4em);
+    line-height: clamp(1.75vw, 1em ,4em);
 }
 
 .search-container{
@@ -25,15 +26,30 @@
 
 .searchbar{
     align-self: flex-start;
-    width: 85%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .row{
-    display: flex;
     flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
 }
 
-.select-columns{
+.row, .col, .search-container{
     display: flex;
+    gap: 2px;
+}
+
+.col{
     flex-direction: column;
+}
+
+.sortOrderButton{
+    background-color: var(--grass-light-green);
+    border-radius: 0;
+}
+
+.selector{
+    width: 100%;
 }

@@ -1,16 +1,16 @@
 <section id="plant-search-container">
-    <div class="search-container">
+    <div class="search-container col">
         <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
             [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco" class="searchbar">
         <div class="row">
-            <div class="select-columns">
-                <select name="sortSelector" id="sortSelector" #sortSelector
+            <div class="col">
+                <select name="sortSelector" id="sortSelector" #sortSelector class="selector"
                     (change)="changeSortOption(sortSelector.value)">
                     @for (option of sortOptions; track $index) {
                     <option [value]="option">{{ 'SORT_OPTIONS.' + option | uppercase | transloco}}</option>
                     }
                 </select>
-                <select (change)="changeGrowthHabit(growthHabitSelector.value)" name="growthHabitSelector"
+                <select (change)="changeGrowthHabit(growthHabitSelector.value)" name="growthHabitSelector" class="selector"
                     id="growthHabitSelector" #growthHabitSelector [disabled]="filterInProgress$ | async">
                     @for (growthHabit of growthHabits; track $index) {
                     <option [value]="growthHabit">{{'GROWTH_HABITS.' + growthHabit| uppercase | transloco}}</option>

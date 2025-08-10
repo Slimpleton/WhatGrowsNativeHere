@@ -84,7 +84,7 @@ export class HomeComponent implements OnInit {
   // HIGHEST 
   // Remove some of the plants where native data is unsure aka on site it might say not in pfa
   public itemSize: string = '96px';
-  public columns: number = Math.min(window.innerWidth / (Number.parseInt(this.itemSize) * 3), 6);
+  public columns: number = Math.min(window.innerWidth / (Number.parseInt(this.itemSize) * 4), 6);
 
   public constructor(private readonly _plantService: GovPlantsDataService
     // private readonly _gbifService: GbifService,
@@ -95,7 +95,7 @@ export class HomeComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
   onResizeOrRotate(event: Event) {
     const width = (event.target as any).innerWidth;
-    this.columns = width / (Number.parseInt(this.itemSize) * 5);
+    this.columns = width / (Number.parseInt(this.itemSize) * 4);
   }
 
 
