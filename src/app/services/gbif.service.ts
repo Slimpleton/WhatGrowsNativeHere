@@ -3,14 +3,13 @@ import { Injectable } from '@angular/core';
 import { Observable, OperatorFunction, expand, map, reduce, takeWhile, tap } from 'rxjs';
 import { GBIFPageableResult } from '../models/gbif/gbif.pageable-result';
 import { GbifOccurrence } from '../models/gbif/gbif.occurrence';
-import { NativePlantSearch } from '../interfaces/native-plant-search.interface';
 import { GBIFGADMRegion } from '../models/gbif/gbif.gadm-region';
 import { GBIFPage } from '../models/gbif/gbif.page';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GbifService implements NativePlantSearch {
+export class GbifService {
 
   private _url: string = 'https://api.gbif.org/';
   private _v2Url: string = `${this._url}v2/`;

@@ -8,7 +8,7 @@
                 <mat-grid-tile *cdkVirtualFor="let plant of plantData; let i = index;"
                     class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">
                     <section class="plant-holder" id="plant-holder-{{i}}">
-                        <h1 class="result-common-name" id="plant-common-name-{{i}}">{{plant.commonName | titlecase}}
+                        <h1 class="result-common-name" id="plant-common-name-{{i}}" (click)="" >{{plant.commonName | titlecase}} 
                         </h1>
                         <h2 class="result-scientific-name" id="plant-scientific-name-{{i}}">{{plant.scientificName |
                             titlecase}}

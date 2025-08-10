@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { csvResolver } from './services/PLANTS_data.service';
+import { CountyMapComponent } from './county-map/county-map.component';
 
 export const routes: Routes = [
     {   
@@ -8,4 +9,8 @@ export const routes: Routes = [
         component: HomeComponent,
         resolve: csvResolver
     },
+    {
+        path:'counties',
+        component: CountyMapComponent,
+    }
 ];

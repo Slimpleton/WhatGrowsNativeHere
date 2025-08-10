@@ -48,7 +48,13 @@ export class PlantSearchComponent {
   private _ngDestroy$: Subject<void> = new Subject<void>();
   public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
 
-  public countyName: string = '';
+  public _countyName: string = '';
+  public get countyName(): string{
+    return this._countyName;
+  }
+  private set countyName(value: string) {
+    this._countyName = value;
+  }
 
   private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadNativePlantData
     .pipe(takeUntil(this._ngDestroy$));
