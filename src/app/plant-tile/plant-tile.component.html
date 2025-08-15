@@ -1,0 +1,59 @@
+<section class="plant-holder" id="plant-holder-{{plant.acceptedSymbol}}">
+    <h1 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
+    </h1>
+    <h2 class="result-scientific-name" id="plant-scientific-name-{{plant.acceptedSymbol}}">{{plant.scientificName |
+        titlecase}}
+    </h2>
+    <span class="symbolAndShadeRow">
+        <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol" class=""
+            id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
+
+        @if (plant.shadeTolerance != null) {
+        @switch (plant.shadeTolerance) {
+        @case ('Intermediate') {
+        <shady-icon></shady-icon>
+        }
+        @case('Intolerant'){
+        <mat-icon class="sun">
+            sunny
+        </mat-icon>
+        }
+        @case('Tolerant'){
+        <mat-icon class="cloud">
+            cloud
+        </mat-icon>
+        }
+        }
+        }
+        @if(plant.duration != null){
+        <span style="font-size: 1.75em; place-items: center;">
+            @if (plant.duration.includes('Biennial' )) {
+            &#9863;
+            }
+            @if(plant.duration.includes('Annual') || plant.duration.includes('AN')){
+            &#8857;
+            }
+            @if (plant.duration.includes('Perennial')) {
+            &#9854;
+            }
+
+        </span>
+        }
+    </span>
+    @if(plant.growthHabit.length > 0)
+    {
+
+    <h4 class="result-property" id="plant-growth-habit-{{plant.acceptedSymbol}}">
+        @for (growthHabit of plant.growthHabit; track $index) {
+        {{'GROWTH_HABITS.' + growthHabit | uppercase | transloco}}{{ $index + 1 < plant.growthHabit.length ? ',' : '' }}
+            } </h4>
+            }
+
+            @if(plant.activeGrowthPeriod.length > 0){
+
+            <h4 class="result-property" id="active-season-{{plant.acceptedSymbol}}">
+                @for (season of plant.activeGrowthPeriod; track $index) {
+                {{season}}{{ $index + 1 < plant.activeGrowthPeriod.length ? ',' : '' }} } </h4>
+                    }
+
+</section>

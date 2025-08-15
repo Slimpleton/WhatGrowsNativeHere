@@ -6,21 +6,17 @@ import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PlantData } from '../models/gov/models';
 import { MatIconModule } from '@angular/material/icon';
-import { TitleCasePipe, UpperCasePipe } from '@angular/common';
-import { TranslocoPipe } from '@jsverse/transloco';
-import { fromEvent, map, tap } from 'rxjs';
-import { ShadyIconComponent } from '../shady-icon/shady-icon.component';
+import { PlantTileComponent } from '../plant-tile/plant-tile.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent, MatIconModule, TitleCasePipe, TranslocoPipe, UpperCasePipe, ShadyIconComponent],
+  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent, MatIconModule, PlantTileComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
-  public usdaGovPlantProfileUrl: string = this._plantService.usdaGovPlantProfileUrl;
   public plantData?: ReadonlyArray<Readonly<PlantData>>;
   // private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
   // private _lastSearch$: Observable<GbifOccurrence[]> = this._lastUnfilteredSearch$.pipe(
@@ -83,10 +79,9 @@ export class HomeComponent implements OnInit {
 
   // HIGHEST 
   // Remove some of the plants where native data is unsure aka on site it might say not in pfa
-  private readonly MAGIC_MULTIPLIER = 4;
+  private readonly _MAGIC_MULTIPLIER = 4;
   public itemSize: string = '96px';
-  public columns: number = Math.min(window.innerWidth / (Number.parseInt(this.itemSize) * this.MAGIC_MULTIPLIER), 6);
-
+  public columns: number = Math.min(window.innerWidth / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER), 6);
 
   public constructor(private readonly _plantService: GovPlantsDataService
     // private readonly _gbifService: GbifService,
@@ -97,7 +92,7 @@ export class HomeComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
   onResizeOrRotate(event: Event) {
     const width = (event.target as any).innerWidth;
-    this.columns = width / (Number.parseInt(this.itemSize) * this.MAGIC_MULTIPLIER);
+    this.columns = width / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER);
   }
 
 

@@ -26,6 +26,8 @@ export class PlantSearchComponent {
   private _growthHabitEmitter$: Subject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
   private _isSortOptionAlphabeticOrderEmitter$: Subject<boolean> = new BehaviorSubject<boolean>(true);
+  private readonly _searchDebounceTime: number = 75;
+
   private get isSortOptionAlphabeticOrderEmitter$(): Observable<boolean> {
     return this._isSortOptionAlphabeticOrderEmitter$.asObservable();
   }
@@ -49,7 +51,7 @@ export class PlantSearchComponent {
   public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
 
   public _countyName: string = '';
-  public get countyName(): string{
+  public get countyName(): string {
     return this._countyName;
   }
   private set countyName(value: string) {
@@ -78,7 +80,7 @@ export class PlantSearchComponent {
 
   private _searchStarter$: Subject<string> = new Subject<string>();
   private _search$: Observable<string> = this._searchStarter$.pipe(
-    debounceTime(75),
+    debounceTime(this._searchDebounceTime),
     distinctUntilChanged(),
     tap((value) => console.log(value)),
   );
@@ -183,10 +185,9 @@ export class PlantSearchComponent {
   }
 
   private filterForCounty(county: County, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
-    return plants.filter(plant => plant.combinedCountyFIPs.some(plantCounty => plantCounty ==
-      PlantSearchComponent.combineCountyFIP(county)));
+    return plants.filter(plant => plant.combinedCountyFIPs.some(plantCounty => plantCounty == PlantSearchComponent.combineCountyFIP(county)));
   }
-  
+
   private static combineCountyFIP(county: Readonly<County>) {
     return county.stateFIP.toString().padStart(2, '0') + county.FIP.padStart(3, '0');
   }

@@ -1,0 +1,44 @@
+:root {
+    --item-size: 5em;
+}
+
+h2 {
+    all: unset;
+}
+
+.result-scientific-name {
+    font-style: italic;
+}
+
+.plant-holder {
+    display: flex;
+    flex-direction: column;
+}
+
+.result-property {
+    margin-bottom: 0;
+}
+
+.symbolAndShadeRow {
+    display: inline-flex;
+    gap: .25em;
+    place-items: center;
+}
+
+.overlapped-icon {
+    grid-area: 1/1/2/2;
+}
+
+.overlapped-sun {
+    padding-left: 12px;
+}
+
+.sun,
+.overlapped-sun {
+    color: rgb(255, 208, 0);
+}
+
+.overlapped-cloud,
+.cloud {
+    color: grey;
+}

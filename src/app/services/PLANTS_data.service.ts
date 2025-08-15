@@ -13,7 +13,7 @@ export const csvResolver: ResolveFn<ReadonlyArray<Readonly<PlantData>>> = (_, __
     providedIn: 'root'
 })
 export class GovPlantsDataService {
-    public usdaGovPlantProfileUrl: string = 'https://plants.usda.gov/plant-profile/';
+    public static usdaGovPlantProfileUrl: string = 'https://plants.usda.gov/plant-profile/';
     private readonly _headerMapping: Record<string, keyof PlantData> = {
         "Accepted Symbol": "acceptedSymbol",
         "Synonym Symbol": "synonymSymbol",
