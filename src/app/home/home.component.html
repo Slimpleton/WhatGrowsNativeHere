@@ -7,7 +7,7 @@
             <mat-grid-list [cols]="columns" rowHeight="1.75:1">
                 <mat-grid-tile *cdkVirtualFor="let plant of plantData; let i = index;"
                     class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">
-                    <plant-tile [plant]="plant"></plant-tile>
+                    <plant-tile class="plant-holder" [plant]="plant"></plant-tile>
                 </mat-grid-tile>
             </mat-grid-list>
         </cdk-virtual-scroll-viewport>

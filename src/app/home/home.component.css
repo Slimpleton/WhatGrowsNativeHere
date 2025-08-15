@@ -2,10 +2,6 @@
     --item-size: 5em;
 }
 
-h2{
-    all: unset;
-}
-
 .container {
     background-color: var(--grass-light-green);
     height: calc(100vh - .5vh - 6em);
@@ -14,7 +10,6 @@ h2{
 .result-container{
     height: inherit;
 }
-
 
 @supports (scrollbar-color: auto) {
   .gov-container-scrollport{
@@ -44,6 +39,3 @@ h2{
 .positional-plant-result-container{
     border: .25em var(--wood-brown) solid;
 }
-
-
-
