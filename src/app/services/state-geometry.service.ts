@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import * as USStates from 'us-atlas/states-10m.json';
 import * as USCounties from 'us-atlas/counties-10m.json';
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';// With your type declaration from earlier:
@@ -16,7 +15,7 @@ export class StateGeometryService {
 
   constructor(private readonly _fipsFileService: FileService) {
     // Convert TopoJSON to GeoJSON for US states
-    this.usStates = topojson.feature(USStates as any, (USStates as any).objects.states);
+    this.usStates = topojson.feature(USCounties as any, (USCounties as any).objects.states);
     this.usCounties = topojson.feature(USCounties as any, (USCounties as any).objects.counties);
   }
 
