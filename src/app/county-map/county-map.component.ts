@@ -1,9 +1,7 @@
-import { Component } from '@angular/core';
-import { PositionService } from '../services/position.service';
-import { FileService } from '../services/file.service';
-import { StateGeometryService } from '../services/state-geometry.service';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import * as d3 from 'd3-geo';
 import * as topojson from 'topojson-client';
+import * as us from 'us-atlas/counties-10m.json';
 
 @Component({
   selector: 'app-county-map',
@@ -13,10 +11,10 @@ import * as topojson from 'topojson-client';
 })
 export class CountyMapComponent {
 
-  public constructor(
-    private readonly _positionService: PositionService,
-    private readonly _fileService: FileService,
-    private readonly _geometryService: StateGeometryService) { }
+  @ViewChild('mapCanvas') public canvas!: ElementRef<HTMLCanvasElement>;
+  private usa : any = us;
+
+  public constructor() { }
 
   public fcn(): void {
     const width = 975;
@@ -29,19 +27,19 @@ export class CountyMapComponent {
     context.lineCap = "round";
 
     context.beginPath();
-    path(topojson.mesh(us, us.objects.counties, (a, b) => a !== b && (a.id / 1000 | 0) === (b.id / 1000 | 0)));
+    path(topojson.mesh(this.usa, this.usa.objects.counties, (a, b) => a !== b && (a.id ?? 0 / 1000 | 0) === (b.id ?? 0 / 1000 | 0)));
     context.lineWidth = 0.5;
     context.strokeStyle = "#aaa";
     context.stroke();
 
     context.beginPath();
-    path(topojson.mesh(us, us.objects.states, (a, b) => a !== b));
+    path(topojson.mesh(this.usa, this.usa.objects.states, (a, b) => a !== b));
     context.lineWidth = 0.5;
     context.strokeStyle = "#000";
     context.stroke();
 
     context.beginPath();
-    path(topojson.feature(us, us.objects.nation));
+    path(topojson.feature(this.usa, this.usa.objects.nation));
     context.lineWidth = 1;
     context.strokeStyle = "#000";
     context.stroke();
