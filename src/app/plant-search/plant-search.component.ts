@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { County, GrowthHabit, LocationCode, PlantData, StateInfo } from '../models/gov/models';
+import { combineCountyFIP, County, GrowthHabit, LocationCode, PlantData, StateInfo } from '../models/gov/models';
 import { Subject } from 'rxjs/internal/Subject';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
@@ -140,7 +140,7 @@ export class PlantSearchComponent {
 
     this._positionService.countyEmitter$.pipe(
       filter((x) => x != null && x != undefined),
-      map((x) => PlantSearchComponent.combineCountyFIP(x)),
+      map((x) => combineCountyFIP(x)),
       tap((x) => console.log(x)),
       this._fileService.getCountyCSVItemAsync(),
     ).subscribe({
@@ -185,11 +185,7 @@ export class PlantSearchComponent {
   }
 
   private filterForCounty(county: County, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
-    return plants.filter(plant => plant.combinedCountyFIPs.some(plantCounty => plantCounty == PlantSearchComponent.combineCountyFIP(county)));
+    return plants.filter(plant => plant.combinedCountyFIPs.some(plantCounty => plantCounty == combineCountyFIP(county)));
   }
 
-  private static combineCountyFIP(county: Readonly<County>) {
-    return county.stateFIP.toString().padStart(2, '0') + county.FIP.padStart(3, '0');
-  }
 }
-
