@@ -1,5 +1,7 @@
 <section class="plant-holder" id="plant-holder-{{plant.acceptedSymbol}}">
     <h1 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
+        <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}"
+            (click)="openImageSearch(plant)"></pic-search-icon>
     </h1>
     <h2 class="result-scientific-name" id="plant-scientific-name-{{plant.acceptedSymbol}}">{{plant.scientificName |
         titlecase}}

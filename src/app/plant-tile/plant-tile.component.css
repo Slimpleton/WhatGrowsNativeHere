@@ -2,6 +2,12 @@
     --item-size: 5em;
 }
 
+.result-common-name{
+    display: flex;
+    place-items: center;
+    gap: .5em;
+}
+
 h2 {
     all: unset;
 }
