@@ -4,7 +4,7 @@ import * as topojson from 'topojson-client';
 import * as us from 'us-atlas/counties-albers-10m.json';
 import { PositionService } from '../services/position.service';
 import { Subject, takeUntil } from 'rxjs';
-import { combineCountyFIP, County, StateInfo } from '../models/gov/models';
+import { combineCountyFIP, County } from '../models/gov/models';
 
 @Component({
   selector: 'app-county-map',
@@ -25,9 +25,33 @@ export class CountyMapComponent implements AfterViewInit {
     const context = this._canvas.nativeElement.getContext('2d');
     if (!context)
       return;
+
+    this._canvas.nativeElement.addEventListener('click', (ev: MouseEvent) => {
+      const x : number = ev.offsetX;
+      const y : number = ev.offsetY;
+
+      console.log(x,y, );      
+
+    });
     const path = d3.geoPath(null, context);
     context.lineJoin = "round";
     context.lineCap = "round";
+
+    
+
+    // TODO invisible features for each county
+    const countyPaths : string[] = [];
+    this._usa.objects.counties.forEach((county : any)=> {
+
+      context.beginPath();
+      const countyFeature = topojson.feature(this._usa, county);
+      const countyPath : string = path(countyFeature)!;
+      context.lineWidth = .1;
+      context.strokeStyle = 'transparent';
+      context.stroke();
+
+      countyPaths.push(countyPath);
+    });
 
     context.beginPath();
     path(topojson.mesh(this._usa, this._usa.objects.counties, (a: any, b: any) => a !== b && (a.id / 1000 | 0) === (b.id / 1000 | 0)));
@@ -47,20 +71,6 @@ export class CountyMapComponent implements AfterViewInit {
     context.strokeStyle = "#000";
     context.stroke();
 
-    // TODO draw something with this info?
-    // red outline on state? green fill in for the county cuz plants ahaha
-    // this._positionService.stateEmitter$.pipe(takeUntil(this._destroy$)).subscribe({
-    //   next: (state: StateInfo) => {
-    //     // TODO figure out how to fill ?? on getting info? on hover? oof on touch for mobile shiet
-    //     context.beginPath();
-    //     // TODO this filter is mostly working?? not fully idk some bottom ca counties are missing not sure why
-    //     path(topojson.mesh(this._usa, this._usa.objects.states, (a: any, b: any) => a.id == state.fip || b.id == state.fip));
-    //     context.strokeStyle = 'red';
-    //     context.stroke();
-    //   },
-    // });
-
-    // TODO these renders kinda overlap somehow idk why
     this._positionService.countyEmitter$.pipe(takeUntil(this._destroy$)).subscribe({
       next: (county: County) => {
         const fullFip: string = combineCountyFIP(county);
@@ -70,11 +80,8 @@ export class CountyMapComponent implements AfterViewInit {
         context.strokeStyle = '#fff';
         context.lineWidth = 2;
         context.stroke();
-        path(topojson.feature(this._usa, this._usa.objects.counties.filter((a: any) => a.id == fullFip)))
-        context.fillStyle = '#fff';
-        context.fill();
-        context.closePath();
       },
+      error :(err) => console.error(err),
     });
   }
 
