@@ -3,8 +3,9 @@
 }
 
 .search{
-    color:var(--wood-dark-brown);
-    transform: translate(-12px, 8px) scale( .75);
+    /* color:var(--wood-dark-brown); */
+    color:black;
+    transform: translate(12px, 4px) scale( .75,.75);
 }
 
 .photo{
