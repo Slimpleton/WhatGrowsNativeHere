@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import * as d3 from 'd3-geo';
+import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import * as us from 'us-atlas/counties-albers-10m.json';
 import { PositionService } from '../services/position.service';
@@ -31,28 +31,14 @@ export class CountyMapComponent implements AfterViewInit {
       const y : number = ev.offsetY;
 
       console.log(x,y, );      
-
+      // TODO use the inverse of the transformation to display canvas to get lat/long
+      // use that to find what county the click is in
     });
     const path = d3.geoPath(null, context);
     context.lineJoin = "round";
     context.lineCap = "round";
 
-    
-
-    // TODO invisible features for each county
-    const countyPaths : string[] = [];
-    this._usa.objects.counties.forEach((county : any)=> {
-
-      context.beginPath();
-      const countyFeature = topojson.feature(this._usa, county);
-      const countyPath : string = path(countyFeature)!;
-      context.lineWidth = .1;
-      context.strokeStyle = 'transparent';
-      context.stroke();
-
-      countyPaths.push(countyPath);
-    });
-
+  
     context.beginPath();
     path(topojson.mesh(this._usa, this._usa.objects.counties, (a: any, b: any) => a !== b && (a.id / 1000 | 0) === (b.id / 1000 | 0)));
     context.lineWidth = 0.5;
