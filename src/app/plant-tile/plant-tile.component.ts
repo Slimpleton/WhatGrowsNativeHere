@@ -21,15 +21,19 @@ export class PlantTileComponent {
   public constructor() {
   }
 
-  public openImageSearch(plant: PlantData) {
+  public openImageSearch(plant: PlantData) : void{
     const query : string = plant.commonName?.length > 0 ? plant.commonName : plant.scientificName;
     const queryUrl : string = `https://www.google.com/search?q=${query}&tbm=isch`;
     window.open(queryUrl, '_blank');
   }
 
-  public getPlantDuration(plant: PlantData){
+  public getPlantDuration(plant: PlantData): string{
     if(Array.isArray(plant.duration))
       return plant.duration.join(', ');
-    return plant.duration;
+    return plant.duration as string;
+  }
+
+  public openInfoPage(plant: PlantData){
+    // TODO
   }
 }
