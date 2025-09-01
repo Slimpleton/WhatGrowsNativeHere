@@ -131,7 +131,7 @@ export class GbifService {
     coords.reverse();
 
     const polygon: string = `POLYGON ((${coords.join(', ')}))`;
-    console.log(polygon);
+    // console.log(polygon);
     return polygon;
   }
 

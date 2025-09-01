@@ -34,6 +34,8 @@ export class CountyMapComponent implements AfterViewInit {
       // TODO use the inverse of the transformation to display canvas to get lat/long
       // use that to find what county the click is in
     });
+
+    
     const path = d3.geoPath(null, context);
     context.lineJoin = "round";
     context.lineCap = "round";

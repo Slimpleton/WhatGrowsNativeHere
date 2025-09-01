@@ -199,7 +199,6 @@ export class GovPlantsDataService {
         const lines = csvText.split('\r\n');
         const headers = this.parseCsvLine(lines[0]);
 
-        console.log(headers);
         return lines.slice(1)
             .map(line => {
                 const values = this.parseCsvLine(line);

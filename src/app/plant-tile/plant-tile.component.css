@@ -2,6 +2,11 @@
     --item-size: 5em;
 }
 
+.plant-holder{
+    height: inherit;
+    width: inherit;
+}
+
 .result-common-name{
     display: flex;
     place-items: center;

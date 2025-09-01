@@ -31,9 +31,15 @@
     height: 100%;
 }
 
-.plant-holder,
+/* .plant-holder, */
 .positional-plant-result-container {
     height: var(--item-size);
+}
+
+.plant-holder{
+  width: 100%;
+  height: 100%;
+  padding: 1.5em 1em;
 }
 
 .positional-plant-result-container{

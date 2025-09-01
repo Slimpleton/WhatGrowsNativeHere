@@ -6,10 +6,11 @@ import { TitleCasePipe, UpperCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { TranslocoModule } from '@jsverse/transloco';
 import { PicSearchIconComponent } from "../pic-search-icon/pic-search-icon.component";
+import { MatButtonModule } from "@angular/material/button";
 
 @Component({
   selector: 'plant-tile',
-  imports: [MatIconModule, ShadyIconComponent, TitleCasePipe, UpperCasePipe, TranslocoModule, PicSearchIconComponent],
+  imports: [MatIconModule, ShadyIconComponent, TitleCasePipe, UpperCasePipe, TranslocoModule, PicSearchIconComponent, MatButtonModule],
   templateUrl: './plant-tile.component.html',
   styleUrl: './plant-tile.component.css'
 })
@@ -24,5 +25,11 @@ export class PlantTileComponent {
     const query : string = plant.commonName?.length > 0 ? plant.commonName : plant.scientificName;
     const queryUrl : string = `https://www.google.com/search?q=${query}&tbm=isch`;
     window.open(queryUrl, '_blank');
+  }
+
+  public getPlantDuration(plant: PlantData){
+    if(Array.isArray(plant.duration))
+      return plant.duration.join(', ');
+    return plant.duration;
   }
 }

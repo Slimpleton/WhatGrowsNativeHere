@@ -114,7 +114,7 @@ export class PlantSearchComponent {
     tap((plants) => {
       this.filteredData.emit(plants);
       this.filterInProgress$.next(false);
-      console.log(plants);
+      // console.log(plants);
     }),
     takeUntil(this._ngDestroy$)
   );

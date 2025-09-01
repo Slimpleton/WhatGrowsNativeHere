@@ -1,7 +1,6 @@
 <section class="plant-holder" id="plant-holder-{{plant.acceptedSymbol}}">
     <h1 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
-        <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}"
-            (click)="openImageSearch(plant)"></pic-search-icon>
+        <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}" (click)="openImageSearch(plant)"></pic-search-icon>
     </h1>
     <h2 class="result-scientific-name" id="plant-scientific-name-{{plant.acceptedSymbol}}">{{plant.scientificName |
         titlecase}}
@@ -27,29 +26,14 @@
         }
         }
         }
-        @if(plant.duration != null){
-        <span style="font-size: 1.75em; place-items: center;">
-            @if (plant.duration.includes('Biennial' )) {
-            &#9863;
-            }
-            @if(plant.duration.includes('Annual') || plant.duration.includes('AN')){
-            &#8857;
-            }
-            @if (plant.duration.includes('Perennial')) {
-            &#9854;
-            }
-
-        </span>
-        }
     </span>
     @if(plant.growthHabit.length > 0)
     {
 
     <h4 class="result-property" id="plant-growth-habit-{{plant.acceptedSymbol}}">
         @for (growthHabit of plant.growthHabit; track $index) {
-        {{'GROWTH_HABITS.' + growthHabit | uppercase | transloco}}{{ $index + 1 < plant.growthHabit.length ? ',' : '' }}
-            } </h4>
-            }
+        {{'GROWTH_HABITS.' + growthHabit | uppercase | transloco}}{{ $index + 1 < plant.growthHabit.length ? ',' : ''
+            }}} </h4> }
 
             @if(plant.activeGrowthPeriod.length > 0){
 
@@ -58,4 +42,12 @@
                 {{season}}{{ $index + 1 < plant.activeGrowthPeriod.length ? ',' : '' }} } </h4>
                     }
 
+                    @if(plant.duration != null){
+                    <h4 class="result-property" id="duration-{{plant.acceptedSymbol}}">{{getPlantDuration(plant)}}</h4>
+                    }
+
+
+                    <button matMiniFab class="info-btn" id="info-btn-{{plant.acceptedSymbol}}">
+                        <mat-icon>question_mark</mat-icon>
+                    </button>
 </section>
