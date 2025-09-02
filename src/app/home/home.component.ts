@@ -81,6 +81,7 @@ export class HomeComponent implements OnInit {
   // Remove some of the plants where native data is unsure aka on site it might say not in pfa
   private readonly _MAGIC_MULTIPLIER = 4;
   public itemSize: string = '96px';
+  public gutterSize: string = '.25em';
   public columns: number = Math.min(window.innerWidth / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER), 6);
 
   public constructor(private readonly _plantService: GovPlantsDataService

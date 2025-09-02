@@ -5,6 +5,8 @@
 .plant-holder {
     height: 100%;
     width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .result-common-name {
@@ -24,11 +26,6 @@ h4 {
 
 .result-scientific-name {
     font-style: italic;
-}
-
-.plant-holder {
-    display: flex;
-    flex-direction: column;
 }
 
 .result-property {

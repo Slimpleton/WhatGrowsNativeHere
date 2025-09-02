@@ -3,7 +3,7 @@
 }
 
 .container {
-  background-color: var(--grass-light-green);
+  background-color:  var(--wood-brown);
   height: calc(100vh - .5vh - 6em);
 }
 
@@ -27,7 +27,7 @@
   }
 }
 
-.gov-container-scrollport {
+.gov-container-scrollport, .plant-holder {
   width: 100%;
   height: 100%;
 }
@@ -35,13 +35,4 @@
 /* .plant-holder, */
 .positional-plant-result-container {
   height: var(--item-size);
-}
-
-.plant-holder {
-  width: calc(100% - 2em);
-  height: calc(100% - 3em);
-}
-
-.positional-plant-result-container {
-  border: .25em var(--wood-brown) solid;
 }

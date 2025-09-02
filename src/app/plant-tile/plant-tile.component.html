@@ -1,5 +1,6 @@
 <section class="plant-holder" id="plant-holder-{{plant.acceptedSymbol}}">
-    <h1 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}</h1>
+    <h1 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
+    </h1>
     <h2 class="result-scientific-name" id="plant-scientific-name-{{plant.acceptedSymbol}}">{{plant.scientificName |
         titlecase}}
     </h2>
@@ -41,12 +42,14 @@
                     }
 
                     @if(plant.duration != null){
-                    <h4 class="result-property" id="duration-{{plant.acceptedSymbol}}">{{getPlantDuration(plant)}}</h4>
+                    <h4 class="result-property" id="duration-{{plant.acceptedSymbol}}">{{getPlantDuration(plant)}}
+                    </h4>
                     }
 
 
                     <div class="last-row" id="last-row-{{plant.acceptedSymbol}}">
-                        <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}" (click)="openImageSearch(plant)"></pic-search-icon>
+                        <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}"
+                            (click)="openImageSearch(plant)"></pic-search-icon>
                         <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage(plant)">
                             <mat-icon class="info-icon">question_mark</mat-icon>
                         </button>

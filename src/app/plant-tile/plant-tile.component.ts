@@ -7,7 +7,7 @@ import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { TranslocoModule } from '@jsverse/transloco';
 import { PicSearchIconComponent } from "../pic-search-icon/pic-search-icon.component";
 import { MatButtonModule } from "@angular/material/button";
-import { Router } from '@angular/router';
+import { NavigationExtras, Router } from '@angular/router';
 
 @Component({
   selector: 'plant-tile',

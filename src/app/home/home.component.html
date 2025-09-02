@@ -4,7 +4,7 @@
     <article class="result-container" id="gov-container">
         <cdk-virtual-scroll-viewport [itemSize]="itemSize" id="gov-container-scrollport"
             class="gov-container-scrollport">
-            <mat-grid-list [cols]="columns" rowHeight="1.75:1">
+            <mat-grid-list [cols]="columns" rowHeight="1.75:1" [gutterSize]="gutterSize" class="plant-list">
                 <mat-grid-tile *cdkVirtualFor="let plant of plantData; let i = index;"
                     class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">
                     <plant-tile class="plant-holder" [plant]="plant"></plant-tile>
