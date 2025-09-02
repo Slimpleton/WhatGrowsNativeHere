@@ -7,6 +7,7 @@ import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { TranslocoModule } from '@jsverse/transloco';
 import { PicSearchIconComponent } from "../pic-search-icon/pic-search-icon.component";
 import { MatButtonModule } from "@angular/material/button";
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'plant-tile',
@@ -18,7 +19,7 @@ export class PlantTileComponent {
   public usdaGovPlantProfileUrl: string = GovPlantsDataService.usdaGovPlantProfileUrl;
   @Input({ required: true }) public plant!: PlantData;
 
-  public constructor() {
+  public constructor(private readonly _router: Router) {
   }
 
   public openImageSearch(plant: PlantData) : void{
@@ -34,6 +35,6 @@ export class PlantTileComponent {
   }
 
   public openInfoPage(plant: PlantData){
-    // TODO
+    this._router.navigate(['plant/' + plant.acceptedSymbol]);
   }
 }

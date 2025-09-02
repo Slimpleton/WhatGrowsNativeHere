@@ -77,9 +77,10 @@ export class FileService implements OnDestroy {
     private parseMap(): OperatorFunction<string, Map<string, ExtraInfo>> {
         return reduce((map, line) => {
             const lineValues = line.split(',');
+            const parsedFips = lineValues[2]?.substring(1, lineValues[2].length - 2) ?? null;
             const info = <ExtraInfo>{
                 commonName: this.parseValue(lineValues[1]),
-                combinedFIPs: this.parseValue(lineValues[2])?.split('|') ?? [],
+                combinedFIPs: parsedFips?.split('|') ?? [],
             };
             return map.set(this.parseValue(lineValues[0]), info);
         }, new Map<string, ExtraInfo>());

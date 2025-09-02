@@ -118,6 +118,17 @@ export class GovPlantsDataService {
     public constructor(private readonly http: HttpClient, private readonly _fileService: FileService) {
     }
 
+    public getPlantById(acceptedSymbol: string): Observable<Readonly<PlantData>>{
+        return this.loadNativePlantData.pipe(
+            map((value: ReadonlyArray<Readonly<PlantData>>) => {
+                const plant = value.find((x) => x.acceptedSymbol == acceptedSymbol);
+                if(plant == undefined)
+                    throw new Error('Failed to find plant using symbol ' + acceptedSymbol);
+                return plant;
+            })
+        );
+    }
+
     public getAllDefiniteNativePlantIds(): Observable<ReadonlyArray<Readonly<string>>> {
         return this.loadNativePlantData.pipe(
             map((value: ReadonlyArray<Readonly<PlantData>>) => value.map(val => val.acceptedSymbol)),

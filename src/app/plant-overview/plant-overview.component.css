@@ -1,0 +1,24 @@
+.container{
+    background-color: var(--grass-light-green);
+}
+
+.text{
+    margin: 0;
+}
+
+
+@supports (scrollbar-color: auto) {
+  .container, .text {
+    scrollbar-color: var(--wood-dark-brown) var(--wood-brown);
+  }
+}
+
+@supports selector(::-webkit-scrollbar) {
+  .container::-webkit-scrollbar, .text::-webkit-scrollbar {
+    background: var(--wood-dark-brown);
+  }
+
+  .container:-webkit-scrollbar-thumb, .text:-webkit-scrollbar-thumb {
+    background: var(--wood-brown);
+  }
+}
