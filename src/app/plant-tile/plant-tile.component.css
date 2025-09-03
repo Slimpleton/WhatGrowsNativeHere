@@ -3,10 +3,10 @@
 }
 
 .plant-holder {
-    /* TODO add padding and use calc to adjust /height / width to make it fit */
-    height: 100%;
-    width: 100%;
+    height: calc(100% - 2em);
+    width: calc(100% - 2em);
     display: flex;
+    padding: 1em;
     flex-direction: column;
     background-color: var(--grass-light-green);
 }

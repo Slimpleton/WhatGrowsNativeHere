@@ -46,6 +46,11 @@
                     </h4>
                     }
 
+                    @if(plant.shapeAndOrientation != null){
+                        <h4 class="result-property" id="shape-orientation-{{plant.acceptedSymbol}}">
+                            {{plant.shapeAndOrientation}}
+                        </h4>
+                    }
 
                     <div class="last-row" id="last-row-{{plant.acceptedSymbol}}">
                         <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}"
