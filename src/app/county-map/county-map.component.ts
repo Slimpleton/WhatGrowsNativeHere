@@ -15,7 +15,6 @@ import { combineCountyFIP, County } from '../models/gov/models';
 export class CountyMapComponent implements AfterViewInit {
   private readonly _usa: any = us;
   private readonly _destroy$: Subject<void> = new Subject<void>();
-
   @ViewChild('mapCanvas') private readonly _canvas!: ElementRef<HTMLCanvasElement>;
 
   public constructor(private readonly _positionService: PositionService) {
