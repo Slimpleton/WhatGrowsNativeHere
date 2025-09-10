@@ -5,10 +5,11 @@ import * as us from 'us-atlas/counties-albers-10m.json';
 import { PositionService } from '../services/position.service';
 import { Subject, takeUntil } from 'rxjs';
 import { combineCountyFIP, County } from '../models/gov/models';
+import { NavBarComponent } from '../nav-bar/nav-bar.component';
 
 @Component({
   selector: 'app-county-map',
-  imports: [],
+  imports: [NavBarComponent],
   templateUrl: './county-map.component.html',
   styleUrl: './county-map.component.css'
 })
@@ -17,7 +18,7 @@ export class CountyMapComponent implements AfterViewInit {
   private readonly _destroy$: Subject<void> = new Subject<void>();
   @ViewChild('mapCanvas') private readonly _canvas!: ElementRef<HTMLCanvasElement>;
 
-  public constructor(private readonly _positionService: PositionService) {
+  public constructor(private readonly _positionService: PositionService){
   }
 
   public ngAfterViewInit(): void {

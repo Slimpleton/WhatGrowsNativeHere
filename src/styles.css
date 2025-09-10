@@ -2,7 +2,10 @@
 :root{
     --wood-brown: rgb(131, 100, 60);
     --wood-dark-brown: rgb(68, 51, 29);
-    --grass-light-green: rgb(162, 192, 162);;
+    --grass-light-green: rgb(162, 192, 162);
+    --nav-bar-height:6em;
+    --nav-bar-padding: .5vh;
+    --nav-bar--total-height: calc(var(--nav-bar-height) + var(--nav-bar-padding));
 }
 body{
     margin: 0;

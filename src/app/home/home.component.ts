@@ -7,12 +7,13 @@ import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PlantData } from '../models/gov/models';
 import { MatIconModule } from '@angular/material/icon';
 import { PlantTileComponent } from '../plant-tile/plant-tile.component';
+import { NavBarComponent } from '../nav-bar/nav-bar.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent, MatIconModule, PlantTileComponent],
+  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent, MatIconModule, PlantTileComponent, NavBarComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

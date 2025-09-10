@@ -1,0 +1,7 @@
+.map-container {
+    height: calc(100vh - var(--nav-bar--total-height));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--grass-light-green);
+}

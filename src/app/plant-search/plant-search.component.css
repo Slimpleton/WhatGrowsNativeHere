@@ -1,55 +1,50 @@
-
 #plant-search-container {
-    top: 0;
-    position: sticky;
-    padding-left: .75vw;
+    gap: .5em;
     display: flex;
+    width: 100%;
     align-items: center;
     text-align: center;
-    padding-top: .5vh;
-    height: 6em;
-    width: calc(100% - .75vw);
-    background-color: var(--wood-brown);
-    gap: .5em;
 }
 
-.filter-title{
+.filter-title {
     flex: 1;
     font-weight: 600;
-    font-size: clamp(1.75vw, 1.75em ,4em);
-    line-height: clamp(1.75vw, 1em ,4em);
+    font-size: clamp(1.75vw, 1.75em, 4em);
+    line-height: clamp(1.75vw, 1em, 4em);
 }
 
-.search-container{
+.search-container {
     text-align: left;
 }
 
-.searchbar{
+.searchbar {
     align-self: flex-start;
     width: 100%;
     box-sizing: border-box;
 }
 
-.row{
+.row {
     flex-direction: row;
     width: 100%;
     justify-content: space-between;
 }
 
-.row, .col, .search-container{
+.row,
+.col,
+.search-container {
     display: flex;
     gap: 2px;
 }
 
-.col{
+.col {
     flex-direction: column;
 }
 
-.sortOrderButton{
+.sortOrderButton {
     background-color: var(--grass-light-green);
     color: var(--wood-dark-brown)
 }
 
-.selector{
+.selector {
     width: 100%;
 }

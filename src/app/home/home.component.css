@@ -4,7 +4,7 @@
 
 .container {
   background-color:  var(--wood-brown);
-  height: calc(100vh - .5vh - 6em);
+  height: calc(100vh - var(--nav-bar--total-height));
 }
 
 .result-container {
