@@ -397,10 +397,7 @@ export type PlantData = Readonly<{
     commonName: string;
 }>;
 
-export type County = Readonly<{
-    FIP: string;
-    stateFIP: number | string;
-}>;
+export type County = Omit<CountyCSVItem, 'countyName' | 'stateAbbrev'>
 
 export type ExtraInfo = Readonly<{
     combinedFIPs: string[];
@@ -440,5 +437,5 @@ export type StateToCounties = Map<State, Set<County>>;
 
 
 export function combineCountyFIP(county: Readonly<County>) {
-  return county.stateFIP.toString().padStart(2, '0') + county.FIP.padStart(3, '0');
+  return county.stateFip.toString().padStart(2, '0') + county.countyFip.padStart(3, '0');
 }

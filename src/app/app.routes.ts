@@ -3,20 +3,35 @@ import { HomeComponent } from './home/home.component';
 import { csvResolver } from './services/PLANTS_data.service';
 import { CountyMapComponent } from './county-map/county-map.component';
 import { PlantOverviewComponent, plantOverviewResolver } from './plant-overview/plant-overview.component';
+import { PositionService } from './services/position.service';
+import { inject } from '@angular/core';
+
+const mapRoute: string = 'map';
+const searchRoute: string = 'search';
+const plantRoute: string = 'plant/:id';
 
 export const routes: Routes = [
-    {   
+    {
         path: '',
-        component: HomeComponent,
-        resolve: csvResolver
+        pathMatch: 'prefix',
+        redirectTo: () => {
+            // TODO figure out how to navigate if no emission from positionService
+            const posService: PositionService = inject(PositionService);
+            return (!!navigator.geolocation) ? searchRoute : mapRoute
+        }
     },
     {
-        path:'counties',
+        path: searchRoute,
+        resolve: csvResolver,
+        component: HomeComponent
+    },
+    {
+        path: mapRoute,
         component: CountyMapComponent,
     },
     {
-        path:'plant/:id',
-        component:PlantOverviewComponent,
+        path: plantRoute,
+        component: PlantOverviewComponent,
         resolve: {
             plant: plantOverviewResolver
         }

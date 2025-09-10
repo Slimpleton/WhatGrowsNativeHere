@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { PlantSearchComponent } from '../plant-search/plant-search.component';
-import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PlantData } from '../models/gov/models';
 import { MatIconModule } from '@angular/material/icon';
 import { PlantTileComponent } from '../plant-tile/plant-tile.component';
@@ -85,7 +84,7 @@ export class HomeComponent implements OnInit {
   public gutterSize: string = '.25em';
   public columns: number = Math.min(window.innerWidth / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER), 6);
 
-  public constructor(private readonly _plantService: GovPlantsDataService
+  public constructor(
     // private readonly _gbifService: GbifService,
   ) {
   }

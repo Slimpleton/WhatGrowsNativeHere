@@ -50,10 +50,7 @@ export class StateGeometryService {
 
         return of(county.id).pipe(
           this._fipsFileService.getCountyCSVItemAsync(),
-          map((countyItem: CountyCSVItem | undefined) => countyItem ? <County>{
-            FIP: countyItem.countyFip,
-            stateFIP: countyItem.stateFip
-          } : null),
+          map((countyItem: CountyCSVItem | undefined) => countyItem ? countyItem as County : null),
         );
       }));
   }

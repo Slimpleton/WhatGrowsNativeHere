@@ -4,7 +4,7 @@ import * as topojson from 'topojson-client';
 import * as us from 'us-atlas/counties-albers-10m.json';
 import { PositionService } from '../services/position.service';
 import { filter, map, Subject, takeUntil, tap } from 'rxjs';
-import { combineCountyFIP, County } from '../models/gov/models';
+import { combineCountyFIP, County, CountyCSVItem, StateCSVItem } from '../models/gov/models';
 import { NavBarComponent } from '../nav-bar/nav-bar.component';
 import { FileService } from '../services/file.service';
 import { AsyncPipe } from '@angular/common';
@@ -17,11 +17,27 @@ import { AsyncPipe } from '@angular/common';
 })
 export class CountyMapComponent implements AfterViewInit {
   private readonly _destroy$: Subject<void> = new Subject<void>();
-
+  public combineCountyFIP = combineCountyFIP;
   private readonly _usa: any = us;
-  public readonly counties = this.fileService.counties$.pipe(
+  
+  public readonly states$ = this.fileService.states$.pipe(
+    map((counties) => counties.sort((a,b) => a.name.localeCompare(b.name))),
+    takeUntil(this._destroy$));
+
+  public readonly counties$ = this.fileService.counties$.pipe(
     map((counties) => counties.sort((a,b) => a.countyName.localeCompare(b.countyName))),
     takeUntil(this._destroy$));
+
+  public selectedStateFIP: string | undefined = undefined;
+  public selectedCountyFIP: string | undefined = undefined;
+
+  public getSelectedCounty() : string | null{
+    if(this.selectedCountyFIP == undefined || this.selectedStateFIP == undefined)
+      return null;
+    const selectedCounty: County = {stateFip: parseFloat(this.selectedStateFIP), countyFip: this.selectedCountyFIP};
+    return combineCountyFIP(selectedCounty);
+  }
+  
   public countyName: string | undefined | null = undefined;
   @ViewChild('mapCanvas') private readonly _canvas!: ElementRef<HTMLCanvasElement>;
 
@@ -86,4 +102,11 @@ export class CountyMapComponent implements AfterViewInit {
     });
   }
 
+  public changeState(stateFip: string): void{
+
+  }
+
+  public changeCounty(countyFip: string): void{
+
+  }
 }

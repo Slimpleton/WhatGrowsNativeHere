@@ -8,13 +8,19 @@
             Choose a county!
             }
         </h1>
-
-        <select name="counties" id="counties">
-            @for(county of counties | async; track $index){
-                <option value="county">{{county.countyName}} - {{county.stateAbbrev}}</option>
-            }
-        </select>
-
+        <div style="display: flex; align-items: center;">
+            <select #stateSelector name="states" id="states" (change)="changeState(stateSelector.value)">
+                @for (state of states$ | async; track $index) {
+                    <option [value]="state.fip">{{state.name}}</option>
+                }
+            </select>
+            
+            <select #countySelector name="counties" id="counties" (change)="changeCounty(countySelector.value)">
+                @for(county of counties$ | async; track $index){
+                    <option [value]="combineCountyFIP(county)">{{county.countyName}} - {{county.stateAbbrev}}</option>
+                }
+            </select>
+        </div>
     </div>
 </nav-bar>
 <article id="map-container" class="map-container">
