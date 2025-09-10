@@ -5,3 +5,9 @@
     align-items: center;
     background-color: var(--grass-light-green);
 }
+
+.nav-bar__container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}

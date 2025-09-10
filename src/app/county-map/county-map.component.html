@@ -1,6 +1,21 @@
-<nav-bar>
-    fart
-    <!-- TODO insert with like ngcontent kinda vibe -->
+<nav-bar style="width:100%">
+    <div class="nav-bar__container">
+        <h1>
+            @if(countyName != null){
+            County Selected: {{countyName}}
+            }
+            @else if(countyName == null){
+            Choose a county!
+            }
+        </h1>
+
+        <select name="counties" id="counties">
+            @for(county of counties | async; track $index){
+                <option value="county">{{county.countyName}} - {{county.stateAbbrev}}</option>
+            }
+        </select>
+
+    </div>
 </nav-bar>
 <article id="map-container" class="map-container">
     <canvas #mapCanvas height="610" width="975" style="max-width: 100%;"></canvas>
