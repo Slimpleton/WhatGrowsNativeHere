@@ -9,17 +9,18 @@
             }
         </h1>
         <div style="display: flex; align-items: center;">
-            <select #stateSelector name="states" id="states" (change)="changeState(stateSelector.value)">
+            <select [(ngModel)]="selectedStateFIP" #stateSelector name="states" id="states">
                 @for (state of states$ | async; track $index) {
-                    <option [value]="state.fip">{{state.name}}</option>
+                <option [value]="state.fip">{{state.name}}</option>
                 }
             </select>
-            
-            <select #countySelector name="counties" id="counties" (change)="changeCounty(countySelector.value)">
+            @if(selectedStateFIP !== undefined){
+            <select [ngModel]="selectedCountyFIP" #countySelector name="counties" id="counties">
                 @for(county of counties$ | async; track $index){
-                    <option [value]="combineCountyFIP(county)">{{county.countyName}} - {{county.stateAbbrev}}</option>
+                <option [value]="combineCountyFIP(county)">{{county.countyName}} - {{county.stateAbbrev}}</option>
                 }
             </select>
+            }
         </div>
     </div>
 </nav-bar>

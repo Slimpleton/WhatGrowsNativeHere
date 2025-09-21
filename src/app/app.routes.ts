@@ -3,8 +3,6 @@ import { HomeComponent } from './home/home.component';
 import { csvResolver } from './services/PLANTS_data.service';
 import { CountyMapComponent } from './county-map/county-map.component';
 import { PlantOverviewComponent, plantOverviewResolver } from './plant-overview/plant-overview.component';
-import { PositionService } from './services/position.service';
-import { inject } from '@angular/core';
 
 const mapRoute: string = 'map';
 const searchRoute: string = 'search';
@@ -16,7 +14,7 @@ export const routes: Routes = [
         pathMatch: 'prefix',
         redirectTo: () => {
             // TODO figure out how to navigate if no emission from positionService
-            const posService: PositionService = inject(PositionService);
+            // const posService: PositionService = inject(PositionService);
             return (!!navigator.geolocation) ? searchRoute : mapRoute
         }
     },

@@ -3,15 +3,16 @@ import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import * as us from 'us-atlas/counties-albers-10m.json';
 import { PositionService } from '../services/position.service';
-import { filter, map, Subject, takeUntil, tap } from 'rxjs';
-import { combineCountyFIP, County, CountyCSVItem, StateCSVItem } from '../models/gov/models';
+import { filter, map, shareReplay, Subject, takeUntil, tap } from 'rxjs';
+import { combineCountyFIP, County } from '../models/gov/models';
 import { NavBarComponent } from '../nav-bar/nav-bar.component';
 import { FileService } from '../services/file.service';
 import { AsyncPipe } from '@angular/common';
+import { FormsModule } from "@angular/forms";
 
 @Component({
   selector: 'app-county-map',
-  imports: [NavBarComponent, AsyncPipe],
+  imports: [NavBarComponent, AsyncPipe, FormsModule],
   templateUrl: './county-map.component.html',
   styleUrl: './county-map.component.css'
 })
@@ -24,17 +25,42 @@ export class CountyMapComponent implements AfterViewInit {
     map((counties) => counties.sort((a,b) => a.name.localeCompare(b.name))),
     takeUntil(this._destroy$));
 
-  public readonly counties$ = this.fileService.counties$.pipe(
+  // Only need to be sorted once
+  private readonly allCounties$ = this.fileService.counties$.pipe(
     map((counties) => counties.sort((a,b) => a.countyName.localeCompare(b.countyName))),
+    shareReplay(),
+    takeUntil(this._destroy$)
+  );
+
+  // Not reloading the counties list on selectedStateFip change, maybe use a setter to pop that off
+  public counties$ = this.allCounties$.pipe(
+    map((counties) => counties.filter((x) => x.stateFip == this.selectedStateFIP)),
     takeUntil(this._destroy$));
 
-  public selectedStateFIP: string | undefined = undefined;
-  public selectedCountyFIP: string | undefined = undefined;
+  private _selectedStateFIP: number | undefined = undefined;
+  public get selectedStateFIP(): number | undefined {
+    return this._selectedStateFIP;
+  }
+  public set selectedStateFIP(value: number){
+    this._selectedStateFIP = value;
+    // TODO refresh counties$ with correct state fip
+  }
+
+  private _selectedCountyFIP: string | undefined = undefined;
+  public get selectedCountyFIP(): string | undefined{
+    return this._selectedCountyFIP;
+  }
+
+  public set selectedCountyFIP(value: string){
+    this._selectedCountyFIP = value;
+  }
+  // TODO make it so that this setter is a lookup for the name instead of setting the name manually every time so it uses this when we load in too
+  // dude im so fucking smart
 
   public getSelectedCounty() : string | null{
     if(this.selectedCountyFIP == undefined || this.selectedStateFIP == undefined)
       return null;
-    const selectedCounty: County = {stateFip: parseFloat(this.selectedStateFIP), countyFip: this.selectedCountyFIP};
+    const selectedCounty: County = {stateFip: this.selectedStateFIP, countyFip: this.selectedCountyFIP};
     return combineCountyFIP(selectedCounty);
   }
   
@@ -81,7 +107,12 @@ export class CountyMapComponent implements AfterViewInit {
 
     this._positionService.countyEmitter$.pipe(
       filter((x) => x != null),
-      map((county) => combineCountyFIP(county)),
+      map((county) => {
+        const fip: string = combineCountyFIP(county);
+        this.selectedStateFIP = county.stateFip;
+        this.selectedCountyFIP = fip;
+        return fip;
+      }),
       this.fileService.getCountyCSVItemAsync(),
       tap((county) => this.countyName = county?.countyName),
       takeUntil(this._destroy$)
@@ -100,13 +131,5 @@ export class CountyMapComponent implements AfterViewInit {
       },
       error :(err) => console.error(err),
     });
-  }
-
-  public changeState(stateFip: string): void{
-
-  }
-
-  public changeCounty(countyFip: string): void{
-
   }
 }
