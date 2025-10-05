@@ -20,14 +20,14 @@ export class CountyMapComponent implements AfterViewInit {
   private readonly _destroy$: Subject<void> = new Subject<void>();
   public combineCountyFIP = combineCountyFIP;
   private readonly _usa: any = us;
-  
+
   public readonly states$ = this.fileService.states$.pipe(
-    map((counties) => counties.sort((a,b) => a.name.localeCompare(b.name))),
+    map((counties) => counties.sort((a, b) => a.name.localeCompare(b.name))),
     takeUntil(this._destroy$));
 
   // Only need to be sorted once
   private readonly allCounties$ = this.fileService.counties$.pipe(
-    map((counties) => counties.sort((a,b) => a.countyName.localeCompare(b.countyName))),
+    map((counties) => counties.sort((a, b) => a.countyName.localeCompare(b.countyName))),
     shareReplay(),
     takeUntil(this._destroy$)
   );
@@ -41,33 +41,37 @@ export class CountyMapComponent implements AfterViewInit {
   public get selectedStateFIP(): number | undefined {
     return this._selectedStateFIP;
   }
-  public set selectedStateFIP(value: number){
+  public set selectedStateFIP(value: number) {
     this._selectedStateFIP = value;
-    // TODO refresh counties$ with correct state fip
+    this.counties$ = this.allCounties$.pipe(
+      map((counties) => counties.filter((x) => x.stateFip == this.selectedStateFIP)),
+      takeUntil(this._destroy$));
   }
 
   private _selectedCountyFIP: string | undefined = undefined;
-  public get selectedCountyFIP(): string | undefined{
+  public get selectedCountyFIP(): string | undefined {
     return this._selectedCountyFIP;
   }
 
-  public set selectedCountyFIP(value: string){
+  public set selectedCountyFIP(value: string) {
     this._selectedCountyFIP = value;
+    // TODO overwrite the position service value ?? make an overwrite public call to manually select a county
+    
   }
   // TODO make it so that this setter is a lookup for the name instead of setting the name manually every time so it uses this when we load in too
   // dude im so fucking smart
 
-  public getSelectedCounty() : string | null{
-    if(this.selectedCountyFIP == undefined || this.selectedStateFIP == undefined)
+  public getSelectedCounty(): string | null {
+    if (this.selectedCountyFIP == undefined || this.selectedStateFIP == undefined)
       return null;
-    const selectedCounty: County = {stateFip: this.selectedStateFIP, countyFip: this.selectedCountyFIP};
+    const selectedCounty: County = { stateFip: this.selectedStateFIP, countyFip: this.selectedCountyFIP };
     return combineCountyFIP(selectedCounty);
   }
-  
+
   public countyName: string | undefined | null = undefined;
   @ViewChild('mapCanvas') private readonly _canvas!: ElementRef<HTMLCanvasElement>;
 
-  public constructor(private readonly _positionService: PositionService, public readonly fileService: FileService){
+  public constructor(private readonly _positionService: PositionService, public readonly fileService: FileService) {
   }
 
   public ngAfterViewInit(): void {
@@ -76,9 +80,10 @@ export class CountyMapComponent implements AfterViewInit {
       return;
 
     this._canvas.nativeElement.addEventListener('click', (ev: MouseEvent) => {
-      const x : number = ev.offsetX;
-      const y : number = ev.offsetY;
-      console.log(x,y);      
+      const x: number = ev.offsetX;
+      const y: number = ev.offsetY;
+      console.log(x, y);
+
       // TODO use the inverse of the transformation to display canvas to get lat/long
       // use that to find what county the click is in
     });
@@ -120,16 +125,16 @@ export class CountyMapComponent implements AfterViewInit {
 
     this._positionService.countyEmitter$.pipe(
       takeUntil(this._destroy$)).subscribe({
-      next: (county: County) => {
-        const fullFip: string = combineCountyFIP(county);
-        context.beginPath();
-        // TODO this filter is mostly working?? not fully idk some bottom ca counties are missing not sure why
-        path(topojson.mesh(this._usa, this._usa.objects.counties, (a, b) => a.id === fullFip || b.id == fullFip));
-        context.strokeStyle = '#fff';
-        context.lineWidth = 2;
-        context.stroke();
-      },
-      error :(err) => console.error(err),
-    });
+        next: (county: County) => {
+          const fullFip: string = combineCountyFIP(county);
+          context.beginPath();
+          // TODO this filter is mostly working?? not fully idk some bottom ca counties are missing not sure why
+          path(topojson.mesh(this._usa, this._usa.objects.counties, (a, b) => a.id === fullFip || b.id == fullFip));
+          context.strokeStyle = '#fff';
+          context.lineWidth = 2;
+          context.stroke();
+        },
+        error: (err) => console.error(err),
+      });
   }
 }
