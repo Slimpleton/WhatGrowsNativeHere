@@ -45,6 +45,8 @@ export class CountyMapComponent implements AfterViewInit {
     this._selectedStateFIP = value;
     this.counties$ = this.allCounties$.pipe(
       map((counties) => counties.filter((x) => x.stateFip == this.selectedStateFIP)),
+      // Not trigger the on change effects, just select first in list
+      tap((counties) => this._selectedCountyFIP = combineCountyFIP(counties[0])),
       takeUntil(this._destroy$));
   }
 
@@ -56,7 +58,7 @@ export class CountyMapComponent implements AfterViewInit {
   public set selectedCountyFIP(value: string) {
     this._selectedCountyFIP = value;
     // TODO overwrite the position service value ?? make an overwrite public call to manually select a county
-    
+    // TODO maybe only overwrite when we navigate away with a selected county???
   }
   // TODO make it so that this setter is a lookup for the name instead of setting the name manually every time so it uses this when we load in too
   // dude im so fucking smart

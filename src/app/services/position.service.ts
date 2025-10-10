@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { filter, Observable, shareReplay, Subject, takeUntil } from 'rxjs';
+import { filter, merge, Observable, shareReplay, Subject, takeUntil } from 'rxjs';
 import { County, StateInfo } from '../models/gov/models';
 import { StateGeometryService } from './state-geometry.service';
 
@@ -10,7 +10,6 @@ export class PositionService implements OnDestroy {
     private readonly _ngDestroy$: Subject<void> = new Subject<void>();
     private _positionEmitter$: Subject<GeolocationPosition> = new Subject<GeolocationPosition>();
 
-    // TODO maybe make a manual set county / state emitter with a mergeAll on the one that controls both the state emitter / manual state setter??
     private readonly _manualStateSetter$: Subject<StateInfo> = new Subject<StateInfo>();
     public set manualState(value: StateInfo) {
         this._manualStateSetter$.next(value);
@@ -21,15 +20,21 @@ export class PositionService implements OnDestroy {
         this._manualCountySetter$.next(value);
     }
 
-    public readonly stateEmitter$: Observable<StateInfo> = this._positionEmitter$.pipe(
+    private readonly _stateEmitter$: Observable<StateInfo> = this._positionEmitter$.pipe(
         this._stateGeometryService.findUSStateAsync(),
         filter((state: StateInfo | null): state is StateInfo => state != null),
+        takeUntil(this._ngDestroy$));
+
+    public readonly stateEmitter$: Observable<StateInfo> = merge(this._manualStateSetter$, this._stateEmitter$).pipe(
         shareReplay(1),
         takeUntil(this._ngDestroy$));
 
-    public readonly countyEmitter$: Observable<County> = this._positionEmitter$.pipe(
+    private readonly _countyEmitter$: Observable<County> = this._positionEmitter$.pipe(
         this._stateGeometryService.findUSCountyAsync(),
         filter((county: County | null): county is County => county != null),
+        takeUntil(this._ngDestroy$));
+
+    public readonly countyEmitter$: Observable<County> = merge(this._manualCountySetter$, this._countyEmitter$).pipe(
         shareReplay(1),
         takeUntil(this._ngDestroy$));
 

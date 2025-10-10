@@ -435,7 +435,6 @@ export interface StateInfo {
 
 export type StateToCounties = Map<State, Set<County>>;
 
-
-export function combineCountyFIP(county: Readonly<County>) {
-  return county.stateFip.toString().padStart(2, '0') + county.countyFip.padStart(3, '0');
+export function combineCountyFIP(county: Readonly<County> | null | undefined): string {
+  return county == null ? '' : county.stateFip.toString().padStart(2, '0') + county.countyFip.padStart(3, '0');
 }
