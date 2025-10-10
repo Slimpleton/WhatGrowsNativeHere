@@ -81,19 +81,39 @@ export class CountyMapComponent implements AfterViewInit {
     if (!context)
       return;
 
-    this._canvas.nativeElement.addEventListener('click', (ev: MouseEvent) => {
-      const x: number = ev.offsetX;
-      const y: number = ev.offsetY;
-      console.log(x, y);
-
-      // TODO use the inverse of the transformation to display canvas to get lat/long
-      // use that to find what county the click is in
-    });
+    this.handleCanvasClick();
 
     const path = d3.geoPath(null, context);
     context.lineJoin = "round";
     context.lineCap = "round";
 
+    this.drawEntireMap(context, path);
+
+    this._positionService.countyEmitter$.pipe(
+      filter((x) => x != null),
+      map((county) => {
+        const fip: string = combineCountyFIP(county);
+        this._selectedStateFIP = county.stateFip;
+        this._selectedCountyFIP = fip;
+        this.drawCountyLine(context, path, fip);
+        return fip;
+      }),
+      this.fileService.getCountyCSVItemAsync(),
+      tap((county) => this.countyName = county?.countyName),
+      takeUntil(this._destroy$)
+    ).subscribe();
+  }
+
+  private handleCanvasClick() {
+    this._canvas.nativeElement.addEventListener('click', (ev: MouseEvent) => {
+      const x: number = ev.offsetX;
+      const y: number = ev.offsetY;
+      console.log(x, y);
+
+    });
+  }
+
+  private drawEntireMap(context: CanvasRenderingContext2D, path: d3.GeoPath<any, d3.GeoPermissibleObjects>) {
     context.beginPath();
     path(topojson.mesh(this._usa, this._usa.objects.counties, (a: any, b: any) => a !== b && (a.id / 1000 | 0) === (b.id / 1000 | 0)));
     context.lineWidth = 0.5;
@@ -111,31 +131,9 @@ export class CountyMapComponent implements AfterViewInit {
     context.lineWidth = 1;
     context.strokeStyle = "#000";
     context.stroke();
-
-    this._positionService.countyEmitter$.pipe(
-      filter((x) => x != null),
-      map((county) => {
-        const fip: string = combineCountyFIP(county);
-        this.selectedStateFIP = county.stateFip;
-        this.selectedCountyFIP = fip;
-        return fip;
-      }),
-      this.fileService.getCountyCSVItemAsync(),
-      tap((county) => this.countyName = county?.countyName),
-      takeUntil(this._destroy$)
-    ).subscribe();
-
-    this._positionService.countyEmitter$.pipe(
-      takeUntil(this._destroy$)).subscribe({
-        next: (county: County) => {
-          const fullFip: string = combineCountyFIP(county);
-          this.drawCountyOutline(context, path, fullFip);
-        },
-        error: (err) => console.error(err),
-      });
   }
 
-  private drawCountyOutline(context: CanvasRenderingContext2D, path: d3.GeoPath<any, d3.GeoPermissibleObjects>, fullFip: string) {
+  private drawCountyLine(context: CanvasRenderingContext2D, path: d3.GeoPath<any, d3.GeoPermissibleObjects>, fullFip: string) {
     context.beginPath();
     // TODO this filter is mostly working?? not fully idk some bottom ca counties are missing not sure why
     path(topojson.mesh(this._usa, this._usa.objects.counties, (a, b) => a.id === fullFip || b.id == fullFip));
