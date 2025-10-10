@@ -129,14 +129,18 @@ export class CountyMapComponent implements AfterViewInit {
       takeUntil(this._destroy$)).subscribe({
         next: (county: County) => {
           const fullFip: string = combineCountyFIP(county);
-          context.beginPath();
-          // TODO this filter is mostly working?? not fully idk some bottom ca counties are missing not sure why
-          path(topojson.mesh(this._usa, this._usa.objects.counties, (a, b) => a.id === fullFip || b.id == fullFip));
-          context.strokeStyle = '#fff';
-          context.lineWidth = 2;
-          context.stroke();
+          this.drawCountyOutline(context, path, fullFip);
         },
         error: (err) => console.error(err),
       });
+  }
+
+  private drawCountyOutline(context: CanvasRenderingContext2D, path: d3.GeoPath<any, d3.GeoPermissibleObjects>, fullFip: string) {
+    context.beginPath();
+    // TODO this filter is mostly working?? not fully idk some bottom ca counties are missing not sure why
+    path(topojson.mesh(this._usa, this._usa.objects.counties, (a, b) => a.id === fullFip || b.id == fullFip));
+    context.strokeStyle = '#fff';
+    context.lineWidth = 2;
+    context.stroke();
   }
 }
