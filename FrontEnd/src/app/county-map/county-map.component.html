@@ -1,0 +1,29 @@
+<nav-bar style="width:100%">
+    <div class="nav-bar__container">
+        <h1>
+            @if(countyName !== null){
+            County Selected: {{countyName}}
+            }
+            @else if(countyName === null){
+            Choose a county!
+            }
+        </h1>
+        <div style="display: flex; align-items: center;">
+            <select [(ngModel)]="selectedStateFIP" #stateSelector name="states" id="states">
+                @for (state of states$ | async; track $index) {
+                <option [value]="state.fip">{{state.name}}</option>
+                }
+            </select>
+            @if(selectedStateFIP !== undefined){
+            <select [ngModel]="selectedCountyFIP" #countySelector name="counties" id="counties">
+                @for(county of counties$ | async; track $index){
+                <option [value]="combineCountyFIP(county)">{{county.countyName}} - {{county.stateAbbrev}}</option>
+                }
+            </select>
+            }
+        </div>
+    </div>
+</nav-bar>
+<article id="map-container" class="map-container">
+    <canvas #mapCanvas height="610" width="975" style="max-width: 100%;"></canvas>
+</article>

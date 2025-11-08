@@ -1,0 +1,62 @@
+<section class="plant-holder" id="plant-holder-{{plant.acceptedSymbol}}">
+    <h1 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
+    </h1>
+    <h2 class="result-scientific-name" id="plant-scientific-name-{{plant.acceptedSymbol}}">{{plant.scientificName |
+        titlecase}}
+    </h2>
+    <span class="symbolAndShadeRow">
+        <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol" class=""
+            id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
+
+        @if (plant.shadeTolerance !== null) {
+        @switch (plant.shadeTolerance) {
+        @case ('Intermediate') {
+        <shady-icon></shady-icon>
+        }
+        @case('Intolerant'){
+        <mat-icon class="sun">
+            sunny
+        </mat-icon>
+        }
+        @case('Tolerant'){
+        <mat-icon class="cloud">
+            cloud
+        </mat-icon>
+        }
+        }
+        }
+    </span>
+    @if(plant.growthHabit.length > 0)
+    {
+
+    <h4 class="result-property" id="plant-growth-habit-{{plant.acceptedSymbol}}">
+        @for (growthHabit of plant.growthHabit; track $index) {
+        {{'GROWTH_HABITS.' + growthHabit | uppercase | transloco}}{{ $index + 1 < plant.growthHabit.length ? ',' : ''
+            }}} </h4> }
+
+            @if(plant.activeGrowthPeriod.length > 0){
+
+            <h4 class="result-property" id="active-season-{{plant.acceptedSymbol}}">
+                @for (season of plant.activeGrowthPeriod; track $index) {
+                {{season}}{{ $index + 1 < plant.activeGrowthPeriod.length ? ',' : '' }} } </h4>
+                    }
+
+                    @if(plant.duration !== null){
+                    <h4 class="result-property" id="duration-{{plant.acceptedSymbol}}">{{getPlantDuration(plant)}}
+                    </h4>
+                    }
+
+                    @if(plant.shapeAndOrientation !== null){
+                    <h4 class="result-property" id="shape-orientation-{{plant.acceptedSymbol}}">
+                        {{plant.shapeAndOrientation}}
+                    </h4>
+                    }
+
+                    <div class="last-row" id="last-row-{{plant.acceptedSymbol}}">
+                        <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}"
+                            (click)="openImageSearch(plant)"></pic-search-icon>
+                        <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage(plant)">
+                            <mat-icon class="info-icon">question_mark</mat-icon>
+                        </button>
+                    </div>
+</section>
