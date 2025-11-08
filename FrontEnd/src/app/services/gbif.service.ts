@@ -91,7 +91,7 @@ export class GbifService {
     const pageParams = this.GetMaxPageParams();
     return this.aggregatePageableResults<GBIFGADMRegion>(
       pageParams,
-      (_) => true,
+      () => true,
       (params) => this.searchGADMRegions(q, gadmGid, params, gadmLevel.toString())
     );
   }

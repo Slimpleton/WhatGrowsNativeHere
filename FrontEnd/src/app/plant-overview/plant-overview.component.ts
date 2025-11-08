@@ -1,10 +1,10 @@
 import { Component, inject, input } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { JsonPipe } from '@angular/common';
-import { ActivatedRouteSnapshot, RedirectCommand, ResolveFn, Router, RouterStateSnapshot } from '@angular/router';
+import { ActivatedRouteSnapshot, RedirectCommand, ResolveFn, Router } from '@angular/router';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 
-export const plantOverviewResolver: ResolveFn<Readonly<PlantData> | RedirectCommand> = (route: ActivatedRouteSnapshot, _: RouterStateSnapshot) => {
+export const plantOverviewResolver: ResolveFn<Readonly<PlantData> | RedirectCommand> = (route: ActivatedRouteSnapshot) => {
   const acceptedSymbol: string | null = route.paramMap.get('id');
   if (acceptedSymbol == null || acceptedSymbol.length == 0) {
     console.error('Invalid symbol detected, rerouting to different view');

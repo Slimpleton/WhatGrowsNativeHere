@@ -5,7 +5,7 @@ import { FileService } from "./file.service";
 import { ResolveFn } from "@angular/router";
 import { catchError, combineLatestWith, map, Observable, of, shareReplay } from "rxjs";
 
-export const csvResolver: ResolveFn<ReadonlyArray<Readonly<PlantData>>> = (_, __) => {
+export const csvResolver: ResolveFn<ReadonlyArray<Readonly<PlantData>>> = () => {
     return inject(GovPlantsDataService).loadNativePlantData;
 };
 
@@ -118,11 +118,11 @@ export class GovPlantsDataService {
     public constructor(private readonly http: HttpClient, private readonly _fileService: FileService) {
     }
 
-    public getPlantById(acceptedSymbol: string): Observable<Readonly<PlantData>>{
+    public getPlantById(acceptedSymbol: string): Observable<Readonly<PlantData>> {
         return this.loadNativePlantData.pipe(
             map((value: ReadonlyArray<Readonly<PlantData>>) => {
                 const plant = value.find((x) => x.acceptedSymbol == acceptedSymbol);
-                if(plant == undefined)
+                if (plant == undefined)
                     throw new Error('Failed to find plant using symbol ' + acceptedSymbol);
                 return plant;
             })
@@ -252,7 +252,7 @@ export class GovPlantsDataService {
             if (char === '"') {
                 inQuotes = !inQuotes;
             } else if (char === ',' && !inQuotes) {
-                const value =line[startIndex] == '"' ? line.substring(startIndex + 1, i -1) :line.substring(startIndex, i);
+                const value = line[startIndex] == '"' ? line.substring(startIndex + 1, i - 1) : line.substring(startIndex, i);
                 result.push(value);
                 startIndex = i + 1;
             }
@@ -355,9 +355,9 @@ export class GovPlantsDataService {
             if (key in this._headerMapping) {
                 const camelKey = this._headerMapping[key] as keyof PlantData;
 
-                if(camelKey === 'characteristicsData'){
+                if (camelKey === 'characteristicsData') {
                     result[camelKey] = value == 'Yes';
-                    if(value == 'No')
+                    if (value == 'No')
                         return;
                 }
                 else if (camelKey === 'nativeStateAndProvinceCodes') {
@@ -370,7 +370,7 @@ export class GovPlantsDataService {
                 else if (camelKey === 'growthHabit') {
                     result[camelKey] = this.parseGrowthHabit(value);
                 }
-                else if(camelKey == 'activeGrowthPeriod'){
+                else if (camelKey == 'activeGrowthPeriod') {
                     result[camelKey] = this.parseActiveGrowthPeriod(value);
                 }
                 else if (camelKey === 'shadeTolerance') {

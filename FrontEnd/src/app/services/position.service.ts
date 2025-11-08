@@ -40,7 +40,7 @@ export class PositionService implements OnDestroy {
 
     constructor(private readonly _stateGeometryService: StateGeometryService) {
         if ("geolocation" in navigator)
-            navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => this.emitPosition(position), (err) => { console.error(err) }); 4
+            navigator.geolocation.getCurrentPosition((position: GeolocationPosition) => this.emitPosition(position), (err) => { console.error(err) });
         // TODO geolocation.watchPosition is a handler fcn register that gets updates use in future maybe ?? prob not tho
     }
 

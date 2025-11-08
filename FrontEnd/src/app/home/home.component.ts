@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -85,14 +85,13 @@ export class HomeComponent {
   public columns: number = Math.min(window.innerWidth / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER), 6);
 
   public constructor(
-    // private readonly _gbifService: GbifService,
   ) {
   }
 
   @HostListener('screen.orientation.change', ['$event'])
   @HostListener('window:resize', ['$event'])
   onResizeOrRotate(event: Event) {
-    const width = (event.target as any).innerWidth;
+    const width = (event.target as Window).innerWidth;
     this.columns = width / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER);
   }
 

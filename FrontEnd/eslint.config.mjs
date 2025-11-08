@@ -16,7 +16,8 @@ export default defineConfig([
     plugins: { angular, tseslint },
     extends: [...angular.configs.tsRecommended, ...tseslint.configs.recommended],
     rules: {
-      '@angular-eslint/prefer-inject': 'off'
+      '@angular-eslint/prefer-inject': 'off',
+      '@typescript-eslint/no-explicit-any': 'warn'
     }
   },
   // tseslint.configs.recommended,
@@ -24,7 +25,12 @@ export default defineConfig([
   { files: ["**/*.jsonc"], plugins: { json }, language: "json/jsonc", extends: ["json/recommended"] },
   { files: ["**/*.json5"], plugins: { json }, language: "json/json5", extends: ["json/recommended"] },
   { files: ["**/*.md"], plugins: { markdown }, language: "markdown/commonmark", extends: ["markdown/recommended"] },
-  { files: ["**/*.css"], plugins: { css }, language: "css/css", extends: ["css/recommended"] },
+  {
+    files: ["**/*.css"], plugins: { css }, language: "css/css", extends: ["css/recommended"],
+    rules: {
+      "css/no-invalid-properties": "off",
+    },
+  },
   {
     files: ['**/*.html'],
     extends: [
