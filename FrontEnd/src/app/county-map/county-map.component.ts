@@ -35,7 +35,8 @@ export class CountyMapComponent implements AfterViewInit {
   // Not reloading the counties list on selectedStateFip change, maybe use a setter to pop that off
   public counties$ = this.allCounties$.pipe(
     map((counties) => counties.filter((x) => x.stateFip == this.selectedStateFIP)),
-    takeUntil(this._destroy$));
+    takeUntil(this._destroy$),
+  );
 
   private _selectedStateFIP: number | undefined = undefined;
   public get selectedStateFIP(): number | undefined {

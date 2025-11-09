@@ -7,7 +7,6 @@ import css from "@eslint/css";
 import { defineConfig, globalIgnores } from "eslint/config";
 import angular from 'angular-eslint';
 
-
 export default defineConfig([
   globalIgnores(['.vscode/**', 'package*.json']),
   { files: ["**/*.{js,mjs,cjs,ts,mts,cts}"], plugins: { js }, extends: ["js/recommended"], languageOptions: { globals: globals.browser } },
@@ -17,10 +16,9 @@ export default defineConfig([
     extends: [...angular.configs.tsRecommended, ...tseslint.configs.recommended],
     rules: {
       '@angular-eslint/prefer-inject': 'off',
-      '@typescript-eslint/no-explicit-any': 'warn'
+      '@typescript-eslint/no-explicit-any': 'warn',
     }
   },
-  // tseslint.configs.recommended,
   { files: ["**/*.json"], plugins: { json }, language: "json/json", extends: ["json/recommended"] },
   { files: ["**/*.jsonc"], plugins: { json }, language: "json/jsonc", extends: ["json/recommended"] },
   { files: ["**/*.json5"], plugins: { json }, language: "json/json5", extends: ["json/recommended"] },
