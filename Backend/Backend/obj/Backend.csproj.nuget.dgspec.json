@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "U:\\Repos\\SeedMapper\\Backend\\Backend\\Backend.csproj": {}
+    "C:\\Users\\itsth\\Desktop\\Repos\\SeedMapper\\Backend\\Backend\\Backend.csproj": {}
   },
   "projects": {
-    "U:\\Repos\\SeedMapper\\Backend\\Backend\\Backend.csproj": {
+    "C:\\Users\\itsth\\Desktop\\Repos\\SeedMapper\\Backend\\Backend\\Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "U:\\Repos\\SeedMapper\\Backend\\Backend\\Backend.csproj",
+        "projectUniqueName": "C:\\Users\\itsth\\Desktop\\Repos\\SeedMapper\\Backend\\Backend\\Backend.csproj",
         "projectName": "Backend",
-        "projectPath": "U:\\Repos\\SeedMapper\\Backend\\Backend\\Backend.csproj",
-        "packagesPath": "C:\\Users\\thegi\\.nuget\\packages\\",
-        "outputPath": "U:\\Repos\\SeedMapper\\Backend\\Backend\\obj\\",
+        "projectPath": "C:\\Users\\itsth\\Desktop\\Repos\\SeedMapper\\Backend\\Backend\\Backend.csproj",
+        "packagesPath": "C:\\Users\\itsth\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\itsth\\Desktop\\Repos\\SeedMapper\\Backend\\Backend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "G:\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\thegi\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\itsth\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
