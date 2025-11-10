@@ -17,7 +17,7 @@ export type NativeLocationCode = 'L48' | 'AK' | 'HI' | 'PR' | 'VI' | 'CAN' | 'CA
 export type GrowthHabit = 'Forb/herb' | 'Shrub' | 'Subshrub' | 'Graminoid' | 'Lichenous' | 'Tree' | 'Nonvascular' | 'Vine' | 'Any';
 
 // US States and Canadian Provinces/Territories for PLANTS Database
-export type USState =
+export type LocationCode =
     | 'AL' // Alabama
     | 'AK' // Alaska
     | 'AZ' // Arizona
@@ -68,9 +68,8 @@ export type USState =
     | 'WA' // Washington
     | 'WV' // West Virginia
     | 'WI' // Wisconsin
-    | 'WY'; // Wyoming
+    | 'WY' // Wyoming
 
-export type CanadianProvince =
     | 'AB' // Alberta
     | 'BC' // British Columbia
     | 'MB' // Manitoba
@@ -85,9 +84,8 @@ export type CanadianProvince =
     | 'SK' // Saskatchewan
     | 'YT' // Yukon Territory
     | 'NF' // NewFoundland
-    | 'LB'; // Labrador
+    | 'LB' // Labrador
 
-export type USTerritory =
     | 'PR' // Puerto Rico
     | 'VI' // US Virgin Islands
     | 'GU' // Guam
@@ -97,10 +95,7 @@ export type USTerritory =
     | 'UM' // US Minor Outlying Islands
     | 'NAV' // Navajo Nation
     | 'FM'
-    | 'MH' //Marshal islands;
-
-// Combined type for all location codes used in PLANTS database
-export type LocationCode = USState | CanadianProvince | USTerritory;
+    | 'MH'; //Marshal islands
 
 // Generate valid codes from the union type
 export const validLocationCodes: Set<LocationCode> = new Set([
@@ -436,5 +431,5 @@ export interface StateInfo {
 export type StateToCounties = Map<State, Set<County>>;
 
 export function combineCountyFIP(county: Readonly<County> | null | undefined): string {
-  return county == null  || county.stateFip < 0 ? '' : county.stateFip.toString().padStart(2, '0') + county.countyFip.padStart(3, '0');
+    return county == null || county.stateFip < 0 ? '' : county.stateFip.toString().padStart(2, '0') + county.countyFip.padStart(3, '0');
 }

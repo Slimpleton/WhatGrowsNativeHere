@@ -16,30 +16,30 @@ namespace Backend.Models
         public Category Category { get; init; }
         public string Family { get; init; }
         public Duration[] Duration { get; init; }
+        public GrowthHabit[] GrowthHabit { get; init; }
+        public HashSet<LocationCode> NativeStateAndProvinceCodes { get; init; }
+
 
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Duration
     {
-        Perennial,
-        Biennial,
-        Annual,
-        AN
+        Perennial, Biennial, Annual, AN
     }
-    
+
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Rate
     {
-        Moderate,None,Rapid,Slow
+        Moderate, None, Rapid, Slow
     }
-    
+
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Level
     {
-        High,Medium,Low,None
+        High, Medium, Low, None
     }
-    
+
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum GrowthForm
     {
@@ -60,13 +60,13 @@ namespace Backend.Models
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Porosity
     {
-        Dense,Moderate,Porous
+        Dense, Moderate, Porous
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Texture
     {
-        Coarse,Fine,Medium
+        Coarse, Fine, Medium
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -76,10 +76,10 @@ namespace Backend.Models
         Fern,
         [EnumMember(Value = "Green alga")]
         GreenAlga,
-        Gymnosperm, 
+        Gymnosperm,
         Hornwort,
         Horsetail,
-        Lichen, 
+        Lichen,
         Liverwort,
         Lycopod,
         Monocot,
@@ -89,4 +89,120 @@ namespace Backend.Models
         [EnumMember(Value = "Whisk-fern")]
         WhiskFern,
     }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum GrowthHabit
+    {
+        [EnumMember(Value = "Forb/Herb")]
+        ForbHerb,
+        Shrub,
+        Subshrub,
+        Graminoid,
+        Lichenous,
+        Tree,
+        Nonvascular,
+        Vine,
+        Any
+    }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum Toxicity
+    {
+        Severe, Moderate, None, Slight
+    }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum CommercialAvailability
+    {
+        [EnumMember(Value = "Contracting Only")]
+        ContractingOnly,
+        [EnumMember(Value = "Field Collections Only")]
+        FieldCollectionsOnly,
+        [EnumMember(Value = "No Known Source")]
+        NoKnownSource,
+        [EnumMember(Value = "Routinely Available")]
+        RoutinelyAvailable
+    }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum LocationCode
+    {
+        AL, // Alabama
+        AK, // Alaska
+        AZ, // Arizona
+        AR, // Arkansas
+        CA, // California
+        CO, // Colorado
+        CT, // Connecticut
+        DC, // Washington DC
+        DE, // Delaware
+        FL, // Florida
+        GA, // Georgia
+        HI, // Hawaii
+        ID, // Idaho
+        IL, // Illinois
+        IN, // Indiana
+        IA, // Iowa
+        KS, // Kansas
+        KY, // Kentucky
+        LA, // Louisiana
+        ME, // Maine
+        MD, // Maryland
+        MA, // Massachusetts
+        MI, // Michigan
+        MN, // Minnesota
+        MS, // Mississippi
+        MO, // Missouri
+        MT, // Montana
+        NE, // Nebraska
+        NV, // Nevada
+        NH, // New Hampshire
+        NJ, // New Jersey
+        NM, // New Mexico
+        NY, // New York
+        NC, // North Carolina
+        ND, // North Dakota
+        OH, // Ohio
+        OK, // Oklahoma
+        OR, // Oregon
+        PA, // Pennsylvania
+        RI, // Rhode Island
+        SC, // South Carolina
+        SD, // South Dakota
+        TN, // Tennessee
+        TX, // Texas
+        UT, // Utah
+        VT, // Vermont
+        VA, // Virginia
+        WA, // Washington
+        WV, // West Virginia
+        WI, // Wisconsin
+        WY, // Wyoming
+        AB, // Alberta
+        BC, // British Columbia
+        MB, // Manitoba
+        NB, // New Brunswick
+        NL, // Newfoundland and Labrador
+        NT, // Northwest Territories
+        NS, // Nova Scotia
+        NU, // Nunavut
+        ON, // Ontario
+        PE, // Prince Edward Island
+        QC, // Quebec
+        SK, // Saskatchewan
+        YT, // Yukon Territory
+        NF, // NewFoundland
+        LB, // Labrador
+        PR, // Puerto Rico
+        VI, // US Virgin Islands
+        GU, // Guam
+        AS, // American Samoa
+        MP,// Northern Mariana Islands  
+        PW, // Pacific West/Wake Island region
+        UM, // US Minor Outlying Islands
+        NAV, // Navajo Nation
+        FM,
+        MH, //Marshal islands
+    }
+
 }
