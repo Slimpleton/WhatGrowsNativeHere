@@ -3,6 +3,18 @@
   "WorkspaceRootPath": "U:\\Repos\\SeedMapper\\Backend\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|u:\\repos\\seedmapper\\backend\\backend.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|solutionrelative:backend.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|u:\\repos\\seedmapper\\backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|u:\\repos\\seedmapper\\backend\\jsonconverters\\plantdatajsonresolver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|solutionrelative:jsonconverters\\plantdatajsonresolver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|u:\\repos\\seedmapper\\backend\\models\\plantdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|solutionrelative:models\\plantdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -19,15 +31,51 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Backend",
+              "DocumentMoniker": "U:\\Repos\\SeedMapper\\Backend\\Backend.csproj",
+              "RelativeDocumentMoniker": "Backend.csproj",
+              "ToolTip": "U:\\Repos\\SeedMapper\\Backend\\Backend.csproj",
+              "RelativeToolTip": "Backend.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-11-14T22:15:30.227Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "U:\\Repos\\SeedMapper\\Backend\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "U:\\Repos\\SeedMapper\\Backend\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-14T22:10:11.651Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "PlantDataJsonResolver.cs",
+              "DocumentMoniker": "U:\\Repos\\SeedMapper\\Backend\\JsonConverters\\PlantDataJsonResolver.cs",
+              "RelativeDocumentMoniker": "JsonConverters\\PlantDataJsonResolver.cs",
+              "ToolTip": "U:\\Repos\\SeedMapper\\Backend\\JsonConverters\\PlantDataJsonResolver.cs",
+              "RelativeToolTip": "JsonConverters\\PlantDataJsonResolver.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAApwB4AAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-14T21:22:00.846Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "PlantData.cs",
               "DocumentMoniker": "U:\\Repos\\SeedMapper\\Backend\\Models\\PlantData.cs",
               "RelativeDocumentMoniker": "Models\\PlantData.cs",
               "ToolTip": "U:\\Repos\\SeedMapper\\Backend\\Models\\PlantData.cs",
               "RelativeToolTip": "Models\\PlantData.cs",
-              "ViewState": "AgIAADcAAAAAAAAAAAAUwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAK4AAAAAAAAAAAAiwMQAAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-10T04:20:16.858Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-10T04:20:16.858Z"
             }
           ]
         }
