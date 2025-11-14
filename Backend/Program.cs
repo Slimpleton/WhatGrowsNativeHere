@@ -1,3 +1,5 @@
+using Backend.Services;
+
 namespace Backend
 {
     public class Program
@@ -8,7 +10,7 @@ namespace Backend
 
             // Add services to the container.
             // TODO add transient / singleton services here?
-            //builder.services.addtransient/singleton
+            builder.Services.AddSingleton<FileService>();
 
             builder.Services.AddControllers();
 

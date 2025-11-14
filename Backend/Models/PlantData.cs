@@ -23,16 +23,16 @@ namespace Backend.Models
         public string StateAndProvince { get; init; }
         public Category Category { get; init; }
         public string Family { get; init; }
-        public Duration[] Duration { get; init; }
+        public HashSet<Duration> Duration { get; init; }
         [JsonPropertyName("Growth Habit")]
-        public GrowthHabit[] GrowthHabit { get; init; }
+        public HashSet<GrowthHabit> GrowthHabit { get; init; }
         [JsonPropertyName("Native Status")]
         public HashSet<LocationCode> NativeStateAndProvinceCodes { get; init; }
         [JsonPropertyName("Characteristics Data")]
         public bool CharacteristicsData { get; init; }
 
         [JsonPropertyName("Active Growth Period")]
-        public Season[] ActiveGrowthPeriod { get; init; }
+        public HashSet<Season> ActiveGrowthPeriod { get; init; }
         [JsonPropertyName("After Harvest Regrowth Rate")]
         public Rate AfterHarvestRegrowthRate { get; init; }
         public Level Bloat { get; init; }
@@ -199,10 +199,112 @@ namespace Backend.Models
     public record PlantData: PlantDataRow
     {
         public string CommonName { get; init; }
-        public string[] CombinedCountyFIPs { get; init; }
+        public HashSet<string> CombinedCountyFIPs { get; init; }
+
+        // Full copy constructor from PlantDataRow
+        public PlantData(PlantDataRow row, string commonName, HashSet<string> countyFIPs)
+        {
+            AcceptedSymbol = row.AcceptedSymbol;
+            SynonymSymbol = row.SynonymSymbol;
+            Symbol = row.Symbol;
+            ScientificName = row.ScientificName;
+            PlantsFlorisiticArea = row.PlantsFlorisiticArea;
+            StateAndProvince = row.StateAndProvince;
+            Category = row.Category;
+            Family = row.Family;
+            Duration = row.Duration;
+            GrowthHabit = row.GrowthHabit;
+            NativeStateAndProvinceCodes = row.NativeStateAndProvinceCodes;
+            CharacteristicsData = row.CharacteristicsData;
+            ActiveGrowthPeriod = row.ActiveGrowthPeriod;
+            AfterHarvestRegrowthRate = row.AfterHarvestRegrowthRate;
+            Bloat = row.Bloat;
+            CNRatio = row.CNRatio;
+            CoppicePotential = row.CoppicePotential;
+            FallConspicuous = row.FallConspicuous;
+            FireResistance = row.FireResistance;
+            FlowerColor = row.FlowerColor;
+            FlowerConspicuous = row.FlowerConspicuous;
+            FoliageColor = row.FoliageColor;
+            FoliagePorosityWinter = row.FoliagePorosityWinter;
+            FoliagePorositySummer = row.FoliagePorositySummer;
+            FoliageTexture = row.FoliageTexture;
+            FruitColor = row.FruitColor;
+            FruitConspicuous = row.FruitConspicuous;
+            GrowthForm = row.GrowthForm;
+            GrowthRate = row.GrowthRate;
+            HeightAtBaseAgeMaximumFeet = row.HeightAtBaseAgeMaximumFeet;
+            HeightMatureFeet = row.HeightMatureFeet;
+            KnownAllelopath = row.KnownAllelopath;
+            LeafRetention = row.LeafRetention;
+            Lifespan = row.Lifespan;
+            LowGrowingGrass = row.LowGrowingGrass;
+            NitrogenFixation = row.NitrogenFixation;
+            Resproutability = row.Resproutability;
+            ShapeAndOrientation = row.ShapeAndOrientation;
+            Toxicity = row.Toxicity;
+            AdaptedToCoarseTexturedSoils = row.AdaptedToCoarseTexturedSoils;
+            AdaptedToMediumTexturedSoils = row.AdaptedToMediumTexturedSoils;
+            AdaptedToFineTexturedSoils = row.AdaptedToFineTexturedSoils;
+            AnaerobicTolerance = row.AnaerobicTolerance;
+            Caco3Tolerance = row.Caco3Tolerance;
+            ColdStratificationRequired = row.ColdStratificationRequired;
+            DroughtTolerance = row.DroughtTolerance;
+            FertilityRequirement = row.FertilityRequirement;
+            FireTolerance = row.FireTolerance;
+            FrostFreeDaysMinimum = row.FrostFreeDaysMinimum;
+            HedgeTolerance = row.HedgeTolerance;
+            MoistureUse = row.MoistureUse;
+            PhMinimum = row.PhMinimum;
+            PhMaximum = row.PhMaximum;
+            PlantingDensityPerAcreMinimum = row.PlantingDensityPerAcreMinimum;
+            PlantingDensityPerAcreMaximum = row.PlantingDensityPerAcreMaximum;
+            PrecipitationMinimum = row.PrecipitationMinimum;
+            PrecipitationMaximum = row.PrecipitationMaximum;
+            RootDepthMinimumInches = row.RootDepthMinimumInches;
+            SalinityTolerance = row.SalinityTolerance;
+            ShadeTolerance = row.ShadeTolerance;
+            TemperatureMinimumF = row.TemperatureMinimumF;
+            BloomPeriod = row.BloomPeriod;
+            CommercialAvailability = row.CommercialAvailability;
+            FruitSeedAbundance = row.FruitSeedAbundance;
+            FruitSeedPeriodBegin = row.FruitSeedPeriodBegin;
+            FruitSeedPeriodEnd = row.FruitSeedPeriodEnd;
+            FruitSeedPersistence = row.FruitSeedPersistence;
+            PropogatedByBareRoot = row.PropogatedByBareRoot;
+            PropogatedByBulbs = row.PropogatedByBulbs;
+            PropogatedByContainer = row.PropogatedByContainer;
+            PropogatedByCorms = row.PropogatedByCorms;
+            PropogatedByCuttings = row.PropogatedByCuttings;
+            PropogatedBySeed = row.PropogatedBySeed;
+            PropogatedBySod = row.PropogatedBySod;
+            PropogatedBySprigs = row.PropogatedBySprigs;
+            PropogatedByTubers = row.PropogatedByTubers;
+            SeedsPerPound = row.SeedsPerPound;
+            SeedSpreadRate = row.SeedSpreadRate;
+            SeedlingVigor = row.SeedlingVigor;
+            SmallGrain = row.SmallGrain;
+            VegetativeSpreadRate = row.VegetativeSpreadRate;
+            BerryNutSeedProduct = row.BerryNutSeedProduct;
+            ChristmasTreeProduct = row.ChristmasTreeProduct;
+            FodderProduct = row.FodderProduct;
+            FuelwoodProduct = row.FuelwoodProduct;
+            LumberProduct = row.LumberProduct;
+            NavalStoreProduct = row.NavalStoreProduct;
+            NurseryStockProduct = row.NurseryStockProduct;
+            PalatableBrowseAnimal = row.PalatableBrowseAnimal;
+            PalatableGrazeAnimal = row.PalatableGrazeAnimal;
+            PalatableHuman = row.PalatableHuman;
+            PostProduct = row.PostProduct;
+            ProteinPotential = row.ProteinPotential;
+            PulpwoodProduct = row.PulpwoodProduct;
+            VeneerProduct = row.VeneerProduct;
+            CommonName = commonName;
+            CombinedCountyFIPs = countyFIPs;
+        }
     }
 
-    public record ExtraInfo(string[] CombinedFIPs, string CommonName);
+    public record ExtraInfo(HashSet<string> CombinedFIPs, string CommonName);
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum ShadeTolerance

@@ -3,20 +3,28 @@
   "WorkspaceRootPath": "U:\\Repos\\SeedMapper\\Backend\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|u:\\repos\\seedmapper\\backend\\backend.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
-      "RelativeMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|solutionrelative:backend.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+      "AbsoluteMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|u:\\repos\\seedmapper\\backend\\models\\plantdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|solutionrelative:models\\plantdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|u:\\repos\\seedmapper\\backend\\services\\fileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|solutionrelative:services\\fileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|u:\\repos\\seedmapper\\backend\\data\\plants_extra_data.csv||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|solutionrelative:data\\plants_extra_data.csv||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|u:\\repos\\seedmapper\\backend\\jsonresolvers\\plantdatarowjsonresolver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|solutionrelative:jsonresolvers\\plantdatarowjsonresolver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|u:\\repos\\seedmapper\\backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|u:\\repos\\seedmapper\\backend\\jsonconverters\\plantdatajsonresolver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|solutionrelative:jsonconverters\\plantdatajsonresolver.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|u:\\repos\\seedmapper\\backend\\models\\plantdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|solutionrelative:models\\plantdata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|u:\\repos\\seedmapper\\backend\\backend.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{5ADA2BB6-BD8A-FBBA-631C-E748BB1D8E69}|Backend.csproj|solutionrelative:backend.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,11 +34,37 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
+              "Title": "PLANTS_EXTRA_DATA.csv",
+              "DocumentMoniker": "U:\\Repos\\SeedMapper\\Backend\\Data\\PLANTS_EXTRA_DATA.csv",
+              "RelativeDocumentMoniker": "Data\\PLANTS_EXTRA_DATA.csv",
+              "ToolTip": "U:\\Repos\\SeedMapper\\Backend\\Data\\PLANTS_EXTRA_DATA.csv",
+              "RelativeToolTip": "Data\\PLANTS_EXTRA_DATA.csv",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002120|",
+              "WhenOpened": "2025-11-14T23:29:00.878Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "FileService.cs",
+              "DocumentMoniker": "U:\\Repos\\SeedMapper\\Backend\\Services\\FileService.cs",
+              "RelativeDocumentMoniker": "Services\\FileService.cs",
+              "ToolTip": "U:\\Repos\\SeedMapper\\Backend\\Services\\FileService.cs*",
+              "RelativeToolTip": "Services\\FileService.cs*",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABQAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-14T22:48:48.285Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "Backend",
               "DocumentMoniker": "U:\\Repos\\SeedMapper\\Backend\\Backend.csproj",
               "RelativeDocumentMoniker": "Backend.csproj",
@@ -42,7 +76,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "U:\\Repos\\SeedMapper\\Backend\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -55,27 +89,29 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "PlantDataJsonResolver.cs",
-              "DocumentMoniker": "U:\\Repos\\SeedMapper\\Backend\\JsonConverters\\PlantDataJsonResolver.cs",
-              "RelativeDocumentMoniker": "JsonConverters\\PlantDataJsonResolver.cs",
-              "ToolTip": "U:\\Repos\\SeedMapper\\Backend\\JsonConverters\\PlantDataJsonResolver.cs",
-              "RelativeToolTip": "JsonConverters\\PlantDataJsonResolver.cs",
-              "ViewState": "AgIAAAUAAAAAAAAAAAApwB4AAAA2AAAAAAAAAA==",
+              "DocumentIndex": 3,
+              "Title": "PlantDataRowJsonResolver.cs",
+              "DocumentMoniker": "U:\\Repos\\SeedMapper\\Backend\\JsonResolvers\\PlantDataRowJsonResolver.cs",
+              "RelativeDocumentMoniker": "JsonResolvers\\PlantDataRowJsonResolver.cs",
+              "ToolTip": "U:\\Repos\\SeedMapper\\Backend\\JsonResolvers\\PlantDataRowJsonResolver.cs",
+              "RelativeToolTip": "JsonResolvers\\PlantDataRowJsonResolver.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAApwA4AAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-14T21:22:00.846Z"
+              "WhenOpened": "2025-11-14T21:22:00.846Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "PlantData.cs",
               "DocumentMoniker": "U:\\Repos\\SeedMapper\\Backend\\Models\\PlantData.cs",
               "RelativeDocumentMoniker": "Models\\PlantData.cs",
               "ToolTip": "U:\\Repos\\SeedMapper\\Backend\\Models\\PlantData.cs",
               "RelativeToolTip": "Models\\PlantData.cs",
-              "ViewState": "AgIAAK4AAAAAAAAAAAAiwMQAAAAvAAAAAAAAAA==",
+              "ViewState": "AgIAAKwAAAAAAAAAAAAiwMgAAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-10T04:20:16.858Z"
+              "WhenOpened": "2025-11-10T04:20:16.858Z",
+              "EditorCaption": ""
             }
           ]
         }
