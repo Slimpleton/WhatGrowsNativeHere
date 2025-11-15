@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace Backend.Services
 {
-    public class FileService
+    public static class FileService
     {
         public static PlantData[] PlantData { get; }
         public static List<StateCSVItem> States { get; }
@@ -16,10 +16,10 @@ namespace Backend.Services
             string dirName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
 
             List<PlantDataRow> rows = ParsePlantDataRow(dirName);
-            Dictionary<string,ExtraInfo> extraInfo = ParseExtraInfo(dirName);
+            Dictionary<string, ExtraInfo> extraInfo = ParseExtraInfo(dirName);
 
             PlantData[] data = new PlantData[rows.Count];
-            for(int i = 0; i < rows.Count; i++)
+            for (int i = 0; i < rows.Count; i++)
             {
                 ExtraInfo correctInfo = extraInfo[rows[i].Symbol];
                 data[i] = new PlantData(rows[i], correctInfo.CommonName, correctInfo.CombinedFIPs);
@@ -30,51 +30,44 @@ namespace Backend.Services
             Counties = ParseCountyCSV(dirName);
         }
 
-        public static List<PlantDataRow> ParsePlantDataRow(string dirName)
+        private static List<PlantDataRow> ParsePlantDataRow(string dirName)
         {
             string fileName = Path.Combine(dirName,"PLANTS_Characteristics_Plus_Data.csv");
-            using FileStream fs = File.OpenRead(fileName);
-            using StreamReader reader = new(fs);
-
-            // Skip Header
-            reader.ReadLine();
-            TextFieldParser parser = new(reader)
+            using TextFieldParser parser = new(fileName)
             {
                 Delimiters = [","],
                 HasFieldsEnclosedInQuotes = true,
             };
 
-            var options = new JsonSerializerOptions()
-            {
-                TypeInfoResolver = new PlantDataRowJsonResolver()
-            };
             List<PlantDataRow> data = [];
 
+            parser.ReadLine();
             while (!parser.EndOfData)
             {
-                PlantDataRow row = JsonSerializer.Deserialize<PlantDataRow>(parser.ReadLine()!, options)!;
+                string?[] fields = parser.ReadFields()!;
+                // TODO swap to fields, just manually create the object with every row
+                PlantDataRow row = new()
+                {
+
+                };
                 data.Add(row);
             }
 
             return data;
         }
 
-        public static Dictionary<string,ExtraInfo> ParseExtraInfo(string dirName)
+        private static Dictionary<string,ExtraInfo> ParseExtraInfo(string dirName)
         {
             string fileName = Path.Combine(dirName, "PLANTS_EXTRA_DATA.csv");
-            using FileStream fs = File.OpenRead(fileName);
-            using StreamReader reader = new(fs);
+            Dictionary<string, ExtraInfo> items = [];
 
-            // Skip Header
-            reader.ReadLine();
-            TextFieldParser parser = new(reader)
+            TextFieldParser parser = new(fileName)
             {
                 Delimiters = [","],
                 HasFieldsEnclosedInQuotes = true,
             };
-
-            Dictionary<string, ExtraInfo> items = [];
-
+            // Skip Header
+            parser.ReadLine();
             while (!parser.EndOfData)
             {
                 string[] fields = parser.ReadFields()!;
@@ -88,21 +81,18 @@ namespace Backend.Services
             return items;
         }
 
-        public static List<StateCSVItem> ParseStateCSV(string dirName)
+        private static List<StateCSVItem> ParseStateCSV(string dirName)
         {
-            string fileName = Path.Combine(dirName, "stateFipsInfo.csv");
-            using FileStream fs = File.OpenRead(fileName);
-            using StreamReader reader = new(fs);
-
-            // Skip Header
-            reader.ReadLine();
+            string fileName = Path.Combine(dirName, "statesFipsInfo.csv");
             List<StateCSVItem> items = [];
-            TextFieldParser parser = new(reader)
+            TextFieldParser parser = new(fileName)
             {
                 Delimiters = [","],
                 HasFieldsEnclosedInQuotes = true,
             };
 
+            // Skip Header
+            parser.ReadLine();
             while (!parser.EndOfData)
             {
                 string[] fields = parser.ReadFields()!;
@@ -121,21 +111,19 @@ namespace Backend.Services
 
         }
 
-        public static List<CountyCSVItem> ParseCountyCSV(string dirName)
+        private static List<CountyCSVItem> ParseCountyCSV(string dirName)
         {
             string fileName = Path.Combine(dirName, "countyInfo.csv");
-            using FileStream fs = File.OpenRead(fileName);
-            using StreamReader reader = new(fs);
-
-            // Skip Header
-            reader.ReadLine();
             List<CountyCSVItem> items = [];
-            TextFieldParser parser = new(reader)
+
+            TextFieldParser parser = new(fileName)
             {
                 Delimiters = [","],
                 HasFieldsEnclosedInQuotes = true,
             };
 
+            // Skip Header
+            parser.ReadLine();
             while (!parser.EndOfData)
             {
                 string[] fields = parser.ReadFields()!;

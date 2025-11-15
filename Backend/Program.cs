@@ -10,7 +10,6 @@ namespace Backend
 
             // Add services to the container.
             // TODO add transient / singleton services here?
-            builder.Services.AddSingleton<FileService>();
 
             // Add CORS policy
             builder.Services.AddCors(options =>

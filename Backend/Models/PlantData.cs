@@ -5,11 +5,8 @@ using System.Text.Json.Serialization;
 
 namespace Backend.Models
 {
-
-    // TODO just load all the plant data into some static object shared on the whole app idgaf its legit tiny
     public record PlantDataRow
     {
-
         [JsonPropertyName("Accepted Symbol")]
         public string AcceptedSymbol { get; init; }
         [JsonPropertyName("Synonym Symbol")]
@@ -30,7 +27,6 @@ namespace Backend.Models
         public HashSet<LocationCode> NativeStateAndProvinceCodes { get; init; }
         [JsonPropertyName("Characteristics Data")]
         public bool CharacteristicsData { get; init; }
-
         [JsonPropertyName("Active Growth Period")]
         public HashSet<Season> ActiveGrowthPeriod { get; init; }
         [JsonPropertyName("After Harvest Regrowth Rate")]

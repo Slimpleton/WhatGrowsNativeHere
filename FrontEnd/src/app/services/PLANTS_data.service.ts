@@ -1,9 +1,8 @@
 import { inject, Injectable } from "@angular/core";
 import { ExtraInfo, getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, Season, validLocationCodes } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
-import { FileService } from "./file.service";
 import { ResolveFn } from "@angular/router";
-import { catchError, combineLatestWith, map, Observable, of, shareReplay } from "rxjs";
+import { catchError, map, Observable, of, shareReplay } from "rxjs";
 
 export const csvResolver: ResolveFn<ReadonlyArray<Readonly<PlantData>>> = () => {
     return inject(GovPlantsDataService).loadNativePlantData;
@@ -112,10 +111,10 @@ export class GovPlantsDataService {
         "Veneer Product": "veneerProduct"
     };
 
-    private readonly dataUrl = 'assets/PLANTS_Characteristics_Plus_Data.csv';
+    private readonly dataUrl = 'api/FileData/plantdata';
     private static readonly MINIMUM_SPECIES_NAME_WORDS = 2;
 
-    public constructor(private readonly http: HttpClient, private readonly _fileService: FileService) {
+    public constructor(private readonly http: HttpClient) {
     }
 
     public getPlantById(acceptedSymbol: string): Observable<Readonly<PlantData>> {
@@ -144,7 +143,7 @@ export class GovPlantsDataService {
             }));
     }
 
-    private nativePlantData = this.getPlantDataFromCSV().pipe(
+    private nativePlantData = this.getRecordsFromCSV().pipe(
         // Filters out non species listings
         map((plantData: Readonly<PlantData>[]) => {
             const speciesGroups = new Map<string, PlantData[]>();
@@ -189,21 +188,12 @@ export class GovPlantsDataService {
         return this.loadNativePlantData.pipe(map((plantData: ReadonlyArray<Readonly<PlantData>>) => plantData.map(x => x.acceptedSymbol)));
     }
 
-    private getPlantDataFromCSV(): Observable<Readonly<PlantData>[]> {
-        return this.getRecordsFromCSV().pipe(
-            // Convert each row to PlantData object and filter for native plants
-            combineLatestWith(this._fileService.extraInfo$),
-            map(([csvData, extraInfo]: [Record<string, string>[], Map<string, ExtraInfo>]) =>
-                csvData.map((row: Record<string, string>) => (this.convertCsvRowToPlantData(row, extraInfo)) as Readonly<PlantData>)));
-    }
-
     /**
      * HACK use this for testing to see if the native ranges are correct without parsing into plant data / aka native plant range conversion
      * @returns 
      */
-    private getRecordsFromCSV(): Observable<Record<string, string>[]> {
-        return this.http.get(this.dataUrl, { responseType: 'text' })
-            .pipe(map(csvText => this.parseCsv(csvText)));
+    private getRecordsFromCSV(): Observable<PlantData[]> {
+        return this.http.get<PlantData[]>(this.dataUrl);
     }
 
     private parseCsv(csvText: string): Record<string, string>[] {

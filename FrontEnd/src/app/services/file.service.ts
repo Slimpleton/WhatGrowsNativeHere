@@ -1,34 +1,24 @@
-import { HttpClient } from "@angular/common/http";
 import { Injectable, OnDestroy } from "@angular/core";
-import { combineLatestWith, from, map, Observable, OperatorFunction, pipe, reduce, shareReplay, skip, Subject, switchMap, takeUntil, toArray, UnaryFunction } from "rxjs";
-import { CountyCSVItem, ExtraInfo, StateCSVItem } from "../models/gov/models";
+import { combineLatestWith, map, Observable, pipe, shareReplay, Subject, takeUntil, UnaryFunction } from "rxjs";
+import { CountyCSVItem, StateCSVItem } from "../models/gov/models";
+import { HttpClient } from "@angular/common/http";
 
 @Injectable({ providedIn: 'root' })
 export class FileService implements OnDestroy {
-    private readonly _extraDataCSVUrl: string = 'assets/PLANTS_EXTRA_DATA.csv';
-    private readonly _stateCSVUrl: string = 'assets/statesFipsInfo.csv';
-    private readonly _countyCSVUrl: string = 'assets/countyInfo.csv';
-    private readonly _ngDestroy$: Subject<void> = new Subject<void>();
+    private readonly _destroy$: Subject<void> = new Subject<void>();
+    private readonly _baseUrl: string = 'api/FileData/';
+    private readonly _stateUrl: string = this._baseUrl + 'states';
+    private readonly _countyUrl: string = this._baseUrl + 'counties';
 
-    private readonly _extraInfo$: Observable<Map<string, ExtraInfo>> = this._client.get(this._extraDataCSVUrl, { responseType: 'text' }).pipe(
-        this.getDataLines(),
-        this.parseMap(),
-        shareReplay(),
-        takeUntil(this._ngDestroy$));
+    public constructor(private readonly _client: HttpClient) { }
 
-    private readonly _states$: Observable<StateCSVItem[]> = this._client.get(this._stateCSVUrl, { responseType: 'text' }).pipe(
-        this.getDataLines(),
-        this.parseObject(this.parseState),
-        toArray(),
+    private readonly _states$: Observable<StateCSVItem[]> = this._client.get<StateCSVItem[]>(this._stateUrl).pipe(
         shareReplay(),
-        takeUntil(this._ngDestroy$));
+        takeUntil(this._destroy$));
 
-    private readonly _counties$: Observable<CountyCSVItem[]> = this._client.get(this._countyCSVUrl, { responseType: 'text' }).pipe(
-        this.getDataLines(),
-        this.parseObject(this.parseCounty),
-        toArray(),
+    private readonly _counties$: Observable<CountyCSVItem[]> = this._client.get<CountyCSVItem[]>(this._countyUrl).pipe(
         shareReplay(),
-        takeUntil(this._ngDestroy$));
+        takeUntil(this._destroy$));
 
     public get counties$(): Observable<CountyCSVItem[]> {
         return this._counties$;
@@ -36,58 +26,6 @@ export class FileService implements OnDestroy {
 
     public get states$(): Observable<StateCSVItem[]> {
         return this._states$;
-    }
-
-    public get extraInfo$(): Observable<Map<string, ExtraInfo>> {
-        return this._extraInfo$;
-    }
-
-    public constructor(private readonly _client: HttpClient) { }
-
-    private parseState(line: string): StateCSVItem {
-        const lineValues: string[] = line.split(',', 4);
-        return <StateCSVItem>{
-            fip: Number.parseInt(lineValues[0]),
-            abbrev: lineValues[1],
-            name: lineValues[2],
-            gnisid: lineValues[3]
-        };
-    }
-
-    private parseCounty(line: string): CountyCSVItem {
-        const lineValues: string[] = line.split(',', 5);
-        return <CountyCSVItem>{
-            stateAbbrev: lineValues[0],
-            stateFip: Number.parseInt(lineValues[1]),
-            countyFip: lineValues[2],
-            countyName: lineValues[4],
-        };
-    }
-
-    private getDataLines(): UnaryFunction<Observable<string>, Observable<string>> {
-        return pipe(
-            switchMap((file: string) => from(file.split('\n'))),
-            skip(1));
-    }
-
-    private parseObject<T>(parser: (line: string) => T): OperatorFunction<string, T> {
-        return map((line: string) => parser(line));
-    }
-
-    private parseMap(): OperatorFunction<string, Map<string, ExtraInfo>> {
-        return reduce((map, line) => {
-            const lineValues = line.split(',');
-            const parsedFips = lineValues[2]?.substring(1, lineValues[2].length - 2) ?? null;
-            const info = <ExtraInfo>{
-                commonName: this.parseValue(lineValues[1]),
-                combinedFIPs: parsedFips?.split('|') ?? [],
-            };
-            return map.set(this.parseValue(lineValues[0]), info);
-        }, new Map<string, ExtraInfo>());
-    }
-
-    private parseValue(value: string): string {
-        return value?.substring(1, value.length - 1);
     }
 
     public getStateCSVItemAsync(): UnaryFunction<Observable<string | number>, Observable<StateCSVItem | undefined>> {
@@ -110,7 +48,7 @@ export class FileService implements OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this._ngDestroy$.next();
-        this._ngDestroy$.complete();
+        this._destroy$.next();
+        this._destroy$.complete();
     }
 }
