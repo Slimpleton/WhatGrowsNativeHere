@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { ExtraInfo, getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, PlantDataRaw, Season, validLocationCodes } from "../models/gov/models";
+import { ExtraInfo, getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, Season, validLocationCodes } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 import { FileService } from "./file.service";
 import { ResolveFn } from "@angular/router";

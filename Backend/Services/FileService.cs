@@ -9,9 +9,12 @@ namespace Backend.Services
     public class FileService
     {
         public static PlantData[] PlantData { get; }
+        public static List<StateCSVItem> States { get; }
+        public static List<CountyCSVItem> Counties { get; }
         static FileService()
         {
             string dirName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+
             List<PlantDataRow> rows = ParsePlantDataRow(dirName);
             Dictionary<string,ExtraInfo> extraInfo = ParseExtraInfo(dirName);
 
@@ -22,18 +25,19 @@ namespace Backend.Services
                 data[i] = new PlantData(rows[i], correctInfo.CommonName, correctInfo.CombinedFIPs);
             }
             PlantData = data;
+
+            States = ParseStateCSV(dirName);
+            Counties = ParseCountyCSV(dirName);
         }
 
         public static List<PlantDataRow> ParsePlantDataRow(string dirName)
         {
             string fileName = Path.Combine(dirName,"PLANTS_Characteristics_Plus_Data.csv");
-            if (!File.Exists(fileName)) return [];
-
             using FileStream fs = File.OpenRead(fileName);
             using StreamReader reader = new(fs);
 
             // Skip Header
-            reader.ReadLineAsync();
+            reader.ReadLine();
             TextFieldParser parser = new(reader)
             {
                 Delimiters = [","],
@@ -58,20 +62,18 @@ namespace Backend.Services
         public static Dictionary<string,ExtraInfo> ParseExtraInfo(string dirName)
         {
             string fileName = Path.Combine(dirName, "PLANTS_EXTRA_DATA.csv");
-            if (!File.Exists(fileName)) return [];
-
             using FileStream fs = File.OpenRead(fileName);
             using StreamReader reader = new(fs);
 
             // Skip Header
-            reader.ReadLineAsync();
+            reader.ReadLine();
             TextFieldParser parser = new(reader)
             {
                 Delimiters = [","],
                 HasFieldsEnclosedInQuotes = true,
             };
 
-            Dictionary<string, ExtraInfo> extraInfoMap = [];
+            Dictionary<string, ExtraInfo> items = [];
 
             while (!parser.EndOfData)
             {
@@ -80,11 +82,75 @@ namespace Backend.Services
                 string commonName = fields[1];
                 string counties = fields[2];
                 HashSet<string> countySet = [.. counties.Split('|')];
-                extraInfoMap.Add(symbol, new ExtraInfo(countySet, commonName));
+                items.Add(symbol, new ExtraInfo(countySet, commonName));
             }
 
-            return extraInfoMap;
+            return items;
         }
 
+        public static List<StateCSVItem> ParseStateCSV(string dirName)
+        {
+            string fileName = Path.Combine(dirName, "stateFipsInfo.csv");
+            using FileStream fs = File.OpenRead(fileName);
+            using StreamReader reader = new(fs);
+
+            // Skip Header
+            reader.ReadLine();
+            List<StateCSVItem> items = [];
+            TextFieldParser parser = new(reader)
+            {
+                Delimiters = [","],
+                HasFieldsEnclosedInQuotes = true,
+            };
+
+            while (!parser.EndOfData)
+            {
+                string[] fields = parser.ReadFields()!;
+
+                StateCSVItem item = new()
+                {
+                    Fip = short.Parse(fields[0]),
+                    Abbrev = fields[1],
+                    Name = fields[2],
+                    GnisID = fields[3],
+                };
+                items.Add(item);
+            }
+
+            return items;
+
+        }
+
+        public static List<CountyCSVItem> ParseCountyCSV(string dirName)
+        {
+            string fileName = Path.Combine(dirName, "countyInfo.csv");
+            using FileStream fs = File.OpenRead(fileName);
+            using StreamReader reader = new(fs);
+
+            // Skip Header
+            reader.ReadLine();
+            List<CountyCSVItem> items = [];
+            TextFieldParser parser = new(reader)
+            {
+                Delimiters = [","],
+                HasFieldsEnclosedInQuotes = true,
+            };
+
+            while (!parser.EndOfData)
+            {
+                string[] fields = parser.ReadFields()!;
+
+                CountyCSVItem item = new()
+                {
+                    StateAbbrev = fields[0],
+                    StateFip = short.Parse(fields[1]),
+                    CountyFip = fields[2],
+                    CountyName= fields[4],
+                };
+                items.Add(item);
+            }
+
+            return items;
+        }
     }
 }

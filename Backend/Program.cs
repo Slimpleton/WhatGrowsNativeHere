@@ -12,6 +12,19 @@ namespace Backend
             // TODO add transient / singleton services here?
             builder.Services.AddSingleton<FileService>();
 
+            // Add CORS policy
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("Dev",
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:4200") // Angular dev server
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    });
+            });
+
+
             builder.Services.AddControllers();
 
             var app = builder.Build();
