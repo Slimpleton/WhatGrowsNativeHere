@@ -1,8 +1,6 @@
 ﻿
-using Backend.JsonConverters;
 using Backend.Models;
 using Microsoft.VisualBasic.FileIO;
-using System.Text.Json;
 
 namespace Backend.Services
 {
@@ -44,17 +42,73 @@ namespace Backend.Services
             parser.ReadLine();
             while (!parser.EndOfData)
             {
-                string?[] fields = parser.ReadFields()!;
-                // TODO swap to fields, just manually create the object with every row
-                PlantDataRow row = new()
-                {
-
-                };
+                PlantDataRow row = GetPlantDataRow(parser);
                 data.Add(row);
             }
 
             return data;
         }
+
+        private static PlantDataRow GetPlantDataRow(TextFieldParser parser)
+        {
+            string?[] fields = parser.ReadFields()!;
+            // TODO swap to fields, just manually create the object with every row
+            PlantDataRow row = new()
+            {
+                AcceptedSymbol = fields[0],
+                SynonymSymbol = fields[1],
+                Symbol = fields[2],
+                ScientificName = fields[3],
+                PlantsFlorisiticArea = fields[4],
+                StateAndProvince = fields[5],
+                Category = ParseEnum<Category>(fields[6]),
+                Family = fields[7],
+                Duration = ParseEnumHashSet<Duration>(fields[8]),
+                GrowthHabit = ParseEnumHashSet<GrowthHabit>(fields[9]),
+                NativeStateAndProvinceCodes = , // handle differently
+                CharacteristicsData = bool.Parse(fields[11]!),
+                ActiveGrowthPeriod = String.IsNullOrWhiteSpace(fields[12]) ? [] : [..fields[12]!.Trim('"').Split(',', " and ").Trim()],
+                AfterHarvestRegrowthRate = ParseEnum<Rate>(fields[13]),
+                Bloat = ParseEnum<Level>(fields[14]),
+                CNRatio = ParseEnum<Level>(fields[15]),
+                CoppicePotential = String.IsNullOrWhiteSpace(fields[16]) ?null : bool.Parse(fields[16]),
+                FallConspicuous = String.IsNullOrWhiteSpace (fields[17]) ? null : bool.Parse(fields[17]),
+                FireResistance = String.IsNullOrWhiteSpace(fields[18]) ? null : bool.Parse(fields[18]),
+                FlowerColor = ParseEnum<Color>(fields[19]),
+                FlowerConspicuous = String.IsNullOrWhiteSpace(fields[20]) ? null : bool.Parse(fields[20]),
+                FoliageColor = ParseEnum<Color>(fields[21]),
+                FoliagePorositySummer = ParseEnum<Porosity>(fields[22]),
+                FoliagePorosityWinter = ParseEnum<Porosity>(fields[23]),
+                FoliageTexture = ParseEnum<Texture>(fields[24]),
+                FruitColor = ParseEnum<Color>(fields[25]),
+                FruitConspicuous = String.IsNullOrWhiteSpace(fields[26]) ? null : bool.Parse(fields[26]),
+                GrowthForm = ParseEnum<GrowthForm>(fields[27]),
+                GrowthRate = ParseEnum<Rate>(fields[28]),
+                HeightAtBaseAgeMaximumFeet = String.IsNullOrWhiteSpace(fields[29]) ? null : double.Parse(fields[29]),
+                HeightMatureFeet = String.IsNullOrWhiteSpace(fields[30]) ? null : double.Parse(fields[30]),
+                KnownAllelopath = String.IsNullOrWhiteSpace(fields[31]) ? null : bool.Parse(fields[31]),
+                LeafRetention = String.IsNullOrWhiteSpace(fields[32]) ? null : bool.Parse(fields[32]),
+                Lifespan = ParseEnum<Lifespan>(fields[33]),
+                LowGrowingGrass = String.IsNullOrWhiteSpace(fields[34]) ? null : bool.Parse(fields[34]),
+                NitrogenFixation = ParseEnum<Level>(fields[35]),
+                Resproutability = String.IsNullOrWhiteSpace(fields[36]) ? null: bool.Parse(fields[36]),
+                ShapeAndOrientation = ParseEnum<ShapeAndOrientation>(fields[37]),
+                Toxicity = ParseEnum<Toxicity>(fields[38]),
+                AdaptedToCoarseTexturedSoils = String.IsNullOrWhiteSpace(fields[39]) ? null : bool.Parse(fields[39]),
+                AdaptedToMediumTexturedSoils = String.IsNullOrWhiteSpace(fields[40]) ? null : bool.Parse(fields[40]),
+                AdaptedToFineTexturedSoils = String.IsNullOrWhiteSpace(fields[41]) ? null : bool.Parse(fields[41]),
+                AnaerobicTolerance = ParseEnum<Level>(fields[42]),
+                Caco3Tolerance = ParseEnum<Level>(fields[43]),
+                ColdStratificationRequired = String.IsNullOrWhiteSpace(fields[44]) ? null : bool.Parse(fields[44]),
+                DroughtTolerance = ParseEnum<Level>(fields[45]),
+
+            };
+            return row;
+        }
+
+        private static TEnum? ParseEnum<TEnum>(string? field) where TEnum : struct, IConvertible, IComparable, IFormattable => String.IsNullOrWhiteSpace(field) ? null : Enum.Parse<TEnum>(field);
+        private static HashSet<TEnum> ParseEnumHashSet<TEnum>(string? field) where TEnum : struct, IConvertible, IComparable, IFormattable => String.IsNullOrWhiteSpace(field) ? [] : ParseCsvList<TEnum>(field);
+        private static HashSet<TEnum> ParseCsvList<TEnum>(string field) where TEnum : struct, IConvertible, IComparable, IFormattable => [.. field.Trim('"').Split(',').Select(x => Enum.Parse<TEnum>(x))];
 
         private static Dictionary<string,ExtraInfo> ParseExtraInfo(string dirName)
         {

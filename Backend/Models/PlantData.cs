@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Drawing;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
@@ -10,16 +9,16 @@ namespace Backend.Models
         [JsonPropertyName("Accepted Symbol")]
         public string AcceptedSymbol { get; init; }
         [JsonPropertyName("Synonym Symbol")]
-        public string SynonymSymbol { get; init; }
+        public string? SynonymSymbol { get; init; }
         public string Symbol { get; init; }
         [JsonPropertyName("Scientific Name")]
         public string ScientificName { get; init; }
         [JsonPropertyName("PLANTS Floristic Area")]
-        public string PlantsFlorisiticArea { get; init; }
+        public string? PlantsFlorisiticArea { get; init; }
         [JsonPropertyName("State and Province")]
-        public string StateAndProvince { get; init; }
-        public Category Category { get; init; }
-        public string Family { get; init; }
+        public string? StateAndProvince { get; init; }
+        public Category? Category { get; init; }
+        public string? Family { get; init; }
         public HashSet<Duration> Duration { get; init; }
         [JsonPropertyName("Growth Habit")]
         public HashSet<GrowthHabit> GrowthHabit { get; init; }
@@ -30,166 +29,166 @@ namespace Backend.Models
         [JsonPropertyName("Active Growth Period")]
         public HashSet<Season> ActiveGrowthPeriod { get; init; }
         [JsonPropertyName("After Harvest Regrowth Rate")]
-        public Rate AfterHarvestRegrowthRate { get; init; }
-        public Level Bloat { get; init; }
+        public Rate? AfterHarvestRegrowthRate { get; init; }
+        public Level? Bloat { get; init; }
         [JsonPropertyName("C:N Ratio")]
-        public Level CNRatio { get; init; }
+        public Level? CNRatio { get; init; }
         [JsonPropertyName("Coppice Potential")]
-        public bool CoppicePotential { get; init; }
+        public bool? CoppicePotential { get; init; }
         [JsonPropertyName("Fall Conspicuous")]
-        public bool FallConspicuous { get; init; }
+        public bool? FallConspicuous { get; init; }
         [JsonPropertyName("Fire Resistance")]
-        public bool FireResistance { get; init; }
+        public bool? FireResistance { get; init; }
         [JsonPropertyName("Flower Color")]
-        public Color FlowerColor { get; init; }
+        public Color? FlowerColor { get; init; }
         [JsonPropertyName("Flower Conspicuous")]
-        public bool FlowerConspicuous { get; init; }
+        public bool? FlowerConspicuous { get; init; }
         [JsonPropertyName("Foliage Color")]
-        public Color FoliageColor { get; init; }
+        public Color? FoliageColor { get; init; }
         [JsonPropertyName("Foliage Porosity Winter")]
-        public Porosity FoliagePorosityWinter { get; init; }
+        public Porosity? FoliagePorosityWinter { get; init; }
         [JsonPropertyName("Foliage Porosity Summer")]
-        public Porosity FoliagePorositySummer { get; init; }
+        public Porosity? FoliagePorositySummer { get; init; }
         [JsonPropertyName("Foliage Texture")]
-        public Texture FoliageTexture { get; init; }
+        public Texture? FoliageTexture { get; init; }
         [JsonPropertyName("Fruit Color")]
-        public Color FruitColor { get; init; }
+        public Color? FruitColor { get; init; }
         [JsonPropertyName("Fruit Conspicuous")]
-        public bool FruitConspicuous { get; init; }
+        public bool? FruitConspicuous { get; init; }
         [JsonPropertyName("Growth Form")]
-        public GrowthForm GrowthForm { get; init; }
+        public GrowthForm? GrowthForm { get; init; }
         [JsonPropertyName("Growth Rate")]
-        public Rate GrowthRate { get; init; }
+        public Rate? GrowthRate { get; init; }
         [JsonPropertyName("Height at Base Age, Maximum (feet)")]
-        public double HeightAtBaseAgeMaximumFeet { get; init; }
+        public double? HeightAtBaseAgeMaximumFeet { get; init; }
         [JsonPropertyName("Height, Mature (feet)")]
-        public double HeightMatureFeet { get; init; }
+        public double? HeightMatureFeet { get; init; }
         [JsonPropertyName("Known Allelopath")]
-        public bool KnownAllelopath { get; init; }
+        public bool? KnownAllelopath { get; init; }
         [JsonPropertyName("Leaf Retention")]
-        public bool LeafRetention { get; init; }
-        public Lifespan Lifespan { get; init; }
+        public bool? LeafRetention { get; init; }
+        public Lifespan? Lifespan { get; init; }
         [JsonPropertyName("Low Growing Grass")]
-        public bool LowGrowingGrass { get; init; }
+        public bool? LowGrowingGrass { get; init; }
         [JsonPropertyName("Nitrogen Fixation")]
-        public Level NitrogenFixation { get; init; }
+        public Level? NitrogenFixation { get; init; }
         [JsonPropertyName("Resprout Ability")]
-        public bool Resproutability { get; init; }
+        public bool? Resproutability { get; init; }
         [JsonPropertyName("Shape and Orientation")]
-        public ShapeAndOrientation ShapeAndOrientation { get; init; }
-        public Toxicity Toxicity { get; init; }
+        public ShapeAndOrientation? ShapeAndOrientation { get; init; }
+        public Toxicity? Toxicity { get; init; }
         [JsonPropertyName("Adapted to Coarse Textured Soils")]
-        public bool AdaptedToCoarseTexturedSoils { get; init; }
+        public bool? AdaptedToCoarseTexturedSoils { get; init; }
         [JsonPropertyName("Adapted to Medium Textured Soils")]
-        public bool AdaptedToMediumTexturedSoils { get; init; }
+        public bool? AdaptedToMediumTexturedSoils { get; init; }
         [JsonPropertyName("Adapted to Fine Textured Soils")]
-        public bool AdaptedToFineTexturedSoils { get; init; }
+        public bool? AdaptedToFineTexturedSoils { get; init; }
         [JsonPropertyName("Anaerobic Tolerance")]
-        public Level AnaerobicTolerance { get; init; }
+        public Level? AnaerobicTolerance { get; init; }
         [JsonPropertyName("CaCO<SUB>3</SUB> Tolerance")]
-        public Level Caco3Tolerance { get; init; }
+        public Level? Caco3Tolerance { get; init; }
         [JsonPropertyName("Cold Stratification Required")]
-        public bool ColdStratificationRequired { get; init; }
+        public bool? ColdStratificationRequired { get; init; }
         [JsonPropertyName("Drought Tolerance")]
-        public Level DroughtTolerance { get; init; }
+        public Level? DroughtTolerance { get; init; }
         [JsonPropertyName("Fertility Requirement")]
-        public Level FertilityRequirement { get; init; }
+        public Level? FertilityRequirement { get; init; }
         [JsonPropertyName("Fire Tolerance")]
-        public Level FireTolerance { get; init; }
+        public Level? FireTolerance { get; init; }
         [JsonPropertyName("Frost Free Days, Minimum")]
-        public double FrostFreeDaysMinimum { get; init; }
+        public double? FrostFreeDaysMinimum { get; init; }
         [JsonPropertyName("Hedge Tolerance")]
-        public Level HedgeTolerance { get; init; }
+        public Level? HedgeTolerance { get; init; }
         [JsonPropertyName("Moisture Use")]
-        public Level MoistureUse {  get; init;}
+        public Level? MoistureUse {  get; init;}
         [JsonPropertyName("pH (Minimum)")]
-        public double PhMinimum { get; init; }
+        public double? PhMinimum { get; init; }
         [JsonPropertyName("pH (Maximum)")]
-        public double PhMaximum { get; init; }
+        public double? PhMaximum { get; init; }
         [JsonPropertyName("Planting Density per Acre, Minimum")]
-        public double PlantingDensityPerAcreMinimum { get; init; }
+        public double? PlantingDensityPerAcreMinimum { get; init; }
         [JsonPropertyName("Planting Density per Acre, Maximum")]
-        public double PlantingDensityPerAcreMaximum { get; init; }
+        public double? PlantingDensityPerAcreMaximum { get; init; }
         [JsonPropertyName("Precipitation (Minimum)")]
-        public double PrecipitationMinimum { get; init; }
+        public double? PrecipitationMinimum { get; init; }
         [JsonPropertyName("Precipitation (Maximum)")]
-        public double PrecipitationMaximum { get; init; }
+        public double ?PrecipitationMaximum { get; init; }
         [JsonPropertyName("Root Depth, Minimum (inches)")]
-        public double RootDepthMinimumInches {  get; init; }
+        public double ?RootDepthMinimumInches {  get; init; }
         [JsonPropertyName("Salinity Tolerance")]
-        public Level SalinityTolerance { get; init; }
+        public Level? SalinityTolerance { get; init; }
         [JsonPropertyName("Shade Tolerance")]
-        public ShadeTolerance ShadeTolerance { get; init; }
+        public ShadeTolerance? ShadeTolerance { get; init; }
         [JsonPropertyName("Temperature, Minimum (°F)")]
-        public double TemperatureMinimumF {  get; init; }
+        public double? TemperatureMinimumF {  get; init; }
         [JsonPropertyName("Bloom Period")]
-        public string BloomPeriod { get; init; }
+        public string? BloomPeriod { get; init; }
         [JsonPropertyName("Commercial Availability")]
-        public CommercialAvailability CommercialAvailability { get; init; }
+        public CommercialAvailability? CommercialAvailability { get; init; }
         [JsonPropertyName("Fruit/Seed Abundance")]
-        public Level FruitSeedAbundance { get; init; }
+        public Level? FruitSeedAbundance { get; init; }
         [JsonPropertyName("Fruit/Seed Period Begin")]
-        public Season FruitSeedPeriodBegin { get; init; }
+        public Season? FruitSeedPeriodBegin { get; init; }
         [JsonPropertyName("Fruit/Seed Period End")]
-        public Season FruitSeedPeriodEnd { get; init; }
+        public Season? FruitSeedPeriodEnd { get; init; }
         [JsonPropertyName("Fruit/Seed Persistence")]
-        public bool FruitSeedPersistence {  get; init; }
+        public bool? FruitSeedPersistence {  get; init; }
         [JsonPropertyName("Propogated by Bare Root")]
-        public bool PropogatedByBareRoot {get;init;}
+        public bool? PropogatedByBareRoot {get;init;}
         [JsonPropertyName("Propogated by Bulbs")]
-        public bool PropogatedByBulbs {get;init;}
+        public bool? PropogatedByBulbs {get;init;}
         [JsonPropertyName("Propogated by Container")]
-        public bool PropogatedByContainer {get;init;}
+        public bool? PropogatedByContainer {get;init;}
         [JsonPropertyName("Propogated by Corms")]
-        public bool PropogatedByCorms {get;init;}
+        public bool? PropogatedByCorms {get;init;}
         [JsonPropertyName("Propogated by Cuttings")]
-        public bool PropogatedByCuttings {get;init;}
+        public bool? PropogatedByCuttings {get;init;}
         [JsonPropertyName("Propogated by Seed")]
-        public bool PropogatedBySeed {get;init;}
+        public bool? PropogatedBySeed {get;init;}
         [JsonPropertyName("Propogated by Sod")]
-        public bool PropogatedBySod { get; init; }
+        public bool? PropogatedBySod { get; init; }
         [JsonPropertyName("Propogated by Sprigs")]
-        public bool PropogatedBySprigs { get; init; }
+        public bool? PropogatedBySprigs { get; init; }
         [JsonPropertyName("Propogated by Tubers")]
-        public bool PropogatedByTubers { get; init; }
+        public bool? PropogatedByTubers { get; init; }
         [JsonPropertyName("Seeds per Pound")]
-        public double SeedsPerPound { get; init; }
+        public double? SeedsPerPound { get; init; }
         [JsonPropertyName("Seed Spread Rate")]
-        public Rate SeedSpreadRate { get; init; }
+        public Rate? SeedSpreadRate { get; init; }
         [JsonPropertyName("Seedling Vigor")]
-        public Level SeedlingVigor {  get; init; }
+        public Level? SeedlingVigor {  get; init; }
         [JsonPropertyName("Small Grain")]
-        public bool SmallGrain { get; init; }
+        public bool? SmallGrain { get; init; }
         [JsonPropertyName("Vegetative Spread Rate")]
-        public Rate VegetativeSpreadRate { get; init; }
+        public Rate? VegetativeSpreadRate { get; init; }
         [JsonPropertyName("Berry/Nut/Seed Product")]
-        public bool BerryNutSeedProduct { get; init; }
+        public bool? BerryNutSeedProduct { get; init; }
         [JsonPropertyName("Christmas Tree Product")]
-        public bool ChristmasTreeProduct { get; init; }
+        public bool? ChristmasTreeProduct { get; init; }
         [JsonPropertyName("Fodder Product")]
-        public bool FodderProduct { get; init; }
+        public bool? FodderProduct { get; init; }
         [JsonPropertyName("Fuelwood Product")]
-        public Level FuelwoodProduct { get; init; }
+        public Level? FuelwoodProduct { get; init; }
         [JsonPropertyName("Lumber Product")]
-        public bool LumberProduct { get; init; }
+        public bool? LumberProduct { get; init; }
         [JsonPropertyName("Naval Store Product")]
-        public bool NavalStoreProduct { get; init; }
+        public bool? NavalStoreProduct { get; init; }
         [JsonPropertyName("Nursery Stock Product")]
-        public bool NurseryStockProduct { get; init; }
+        public bool? NurseryStockProduct { get; init; }
         [JsonPropertyName("Palatable Browse Animal")]
-        public Level PalatableBrowseAnimal { get; init; }
+        public Level ?PalatableBrowseAnimal { get; init; }
         [JsonPropertyName("Palatable Graze Animal")]
-        public Level PalatableGrazeAnimal { get; init; }
+        public Level? PalatableGrazeAnimal { get; init; }
         [JsonPropertyName("Palatable Human")]
-        public bool PalatableHuman { get; init; }
+        public bool? PalatableHuman { get; init; }
         [JsonPropertyName("Post Product")]
-        public bool PostProduct { get; init; }
+        public bool? PostProduct { get; init; }
         [JsonPropertyName("Protein Potential")]
-        public Level ProteinPotential { get; init; }
+        public Level? ProteinPotential { get; init; }
         [JsonPropertyName("Pulpwood Product")]
-        public bool PulpwoodProduct { get; init; }
+        public bool? PulpwoodProduct { get; init; }
         [JsonPropertyName("Veneer Product")]
-        public bool VeneerProduct { get; init; }
+        public bool? VeneerProduct { get; init; }
     }
 
     public record PlantData: PlantDataRow
@@ -338,6 +337,20 @@ namespace Backend.Models
     public enum Level
     {
         High, Medium, Low, None
+    }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum Color
+    {
+        Black, Blue, Brown, Gree, Orange, Purple, Red, White, Yellow,
+        [EnumMember(Value ="Dark Green")]
+        DarkGreen,
+        [EnumMember(Value ="Gray-Green")]
+        GrayGreen,
+        [EnumMember(Value ="White-Gray")]
+        WhiteGray,
+        [EnumMember(Value ="Yellow-Green")]
+        YellowGreen
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
