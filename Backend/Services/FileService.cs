@@ -1,14 +1,110 @@
 ﻿
 using Backend.Models;
 using Microsoft.VisualBasic.FileIO;
+using System.Diagnostics.Eventing.Reader;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 
 namespace Backend.Services
 {
-    public static class FileService
+    public static partial class FileService
     {
         public static PlantData[] PlantData { get; }
         public static List<StateCSVItem> States { get; }
         public static List<CountyCSVItem> Counties { get; }
+
+
+        private static readonly Dictionary<LocationCode, NativeLocationCode[]> _LocationToNativeRegion =
+    new()
+    {
+        // US States (Lower 48)
+        { LocationCode.AL, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.AR, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.AZ, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.CA, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.CO, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.CT, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.DC, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.DE, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.FL, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.GA, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.IL, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.IN, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.IA, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.KS, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.KY, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.LA, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.ME, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.MD, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.MA, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.MI, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.MN, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.MS, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.MO, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.MT, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.NE, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.NV, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.NH, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.NJ, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.NM, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.NY, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.NC, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.ND, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.OH, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.OK, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.OR, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.PA, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.RI, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.SC, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.SD, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.TN, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.TX, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.UT, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.VT, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.VA, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.WA, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.WV, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.WI, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.WY, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.ID, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+
+        // Alaska and Hawaii
+        { LocationCode.AK, new[] { NativeLocationCode.AK } },
+        { LocationCode.HI, new[] { NativeLocationCode.HI } },
+
+        // US Territories
+        { LocationCode.PR, new[] { NativeLocationCode.PR } },
+        { LocationCode.VI, new[] { NativeLocationCode.VI } },
+        { LocationCode.GU, new[] { NativeLocationCode.PR } },
+        { LocationCode.AS, new[] { NativeLocationCode.PR } },
+        { LocationCode.MP, new[] { NativeLocationCode.PR } },
+        { LocationCode.PW, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.UM, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.NAV, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.FM, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+        { LocationCode.MH, new[] { NativeLocationCode.L48, NativeLocationCode.NA } },
+
+        // Canada
+        { LocationCode.AB, new[] { NativeLocationCode.CAN } },
+        { LocationCode.BC, new[] { NativeLocationCode.CAN } },
+        { LocationCode.MB, new[] { NativeLocationCode.CAN } },
+        { LocationCode.NB, new[] { NativeLocationCode.CAN } },
+        { LocationCode.NL, new[] { NativeLocationCode.CAN } },
+        { LocationCode.NT, new[] { NativeLocationCode.CAN } },
+        { LocationCode.NS, new[] { NativeLocationCode.CAN } },
+        { LocationCode.NU, new[] { NativeLocationCode.CAN } },
+        { LocationCode.ON, new[] { NativeLocationCode.CAN } },
+        { LocationCode.PE, new[] { NativeLocationCode.CAN } },
+        { LocationCode.QC, new[] { NativeLocationCode.CAN } },
+        { LocationCode.SK, new[] { NativeLocationCode.CAN } },
+        { LocationCode.YT, new[] { NativeLocationCode.CAN } },
+        { LocationCode.NF, new[] { NativeLocationCode.CAN } },
+        { LocationCode.LB, new[] { NativeLocationCode.CAN } }
+    };
+
+
+
         static FileService()
         {
             string dirName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
@@ -30,7 +126,7 @@ namespace Backend.Services
 
         private static List<PlantDataRow> ParsePlantDataRow(string dirName)
         {
-            string fileName = Path.Combine(dirName,"PLANTS_Characteristics_Plus_Data.csv");
+            string fileName = Path.Combine(dirName, "PLANTS_Characteristics_Plus_Data.csv");
             using TextFieldParser parser = new(fileName)
             {
                 Delimiters = [","],
@@ -52,54 +148,80 @@ namespace Backend.Services
         private static PlantDataRow GetPlantDataRow(TextFieldParser parser)
         {
             string?[] fields = parser.ReadFields()!;
-            // TODO swap to fields, just manually create the object with every row
-            PlantDataRow row = new()
+            HashSet<LocationCode> stateAndProvinceSet = GetStateAndProvinceSet(fields[5]);
+            HashSet<LocationCode> nativeLocations = [];
+            string? nativeStatusField = fields[10];
+            if (!string.IsNullOrWhiteSpace(nativeStatusField))
+            {
+                foreach (ValueMatch x in NATIVE_STATUS().EnumerateMatches(nativeStatusField))
+                {
+                    if (nativeStatusField[x.Index] != 'N') continue;
+
+                    NativeLocationCode location = Enum.Parse<NativeLocationCode>(nativeStatusField.Substring(x.Index + 2, x.Length - 1));
+                    if (location == NativeLocationCode.NA && x.Length == nativeStatusField.Length)
+                    {
+                        nativeLocations = [.. Enum.GetValues<LocationCode>()];
+                    }
+                    else if (location == NativeLocationCode.NA)
+                    {
+                        // TODO ? 
+                        string s = "";
+                        continue;
+                    }
+                    else
+                    {
+                        nativeLocations.UnionWith(stateAndProvinceSet.Where(x => _LocationToNativeRegion[x].Any(y => y == location)));
+                    }
+                }
+            }
+
+            return new()
             {
                 AcceptedSymbol = fields[0],
                 SynonymSymbol = fields[1],
                 Symbol = fields[2],
                 ScientificName = fields[3],
                 PlantsFlorisiticArea = fields[4],
-                StateAndProvince = fields[5],
+                StateAndProvince = stateAndProvinceSet,
                 Category = ParseEnum<Category>(fields[6]),
                 Family = fields[7],
                 Duration = ParseEnumHashSet<Duration>(fields[8]),
                 GrowthHabit = ParseEnumHashSet<GrowthHabit>(fields[9]),
-                NativeStateAndProvinceCodes = , // handle differently
-                CharacteristicsData = bool.Parse(fields[11]!),
-                ActiveGrowthPeriod = String.IsNullOrWhiteSpace(fields[12]) ? [] : [..fields[12]!.Trim('"').Split(',', " and ").Trim()],
+                NativeStateAndProvinceCodes = nativeLocations,
+                CharacteristicsData = fields[11] == "No" ? false : true,
+                ActiveGrowthPeriod = String.IsNullOrWhiteSpace(fields[12]) ? [] : [.. fields[12]!.Trim('"').Split([",", " and "], StringSplitOptions.TrimEntries).Select(x => ParseEnum<Season>(x)).OfType<Season>()],
                 AfterHarvestRegrowthRate = ParseEnum<Rate>(fields[13]),
                 Bloat = ParseEnum<Level>(fields[14]),
                 CNRatio = ParseEnum<Level>(fields[15]),
-                CoppicePotential = String.IsNullOrWhiteSpace(fields[16]) ?null : bool.Parse(fields[16]),
-                FallConspicuous = String.IsNullOrWhiteSpace (fields[17]) ? null : bool.Parse(fields[17]),
-                FireResistance = String.IsNullOrWhiteSpace(fields[18]) ? null : bool.Parse(fields[18]),
+                CoppicePotential = ParseBool(fields[16]),
+                FallConspicuous = ParseBool(fields[17]),
+                FireResistance = ParseBool(fields[18]),
                 FlowerColor = ParseEnum<Color>(fields[19]),
-                FlowerConspicuous = String.IsNullOrWhiteSpace(fields[20]) ? null : bool.Parse(fields[20]),
+                FlowerConspicuous = ParseBool(fields[20]),
                 FoliageColor = ParseEnum<Color>(fields[21]),
                 FoliagePorositySummer = ParseEnum<Porosity>(fields[22]),
                 FoliagePorosityWinter = ParseEnum<Porosity>(fields[23]),
                 FoliageTexture = ParseEnum<Texture>(fields[24]),
                 FruitColor = ParseEnum<Color>(fields[25]),
-                FruitConspicuous = String.IsNullOrWhiteSpace(fields[26]) ? null : bool.Parse(fields[26]),
+                FruitConspicuous = ParseBool(fields[26]),
                 GrowthForm = ParseEnum<GrowthForm>(fields[27]),
                 GrowthRate = ParseEnum<Rate>(fields[28]),
                 HeightAtBaseAgeMaximumFeet = String.IsNullOrWhiteSpace(fields[29]) ? null : double.Parse(fields[29]),
                 HeightMatureFeet = String.IsNullOrWhiteSpace(fields[30]) ? null : double.Parse(fields[30]),
-                KnownAllelopath = String.IsNullOrWhiteSpace(fields[31]) ? null : bool.Parse(fields[31]),
-                LeafRetention = String.IsNullOrWhiteSpace(fields[32]) ? null : bool.Parse(fields[32]),
+                KnownAllelopath = ParseBool(fields[31]),
+                LeafRetention = ParseBool(fields[32]),
                 Lifespan = ParseEnum<Lifespan>(fields[33]),
-                LowGrowingGrass = String.IsNullOrWhiteSpace(fields[34]) ? null : bool.Parse(fields[34]),
+                LowGrowingGrass = ParseBool(fields[34]),
                 NitrogenFixation = ParseEnum<Level>(fields[35]),
-                Resproutability = String.IsNullOrWhiteSpace(fields[36]) ? null: bool.Parse(fields[36]),
+                Resproutability = ParseBool(fields[36]),
                 ShapeAndOrientation = ParseEnum<ShapeAndOrientation>(fields[37]),
                 Toxicity = ParseEnum<Toxicity>(fields[38]),
-                AdaptedToCoarseTexturedSoils = String.IsNullOrWhiteSpace(fields[39]) ? null : bool.Parse(fields[39]),
-                AdaptedToMediumTexturedSoils = String.IsNullOrWhiteSpace(fields[40]) ? null : bool.Parse(fields[40]),
-                AdaptedToFineTexturedSoils = String.IsNullOrWhiteSpace(fields[41]) ? null : bool.Parse(fields[41]),
+                AdaptedToCoarseTexturedSoils = ParseBool(fields[39]),
+                AdaptedToMediumTexturedSoils = ParseBool(fields[40]),
+                AdaptedToFineTexturedSoils = ParseBool(fields[41]),
                 AnaerobicTolerance = ParseEnum<Level>(fields[42]),
                 Caco3Tolerance = ParseEnum<Level>(fields[43]),
-                ColdStratificationRequired = String.IsNullOrWhiteSpace(fields[44]) ? null : bool.Parse(fields[44]),
+                ColdStratificationRequired = ParseBool(fields[44]),
                 DroughtTolerance = ParseEnum<Level>(fields[45]),
                 FertilityRequirement = ParseEnum<Level>(fields[46]),
                 FireTolerance = ParseEnum<Level>(fields[47]),
@@ -121,19 +243,84 @@ namespace Backend.Services
                 FruitSeedAbundance = ParseEnum<Level>(fields[63]),
                 FruitSeedPeriodBegin = ParseEnum<Season>(fields[64]),
                 FruitSeedPeriodEnd = ParseEnum<Season>(fields[65]),
-                FruitSeedPersistence = String.IsNullOrWhiteSpace(fields[66]) ? null : bool.Parse(fields[66]),
-                PropogatedByBareRoot = String.IsNullOrWhiteSpace(fields[67]) ? null : bool.Parse(fields[67]),
-                PropogatedByBulbs = String.IsNullOrWhiteSpace(fields[68]) ? null : bool.Parse(fields[68]),
-                PropogatedByContainer = String.IsNullOrWhiteSpace(fields[69]) ? null : bool.Parse(fields[69]),
+                FruitSeedPersistence = ParseBool(fields[66]),
+                PropogatedByBareRoot = ParseBool(fields[67]),
+                PropogatedByBulbs = ParseBool(fields[68]),
+                PropogatedByContainer = ParseBool(fields[69]),
+                PropogatedByCorms = ParseBool(fields[70]),
+                PropogatedByCuttings = ParseBool(fields[71]),
+                PropogatedBySeed = ParseBool(fields[72]),
+                PropogatedBySod = ParseBool(fields[73]),
+                PropogatedBySprigs = ParseBool(fields[74]),
+                PropogatedByTubers = ParseBool(fields[75]),
+                SeedsPerPound = String.IsNullOrWhiteSpace(fields[76]) ? null : double.Parse(fields[76]),
+                SeedSpreadRate = ParseEnum<Rate>(fields[77]),
+                SeedlingVigor = ParseEnum<Level>(fields[78]),
+                SmallGrain = ParseBool(fields[79]),
+                VegetativeSpreadRate = ParseEnum<Rate>(fields[80]),
+                BerryNutSeedProduct = ParseBool(fields[81]),
+                ChristmasTreeProduct = ParseBool(fields[82]),
+                FodderProduct = ParseBool(fields[83]),
+                FuelwoodProduct = ParseEnum<Level>(fields[84]),
+                LumberProduct = ParseBool(fields[85]),
+                NavalStoreProduct = ParseBool(fields[86]),
+                NurseryStockProduct = ParseBool(fields[87]),
+                PalatableBrowseAnimal = ParseEnum<Level>(fields[88]),
+                PalatableGrazeAnimal = ParseEnum<Level>(fields[89]),
+                PalatableHuman = ParseBool(fields[90]),
+                PostProduct = ParseBool(fields[91]),
+                ProteinPotential = ParseEnum<Level>(fields[92]),
+                PulpwoodProduct = ParseBool(fields[93]),
+                VeneerProduct = ParseBool(fields[94]),
             };
-            return row;
         }
 
-        private static TEnum? ParseEnum<TEnum>(string? field) where TEnum : struct, IConvertible, IComparable, IFormattable => String.IsNullOrWhiteSpace(field) ? null : Enum.Parse<TEnum>(field);
-        private static HashSet<TEnum> ParseEnumHashSet<TEnum>(string? field) where TEnum : struct, IConvertible, IComparable, IFormattable => String.IsNullOrWhiteSpace(field) ? [] : ParseCsvList<TEnum>(field);
-        private static HashSet<TEnum> ParseCsvList<TEnum>(string field) where TEnum : struct, IConvertible, IComparable, IFormattable => [.. field.Trim('"').Split(',').Select(x => Enum.Parse<TEnum>(x))];
+        private static bool? ParseBool(string? field) => String.IsNullOrWhiteSpace(field) ? null : field != "No";
 
-        private static Dictionary<string,ExtraInfo> ParseExtraInfo(string dirName)
+        private static HashSet<LocationCode> GetStateAndProvinceSet(string? stateAndProvince)
+        {
+            HashSet<LocationCode> stateAndProvinceSet = [];
+            if (!String.IsNullOrWhiteSpace(stateAndProvince))
+            {
+                string v = GROWTH_HABIT_USA().Replace(stateAndProvince, match => match.Groups[1].Value);
+                string v2 = GROWTH_HABIT_CAN().Replace(v, match => match.Groups[1].Value);
+                stateAndProvinceSet = [.. Regex.Replace(v2, @"\s", "").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => ParseEnum<LocationCode>(x)).OfType<LocationCode>()];
+            }
+
+            return stateAndProvinceSet;
+        }
+
+
+        // --- Core attribute-aware parse ---
+        private static TEnum ParseEnumInternal<TEnum>(string value)
+            where TEnum : struct, IConvertible, IComparable, IFormattable
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentNullException(nameof(value));
+
+            Type? type = typeof(TEnum);
+            foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Static))
+            {
+                var attr = field.GetCustomAttribute<EnumMemberAttribute>();
+                if (attr != null && attr.Value == value)
+                    return (TEnum)field.GetValue(null)!;
+
+                if (field.Name == value)
+                    return (TEnum)field.GetValue(null)!;
+            }
+
+            // fallback to standard Enum.Parse (in case casing or numeric string)
+            return (TEnum)Enum.Parse(type, value, ignoreCase: true);
+        }
+
+
+        private static TEnum? ParseEnum<TEnum>(string? field) where TEnum : struct, IConvertible, IComparable, IFormattable => String.IsNullOrWhiteSpace(field) ? null : ParseEnumInternal<TEnum>(field.Trim());
+        private static HashSet<TEnum> ParseEnumHashSet<TEnum>(string? field) where TEnum : struct, IConvertible, IComparable, IFormattable => String.IsNullOrWhiteSpace(field) ? [] : ParseCsvList<TEnum>(field.Trim());
+        private static HashSet<TEnum> ParseCsvList<TEnum>(string field) where TEnum : struct, IConvertible, IComparable, IFormattable => [.. field.Trim('"').Split(',').Select(x => ParseEnumInternal<TEnum>(x.Trim()))];
+
+
+
+        private static Dictionary<string, ExtraInfo> ParseExtraInfo(string dirName)
         {
             string fileName = Path.Combine(dirName, "PLANTS_EXTRA_DATA.csv");
             Dictionary<string, ExtraInfo> items = [];
@@ -210,12 +397,19 @@ namespace Backend.Services
                     StateAbbrev = fields[0],
                     StateFip = short.Parse(fields[1]),
                     CountyFip = fields[2],
-                    CountyName= fields[4],
+                    CountyName = fields[4],
                 };
                 items.Add(item);
             }
 
             return items;
         }
+
+        [GeneratedRegex(@"USA\+?\s?\(([^)]+)\)")]
+        private static partial Regex GROWTH_HABIT_USA();
+        [GeneratedRegex(@"CAN\+?\s?\(([^)]+)\)")]
+        private static partial Regex GROWTH_HABIT_CAN();
+        [GeneratedRegex(@"(N)\(([A-Z?]+)\)")]
+        private static partial Regex NATIVE_STATUS();
     }
 }

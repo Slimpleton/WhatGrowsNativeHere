@@ -16,7 +16,8 @@ namespace Backend.Models
         [JsonPropertyName("PLANTS Floristic Area")]
         public string? PlantsFlorisiticArea { get; init; }
         [JsonPropertyName("State and Province")]
-        public string? StateAndProvince { get; init; }
+        // TODO make this a set? array? idk man
+        public HashSet<LocationCode> StateAndProvince { get; init; }
         public Category? Category { get; init; }
         public string? Family { get; init; }
         public HashSet<Duration> Duration { get; init; }
@@ -415,7 +416,7 @@ namespace Backend.Models
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum GrowthHabit
     {
-        [EnumMember(Value = "Forb/Herb")]
+        [EnumMember(Value = "Forb/herb")]
         ForbHerb,
         Shrub,
         Subshrub,
@@ -552,5 +553,4 @@ namespace Backend.Models
         FM,
         MH, //Marshal islands
     }
-
 }
