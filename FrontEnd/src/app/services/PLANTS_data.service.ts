@@ -143,7 +143,7 @@ export class GovPlantsDataService {
             }));
     }
 
-    private nativePlantData = this.getRecordsFromCSV().pipe(
+    private nativePlantData = this.getPlantData().pipe(
         // Filters out non species listings
         map((plantData: Readonly<PlantData>[]) => {
             const speciesGroups = new Map<string, PlantData[]>();
@@ -151,8 +151,8 @@ export class GovPlantsDataService {
 
             // Group by base species name
             plantData.forEach(plant => {
-                const words = plant.scientificName.split(/\s+/);
-                if (words.length >= GovPlantsDataService.MINIMUM_SPECIES_NAME_WORDS) {
+                const words: string[] | null = plant.scientificName?.split(/\s+/);
+                if (words?.length >= GovPlantsDataService.MINIMUM_SPECIES_NAME_WORDS) {
                     const baseSpecies = `${words[0]} ${words[1]}`;
                     if (!speciesGroups.has(baseSpecies)) {
                         speciesGroups.set(baseSpecies, []);
@@ -192,198 +192,8 @@ export class GovPlantsDataService {
      * HACK use this for testing to see if the native ranges are correct without parsing into plant data / aka native plant range conversion
      * @returns 
      */
-    private getRecordsFromCSV(): Observable<PlantData[]> {
+    private getPlantData(): Observable<PlantData[]> {
         return this.http.get<PlantData[]>(this.dataUrl);
     }
-
-    private parseCsv(csvText: string): Record<string, string>[] {
-        const lines = csvText.split('\r\n');
-        const headers = this.parseCsvLine(lines[0]);
-
-        return lines.slice(1)
-            .map(line => {
-                const values = this.parseCsvLine(line);
-                const row: Record<string, string> = {};
-
-                headers.forEach((header, index) => {
-                    row[header] = values[index] || '';
-                });
-
-                return row;
-            });
-    }
-
-    // Helper function to parse distribution strings from PLANTS database
-    private parseDistributionString(distribution: string | undefined | null): ReadonlyArray<LocationCode> {
-        // Handle undefined, null, or empty distribution strings
-        if (!distribution) {
-            return Object.freeze([]);
-        }
-
-        // Remove country prefixes and parentheses, then split by comma
-        // Handles optional + infront of USA+() combined with possible USA() in same line because USA+([...PR, VI]) 
-        const cleaned = distribution
-            .replace(/USA\+?\s?\(([^)]+)\)/g, '$1')
-            .replace(/CAN\+?\s?\(([^)]+)\)/g, '$1')
-            .replace(/\s/g, '');
-
-        return Object.freeze(cleaned.split(',').filter((code): code is LocationCode => validLocationCodes.has(code as LocationCode)));
-    }
-
-    // Helper to handle quoted values and commas within fields
-    private parseCsvLine(line: string): string[] {
-        const result: string[] = [];
-        let startIndex = 0;
-        let inQuotes = false;
-
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-
-            if (char === '"') {
-                inQuotes = !inQuotes;
-            } else if (char === ',' && !inQuotes) {
-                const value = line[startIndex] == '"' ? line.substring(startIndex + 1, i - 1) : line.substring(startIndex, i);
-                result.push(value);
-                startIndex = i + 1;
-            }
-        }
-
-        // Add the last field
-        result.push(line.substring(startIndex));
-        return result;
-    }
-
-    private parseGrowthHabit(habitCsvValue: string): ReadonlyArray<GrowthHabit> {
-        return Object.freeze(habitCsvValue.split(',').map(v => v.trim() as GrowthHabit));
-    }
-
-    parseActiveGrowthPeriod(value: string): ReadonlyArray<Season> {
-        return Object.freeze(
-            value.split(',').flatMap(
-                (value: string) => value.split(' and ').map(v => v.trim() as Season)));
-    }
-
-    /**
-     * Converts the csv value for nativeStatus into the indexed array searchable for locationCodes
-     * @param csvValue 
-     * @returns 
-     */
-    private parseNativeStatus(csvValue: string, stateAndProvinceValues: ReadonlyArray<LocationCode>): Set<LocationCode> {
-        if (!csvValue) return new Set();
-
-        const regex = /([A-Z0-9]+)\(([A-Z?]+)\)/g;
-        const result: LocationCode[] = [];
-        let match;
-
-        // Parses the csv row for ${LOCATION}(${STATUS}) on repeat until the end of the value
-        // Compiles that into properties for each applicable nativity status with regions mapped in
-
-        while ((match = regex.exec(csvValue)) !== null) {
-            const [matchedGroup, locationString, statusCode] = match;
-            const status = statusCode as NativeStatusCode;
-            if (status !== 'N')
-                continue;
-            let property: LocationCode[] = result
-            const location = locationString as NativeLocationCode;
-
-
-            // TODO the distributionString can contain both CA(N)NA(N)
-            // e.g. ACAL17,,ACAL17,Achillea alpina,NA (CAN),"CAN(AB, BC, MB, NT, ON, QC, SK, YT)",Dicot,Asteraceae,Perennial,Forb/herb,CAN(N)NA(N),No,...,
-            // In this case, only canada and those regions within it are native, but NA(N) is still labeled for some reason?
-            // AKA more are labeled native to other parts of americas than they should and it should not include the extra regions either like spm and shit
-
-            // Handle continental native status NA(N) - native to entire continent
-            if (location === 'NA' && matchedGroup.length == csvValue.length) {
-                // Add all North American states/provinces
-                return validLocationCodes; // HACK all NA location codes including islands
-            } else if (location === 'NA') {
-                // TODO possibly have to use floristic area mapping not sure
-                continue;
-            }
-
-            if (!property)
-                property = [];
-
-            // Turn location aka broad region => state && territories aka LocationCode
-            stateAndProvinceValues.forEach((province: LocationCode) => {
-                const nativeRegion: NativeLocationCode[] | undefined = getNativeRegion(province);
-                if (nativeRegion && nativeRegion.some(x => x == location))
-                    property.push(province);
-            });
-
-            result.push(...property);
-        }
-
-        return new Set(result);
-    }
-
-    private convertCsvRowToPlantData(csvRow: Record<string, string>, extraInfo: Map<string, ExtraInfo>): Readonly<PlantData> {
-        const result: Record<string, any> = {};
-        const rowKeys = Object.keys(csvRow);
-
-        const symbolColumnName = rowKeys.find(key => key.toLowerCase().replace(/\s+/g, ' ').trim() === 'symbol');
-        const distributionColumnName = rowKeys.find(key => key.toLowerCase().replace(/\s+/g, ' ').trim() === 'state and province');
-        const nativeStatusColumnName = rowKeys.find(key => key.toLowerCase().replace(/\s+/g, ' ').trim() === 'native status');
-
-        const symbol: string = csvRow[symbolColumnName!];
-        const stateAndProvinceValues: ReadonlyArray<LocationCode> = distributionColumnName
-            ? this.parseDistributionString(csvRow[distributionColumnName]) : Object.freeze([]);
-        const nativeStatusValues: Set<LocationCode> = nativeStatusColumnName
-            ? this.parseNativeStatus(csvRow[nativeStatusColumnName], stateAndProvinceValues) : new Set();
-
-        const relevantExtraInfo = extraInfo.get(symbol);
-
-        // Insert common name and region mapping
-        const combinedCountyFipsKey = 'combinedCountyFIPs' as keyof PlantData;
-        const commonNameKey = 'commonName' as keyof PlantData;
-
-        result[combinedCountyFipsKey] = relevantExtraInfo?.combinedFIPs ?? [];
-        result[commonNameKey] = relevantExtraInfo?.commonName;
-
-        // Map each property using our predefined mapping
-        Object.entries(csvRow).forEach(([key, value]) => {
-            if (key in this._headerMapping) {
-                const camelKey = this._headerMapping[key] as keyof PlantData;
-
-                if (camelKey === 'characteristicsData') {
-                    result[camelKey] = value == 'Yes';
-                    if (value == 'No')
-                        return;
-                }
-                else if (camelKey === 'nativeStateAndProvinceCodes') {
-                    result[camelKey] = nativeStatusValues;
-                }
-                else if (camelKey === 'stateAndProvince') {
-                    // Use the pre-parsed distribution values instead of re-parsing
-                    result[camelKey] = stateAndProvinceValues;
-                }
-                else if (camelKey === 'growthHabit') {
-                    result[camelKey] = this.parseGrowthHabit(value);
-                }
-                else if (camelKey == 'activeGrowthPeriod') {
-                    result[camelKey] = this.parseActiveGrowthPeriod(value);
-                }
-                else if (camelKey === 'shadeTolerance') {
-                    // console.log(camelKey, value);
-                    result[camelKey] = value;
-                }
-                // Handle different data types
-                else if (value === 'true' || value === 'yes' || value === 'y') {
-                    result[camelKey] = true;
-                } else if (value === 'false' || value === 'no' || value === 'n') {
-                    result[camelKey] = false;
-                } else if (!isNaN(Number(value)) && value !== '') {
-                    result[camelKey] = Number(value);
-                } else if (value.includes(',')) {
-                    // Handle array values (comma-separated strings)
-                    result[camelKey] = Object.freeze(value.split(',').map(v => v.trim()));
-                } else {
-                    result[camelKey] = value;
-                }
-            }
-        });
-        // Return as a deeply immutable object
-        return Object.freeze(result) as PlantData;
-    }
-
+  
 }
