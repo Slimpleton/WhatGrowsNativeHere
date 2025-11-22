@@ -107,21 +107,29 @@ namespace Backend.Services
 
         static FileService()
         {
-            string dirName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-
-            List<PlantDataRow> rows = ParsePlantDataRow(dirName);
-            Dictionary<string, ExtraInfo> extraInfo = ParseExtraInfo(dirName);
-
-            PlantData[] data = new PlantData[rows.Count];
-            for (int i = 0; i < rows.Count; i++)
+            try
             {
-                ExtraInfo correctInfo = extraInfo[rows[i].Symbol];
-                data[i] = new PlantData(rows[i], correctInfo.CommonName, correctInfo.CombinedFIPs);
-            }
-            PlantData = data;
+                string dirName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
 
-            States = ParseStateCSV(dirName);
-            Counties = ParseCountyCSV(dirName);
+                List<PlantDataRow> rows = ParsePlantDataRow(dirName);
+                Dictionary<string, ExtraInfo> extraInfo = ParseExtraInfo(dirName);
+
+                PlantData[] data = new PlantData[rows.Count];
+                for (int i = 0; i < rows.Count; i++)
+                {
+                    ExtraInfo correctInfo = extraInfo[rows[i].Symbol];
+                    data[i] = new PlantData(rows[i], correctInfo.CommonName, correctInfo.CombinedFIPs);
+                }
+                PlantData = data;
+
+                States = ParseStateCSV(dirName);
+                Counties = ParseCountyCSV(dirName);
+            }
+            catch (Exception e)
+            {
+                string s = "";
+                throw;
+            }
         }
 
         private static List<PlantDataRow> ParsePlantDataRow(string dirName)
@@ -284,7 +292,7 @@ namespace Backend.Services
             if (!String.IsNullOrWhiteSpace(stateAndProvince))
             {
                 // TODO No support for FRA(SB) i believe french colony
-                stateAndProvince = stateAndProvince.Replace("FRA(SB)", "");
+                stateAndProvince = stateAndProvince.Replace("FRA(SB)", "").Replace("DEN(GL)","");
                 string v = GROWTH_HABIT_USA_CAN().Replace(stateAndProvince, match => match.Groups[1].Value);
 
                 stateAndProvinceSet = [
@@ -320,7 +328,7 @@ namespace Backend.Services
 
 
         private static TEnum? ParseEnum<TEnum>(string? field) where TEnum : struct, IConvertible, IComparable, IFormattable => String.IsNullOrWhiteSpace(field) ? null : ParseEnumInternal<TEnum>(field.Trim());
-        private static HashSet<TEnum> ParseEnumHashSet<TEnum>(string? field) where TEnum : struct, IConvertible, IComparable, IFormattable => String.IsNullOrWhiteSpace(field) ? [] : ParseCsvList<TEnum>(field.Trim());
+        private static HashSet<TEnum> ParseEnumHashSet<TEnum>(string? field) where TEnum : struct, IConvertible, IComparable, IFormattable => String.IsNullOrWhiteSpace(field.Trim()) ? [] : ParseCsvList<TEnum>(field.Trim());
         private static HashSet<TEnum> ParseCsvList<TEnum>(string field) where TEnum : struct, IConvertible, IComparable, IFormattable => [.. field.Trim('"').Split(',').Select(x => ParseEnumInternal<TEnum>(x.Trim()))];
 
 
@@ -413,7 +421,7 @@ namespace Backend.Services
         [GeneratedRegex(@"(?:USA|CAN)\+?\s?\(([^)]+)\)")]
         private static partial Regex GROWTH_HABIT_USA_CAN();
 
-        [GeneratedRegex(@"([A-Z0-9])\((N)\)")]
+        [GeneratedRegex(@"([A-Z0-9]+)\((N)\)")]
         private static partial Regex NATIVE_STATUS();
     }
 }

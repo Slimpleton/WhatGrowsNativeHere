@@ -343,7 +343,7 @@ namespace Backend.Models
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Color
     {
-        Black, Blue, Brown, Gree, Orange, Purple, Red, White, Yellow,
+        Black, Blue, Brown, Green, Orange, Purple, Red, White, Yellow,
         [EnumMember(Value ="Dark Green")]
         DarkGreen,
         [EnumMember(Value ="Gray-Green")]
@@ -407,7 +407,7 @@ namespace Backend.Models
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum ShapeAndOrientation
     {
-        Climbing, Columnar, Conical, Decumbent, Erect, Irregular, Oval, Porstrate, Rounded,
+        Climbing, Columnar, Conical, Decumbent, Erect, Irregular, Oval, Prostrate, Rounded,
         [EnumMember(Value = "Semi-Erect")]
         SemiErect,
         Vase
