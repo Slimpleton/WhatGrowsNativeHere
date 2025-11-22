@@ -194,11 +194,11 @@ namespace Backend.Models
 
     public record PlantData: PlantDataRow
     {
-        public string CommonName { get; init; }
-        public HashSet<string> CombinedCountyFIPs { get; init; }
+        public string? CommonName { get; init; }
+        public HashSet<string> CombinedCountyFIPs { get; init; } = [];
 
         // Full copy constructor from PlantDataRow
-        public PlantData(PlantDataRow row, string commonName, HashSet<string> countyFIPs)
+        public PlantData(PlantDataRow row, string? commonName, HashSet<string> countyFIPs)
         {
             AcceptedSymbol = row.AcceptedSymbol;
             SynonymSymbol = row.SynonymSymbol;

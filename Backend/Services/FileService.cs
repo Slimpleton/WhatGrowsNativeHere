@@ -107,29 +107,23 @@ namespace Backend.Services
 
         static FileService()
         {
-            try
+            string dirName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+
+            List<PlantDataRow> rows = ParsePlantDataRow(dirName);
+            Dictionary<string, ExtraInfo> extraInfo = ParseExtraInfo(dirName);
+
+            PlantData[] data = new PlantData[rows.Count];
+            for (int i = 0; i < rows.Count; i++)
             {
-                string dirName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-
-                List<PlantDataRow> rows = ParsePlantDataRow(dirName);
-                Dictionary<string, ExtraInfo> extraInfo = ParseExtraInfo(dirName);
-
-                PlantData[] data = new PlantData[rows.Count];
-                for (int i = 0; i < rows.Count; i++)
-                {
-                    ExtraInfo correctInfo = extraInfo[rows[i].Symbol];
-                    data[i] = new PlantData(rows[i], correctInfo.CommonName, correctInfo.CombinedFIPs);
-                }
-                PlantData = data;
-
-                States = ParseStateCSV(dirName);
-                Counties = ParseCountyCSV(dirName);
+                extraInfo.TryGetValue(rows[i].Symbol, out ExtraInfo? correctInfo);
+                data[i] = correctInfo != null ?
+                    new PlantData(rows[i], correctInfo.CommonName, correctInfo.CombinedFIPs)
+                    : new PlantData(rows[i], null, []);
             }
-            catch (Exception e)
-            {
-                string s = "";
-                throw;
-            }
+
+            PlantData = data;
+            States = ParseStateCSV(dirName);
+            Counties = ParseCountyCSV(dirName);
         }
 
         private static List<PlantDataRow> ParsePlantDataRow(string dirName)
@@ -137,6 +131,7 @@ namespace Backend.Services
             string fileName = Path.Combine(dirName, "PLANTS_Characteristics_Plus_Data.csv");
             using TextFieldParser parser = new(fileName)
             {
+                TextFieldType = FieldType.Delimited,
                 Delimiters = [","],
                 HasFieldsEnclosedInQuotes = true,
             };
@@ -165,7 +160,6 @@ namespace Backend.Services
                 {
                     if (nativeStatusField[x.Index] != 'N') continue;
 
-                    // TODO This is returning N somehow??? idk how
                     NativeLocationCode location = Enum.Parse<NativeLocationCode>(nativeStatusField.Substring(x.Index, x.Length - 3));
                     if (location == NativeLocationCode.NA && x.Length == nativeStatusField.Length)
                     {
@@ -194,7 +188,7 @@ namespace Backend.Services
                 StateAndProvince = stateAndProvinceSet,
                 Category = ParseEnum<Category>(fields[6]),
                 Family = fields[7],
-                Duration = ParseEnumHashSet<Duration>(fields[8]),
+                Duration = ParseEnumHashSet<Duration>(fields[8]), // TODO this is parsing the earlier fields as this value
                 GrowthHabit = ParseEnumHashSet<GrowthHabit>(fields[9]),
                 NativeStateAndProvinceCodes = nativeLocations,
                 CharacteristicsData = fields[11] == "No" ? false : true,
@@ -292,7 +286,7 @@ namespace Backend.Services
             if (!String.IsNullOrWhiteSpace(stateAndProvince))
             {
                 // TODO No support for FRA(SB) i believe french colony
-                stateAndProvince = stateAndProvince.Replace("FRA(SB)", "").Replace("DEN(GL)","");
+                stateAndProvince = stateAndProvince.Replace("FRA(SB)", "").Replace("DEN(GL)", "");
                 string v = GROWTH_HABIT_USA_CAN().Replace(stateAndProvince, match => match.Groups[1].Value);
 
                 stateAndProvinceSet = [
@@ -329,7 +323,7 @@ namespace Backend.Services
 
         private static TEnum? ParseEnum<TEnum>(string? field) where TEnum : struct, IConvertible, IComparable, IFormattable => String.IsNullOrWhiteSpace(field) ? null : ParseEnumInternal<TEnum>(field.Trim());
         private static HashSet<TEnum> ParseEnumHashSet<TEnum>(string? field) where TEnum : struct, IConvertible, IComparable, IFormattable => String.IsNullOrWhiteSpace(field.Trim()) ? [] : ParseCsvList<TEnum>(field.Trim());
-        private static HashSet<TEnum> ParseCsvList<TEnum>(string field) where TEnum : struct, IConvertible, IComparable, IFormattable => [.. field.Trim('"').Split(',').Select(x => ParseEnumInternal<TEnum>(x.Trim()))];
+        private static HashSet<TEnum> ParseCsvList<TEnum>(string field) where TEnum : struct, IConvertible, IComparable, IFormattable => [.. field.Trim('"').Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => ParseEnumInternal<TEnum>(x.Trim()))];
 
 
 
