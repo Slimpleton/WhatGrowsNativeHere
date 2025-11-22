@@ -1,8 +1,8 @@
 import { inject, Injectable } from "@angular/core";
-import { ExtraInfo, getNativeRegion, GrowthHabit, LocationCode, NativeLocationCode, NativeStatusCode, PlantData, Season, validLocationCodes } from "../models/gov/models";
+import {  PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 import { ResolveFn } from "@angular/router";
-import { catchError, map, Observable, of, shareReplay } from "rxjs";
+import { catchError, map, Observable, of, shareReplay, tap } from "rxjs";
 
 export const csvResolver: ResolveFn<ReadonlyArray<Readonly<PlantData>>> = () => {
     return inject(GovPlantsDataService).loadNativePlantData;
@@ -144,6 +144,7 @@ export class GovPlantsDataService {
     }
 
     private nativePlantData = this.getPlantData().pipe(
+        tap((value) => console.log(value)),
         // Filters out non species listings
         map((plantData: Readonly<PlantData>[]) => {
             const speciesGroups = new Map<string, PlantData[]>();
@@ -180,6 +181,7 @@ export class GovPlantsDataService {
             && !plantDatum.growthHabit.includes('Lichenous'))),
         // Return as a deeply immutable array
         map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
+        tap((value) => console.log(value)),
         shareReplay(1),
     );
 

@@ -154,6 +154,8 @@ namespace Backend.Services
             HashSet<LocationCode> stateAndProvinceSet = GetStateAndProvinceSet(fields[5]);
             HashSet<LocationCode> nativeLocations = [];
             string? nativeStatusField = fields[10];
+
+            // TODO these are null for everything so this aint r i g h t
             if (!string.IsNullOrWhiteSpace(nativeStatusField))
             {
                 foreach (ValueMatch x in NATIVE_STATUS().EnumerateMatches(nativeStatusField))
