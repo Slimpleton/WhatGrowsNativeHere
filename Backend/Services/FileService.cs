@@ -282,9 +282,13 @@ namespace Backend.Services
             HashSet<LocationCode> stateAndProvinceSet = [];
             if (!String.IsNullOrWhiteSpace(stateAndProvince))
             {
-                string v = GROWTH_HABIT_USA().Replace(stateAndProvince, match => match.Groups[1].Value);
-                string v2 = GROWTH_HABIT_CAN().Replace(v, match => match.Groups[1].Value);
-                stateAndProvinceSet = [.. Regex.Replace(v2, @"\s", "").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => ParseEnum<LocationCode>(x)).OfType<LocationCode>()];
+                // TODO No support for FRA(SB) i believe french colony
+                stateAndProvince = stateAndProvince.Replace("FRA(SB)", "");
+                string v = GROWTH_HABIT_USA_CAN().Replace(stateAndProvince, match => match.Groups[1].Value);
+
+                stateAndProvinceSet = [
+                    .. Regex.Replace(v, @"\s", "").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => ParseEnum<LocationCode>(x)).OfType<LocationCode>()
+                    ];
             }
 
             return stateAndProvinceSet;
@@ -405,11 +409,10 @@ namespace Backend.Services
             return items;
         }
 
-        [GeneratedRegex(@"USA\+?\s?\(([^)]+)\)")]
-        private static partial Regex GROWTH_HABIT_USA();
-        [GeneratedRegex(@"CAN\+?\s?\(([^)]+)\)")]
-        private static partial Regex GROWTH_HABIT_CAN();
-        [GeneratedRegex(@"(N)\(([A-Z?]+)\)")]
+        [GeneratedRegex(@"(?:USA|CAN)\+?\s?\(([^)]+)\)")]
+        private static partial Regex GROWTH_HABIT_USA_CAN();
+
+        [GeneratedRegex(@"([A-Z0-9])\(([N]+)\)")]
         private static partial Regex NATIVE_STATUS();
     }
 }
