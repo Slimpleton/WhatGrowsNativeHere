@@ -157,7 +157,8 @@ namespace Backend.Services
                 {
                     if (nativeStatusField[x.Index] != 'N') continue;
 
-                    NativeLocationCode location = Enum.Parse<NativeLocationCode>(nativeStatusField.Substring(x.Index + 2, x.Length - 1));
+                    // TODO This is returning N somehow??? idk how
+                    NativeLocationCode location = Enum.Parse<NativeLocationCode>(nativeStatusField.Substring(x.Index, x.Length - 3));
                     if (location == NativeLocationCode.NA && x.Length == nativeStatusField.Length)
                     {
                         nativeLocations = [.. Enum.GetValues<LocationCode>()];
@@ -412,7 +413,7 @@ namespace Backend.Services
         [GeneratedRegex(@"(?:USA|CAN)\+?\s?\(([^)]+)\)")]
         private static partial Regex GROWTH_HABIT_USA_CAN();
 
-        [GeneratedRegex(@"([A-Z0-9])\(([N]+)\)")]
+        [GeneratedRegex(@"([A-Z0-9])\((N)\)")]
         private static partial Regex NATIVE_STATUS();
     }
 }
