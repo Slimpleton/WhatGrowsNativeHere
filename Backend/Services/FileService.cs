@@ -1,18 +1,21 @@
 ﻿
 using Backend.Models;
 using Microsoft.VisualBasic.FileIO;
-using System.Diagnostics.Eventing.Reader;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace Backend.Services
 {
     public static partial class FileService
     {
-        public static PlantData[] PlantData { get; }
-        public static List<StateCSVItem> States { get; }
-        public static List<CountyCSVItem> Counties { get; }
+        // Pre-serialized JSON bytes stored at startup
+        public static readonly string PreSerializedPlantData;
+
+        public static IReadOnlyList<PlantData> PlantData { get; }
+        public static IReadOnlyList<StateCSVItem> States { get; }
+        public static IReadOnlyList<CountyCSVItem> Counties { get; }
 
 
         private static readonly Dictionary<LocationCode, NativeLocationCode[]> _LocationToNativeRegion =
@@ -121,9 +124,16 @@ namespace Backend.Services
                     : new PlantData(rows[i], null, []);
             }
 
-            PlantData = data;
-            States = ParseStateCSV(dirName);
-            Counties = ParseCountyCSV(dirName);
+            PlantData = data.AsReadOnly();
+            States = ParseStateCSV(dirName).AsReadOnly();
+            Counties = ParseCountyCSV(dirName).AsReadOnly();
+
+            // Pre-serialize once at startup
+            JsonSerializerOptions options = new()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            PreSerializedPlantData = JsonSerializer.Serialize(PlantData, options);
         }
 
         private static List<PlantDataRow> ParsePlantDataRow(string dirName)
@@ -163,7 +173,7 @@ namespace Backend.Services
             // TODO these are null for everything so this aint r i g h t
             foreach (ValueMatch x in NATIVE_STATUS().EnumerateMatches(nativeStatusField))
             {
-                if (nativeStatusField[x.Index + x.Length - 2] != 'N') continue;
+                if (nativeStatusField![x.Index + x.Length - 2] != 'N') continue;
 
                 NativeLocationCode location = Enum.Parse<NativeLocationCode>(nativeStatusField.Substring(x.Index, x.Length - 3));
                 if (location == NativeLocationCode.NA && x.Length == nativeStatusField.Length)

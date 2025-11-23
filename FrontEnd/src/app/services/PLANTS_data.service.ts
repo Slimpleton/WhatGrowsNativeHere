@@ -46,7 +46,6 @@ export class GovPlantsDataService {
     }
 
     private nativePlantData = this.getRecordsFromCSV().pipe(
-        tap((val) => console.log(val)),
         // Filters out non species listings
         map((plantData: Readonly<PlantData>[]) => {
             const speciesGroups = new Map<string, PlantData[]>();
@@ -77,10 +76,10 @@ export class GovPlantsDataService {
                 }
             });
 
-            return result;
+            return Object.freeze(result);
         }),
-        tap((val) => console.log(val)),
-        map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
+        // tap((val) => console.log(val)),
+        // map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
         shareReplay(1),
     );
 
