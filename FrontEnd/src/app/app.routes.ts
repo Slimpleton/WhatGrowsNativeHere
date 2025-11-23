@@ -6,7 +6,7 @@ import { PlantOverviewComponent, plantOverviewResolver } from './plant-overview/
 
 const mapRoute: string = 'map';
 const searchRoute: string = 'search';
-const plantRoute: string = 'plant/:id';
+const plantRawRoute: string = 'plant/raw/:id';
 
 export const routes: Routes = [
     {
@@ -28,7 +28,7 @@ export const routes: Routes = [
         component: CountyMapComponent,
     },
     {
-        path: plantRoute,
+        path: plantRawRoute,
         component: PlantOverviewComponent,
         resolve: {
             plant: plantOverviewResolver

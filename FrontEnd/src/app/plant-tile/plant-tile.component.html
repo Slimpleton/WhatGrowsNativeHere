@@ -26,13 +26,13 @@
         }
         }
     </span>
-    @if(plant.growthHabit.length > 0)
+    @if(plant.growthHabit.size > 0)
     {
 
     <h4 class="result-property" id="plant-growth-habit-{{plant.acceptedSymbol}}">
         @for (growthHabit of plant.growthHabit; track $index) {
-        {{'GROWTH_HABITS.' + growthHabit | uppercase | transloco}}{{ $index + 1 < plant.growthHabit.length ? ',' : ''
-            }}} </h4> }
+        {{'GROWTH_HABITS.' + growthHabit | uppercase | transloco}}{{ $index + 1 < plant.growthHabit.size ? ',' : '' }}}
+            </h4> }
 
             @if(plant.activeGrowthPeriod.length > 0){
 

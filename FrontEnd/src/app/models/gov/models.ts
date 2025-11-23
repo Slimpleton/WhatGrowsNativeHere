@@ -199,11 +199,11 @@ export type PlantData = Readonly<{
     symbol: string;
     scientificName: string;
     plantsFloristicArea: string;
-    stateAndProvince: LocationCode[];
+    stateAndProvince: Set<LocationCode>;
     category: Category;
     family: string;
-    duration: ReadonlyArray<Duration> | Duration;
-    growthHabit: GrowthHabit[];
+    duration: Set<Duration>;
+    growthHabit: Set<GrowthHabit>;
     nativeStateAndProvinceCodes: Set<LocationCode>;
     combinedCountyFIPs: string[];
     characteristicsData: boolean;

@@ -13,7 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select'
 import { TranslocoPipe } from '@jsverse/transloco';
 
-export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol' | 'growthHabit'>;
+export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
 
 @Component({
   selector: 'plant-search',
@@ -41,7 +41,7 @@ export class PlantSearchComponent implements OnDestroy {
     this._isSortOptionAlphabeticOrderEmitter$.next(this._sortOptionDirection === 'A-Z');
   }
 
-  public sortOptions: SortOption[] = ['commonName', 'scientificName', 'growthHabit'];
+  public sortOptions: SortOption[] = ['commonName', 'scientificName'];
   private _sortOptionsEmitter$: Subject<SortOption> = new BehaviorSubject<SortOption>('commonName');
   private get sortOptionsEmitter$(): Observable<SortOption> {
     return this._sortOptionsEmitter$.asObservable();
@@ -97,17 +97,7 @@ export class PlantSearchComponent implements OnDestroy {
     combineLatestWith(this.sortOptionsEmitter$, this.isSortOptionAlphabeticOrderEmitter$),
     map(([plants, sort, isSortAlphabeticOrder]: [ReadonlyArray<Readonly<PlantData>>, SortOption, boolean]) => {
       return [...plants].sort((x, y) => {
-        let xValue, yValue;
-        if (sort === 'growthHabit') {
-          xValue = x[sort][0];
-          yValue = y[sort][0];
-
-        }
-        else {
-          xValue = x[sort];
-          yValue = y[sort];
-        }
-        const comparison: number = xValue.localeCompare(yValue);
+        const comparison: number = x[sort].localeCompare(y[sort]);
         return isSortAlphabeticOrder ? comparison : -comparison;
       });
     }),
@@ -173,10 +163,10 @@ export class PlantSearchComponent implements OnDestroy {
   }
 
   private filterForGrowthHabit(growthHabit: GrowthHabit | null, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
-    if (growthHabit == 'Any') {
+    if (growthHabit == 'Any' || growthHabit == null) {
       return plants;
     }
-    return plants.filter(plant => plant.growthHabit?.some(x => x == growthHabit));
+    return plants.filter(plant => plant.growthHabit?.has(growthHabit));
   }
 
   private filterForState(state: StateInfo, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {

@@ -29,12 +29,10 @@ export class PlantTileComponent {
   }
 
   public getPlantDuration(plant: PlantData): string {
-    if (Array.isArray(plant.duration))
-      return plant.duration.join(', ');
-    return plant.duration as string;
+    return [...plant.duration].join(', ');
   }
 
   public openInfoPage(plant: PlantData) {
-    this._router.navigate(['plant/' + plant.acceptedSymbol]);
+    this._router.navigate(['plant/raw/' + plant.acceptedSymbol]);
   }
 }

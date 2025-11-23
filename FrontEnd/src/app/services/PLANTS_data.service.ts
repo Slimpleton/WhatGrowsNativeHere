@@ -79,11 +79,12 @@ export class GovPlantsDataService {
 
             return result;
         }),
-        map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeStateAndProvinceCodes.size > 0
-            && !plantDatum.growthHabit.includes('Lichenous'))),
-        // Return as a deeply immutable array
-        map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
         tap((val) => console.log(val)),
+        map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeStateAndProvinceCodes.size > 0
+            && !plantDatum.growthHabit.has('Lichenous'))),
+        // Return as a deeply immutable array
+        tap((val) => console.log(val)),
+        map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
         shareReplay(1),
     );
 
@@ -97,7 +98,15 @@ export class GovPlantsDataService {
      * @returns 
      */
     private getRecordsFromCSV(): Observable<PlantData[]> {
-        return this.http.get<PlantData[]>(this.dataUrl);
+        return this.http.get<PlantData[]>(this.dataUrl).pipe(
+            map(rawPlants => rawPlants.map(raw => ({
+                ...raw,
+                nativeStateAndProvinceCodes: new Set(raw.nativeStateAndProvinceCodes ?? []),
+                growthHabit: new Set(raw.growthHabit ?? []),
+                duration: new Set(raw.duration ?? []),
+                stateAndProvince: new Set(raw.stateAndProvince ?? []),
+            }))),
+        );
     }
 
 
