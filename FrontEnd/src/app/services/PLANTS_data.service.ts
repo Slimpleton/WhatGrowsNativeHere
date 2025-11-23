@@ -80,10 +80,6 @@ export class GovPlantsDataService {
             return result;
         }),
         tap((val) => console.log(val)),
-        map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeStateAndProvinceCodes.size > 0
-            && !plantDatum.growthHabit.has('Lichenous'))),
-        // Return as a deeply immutable array
-        tap((val) => console.log(val)),
         map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
         shareReplay(1),
     );

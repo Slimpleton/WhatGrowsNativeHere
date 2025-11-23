@@ -141,16 +141,21 @@ namespace Backend.Services
             parser.ReadLine();
             while (!parser.EndOfData)
             {
-                PlantDataRow row = GetPlantDataRow(parser);
-                data.Add(row);
+                PlantDataRow? row = GetPlantDataRow(parser);
+                if(row is not null)
+                    data.Add(row);
             }
 
             return data;
         }
 
-        private static PlantDataRow GetPlantDataRow(TextFieldParser parser)
+        private static PlantDataRow? GetPlantDataRow(TextFieldParser parser)
         {
             string?[] fields = parser.ReadFields()!;
+            HashSet<GrowthHabit> growthHabits = ParseEnumHashSet<GrowthHabit>(fields[9]);
+            if (growthHabits.Contains(GrowthHabit.Lichenous)) return null;
+
+
             HashSet<LocationCode> stateAndProvinceSet = GetStateAndProvinceSet(fields[5]);
             HashSet<LocationCode> nativeLocations = [];
             string? nativeStatusField = fields[10];
@@ -176,6 +181,8 @@ namespace Backend.Services
                 }
             }
 
+            if (nativeLocations.Count == 0) return null;
+
             return new()
             {
                 AcceptedSymbol = fields[0],
@@ -187,7 +194,7 @@ namespace Backend.Services
                 Category = ParseEnum<Category>(fields[6]),
                 Family = fields[7],
                 Duration = ParseEnumHashSet<Duration>(fields[8]), // TODO this is parsing the earlier fields as this value
-                GrowthHabit = ParseEnumHashSet<GrowthHabit>(fields[9]),
+                GrowthHabit = growthHabits,
                 NativeStateAndProvinceCodes = nativeLocations,
                 CharacteristicsData = fields[11] == "No" ? false : true,
                 ActiveGrowthPeriod = String.IsNullOrWhiteSpace(fields[12]) ? [] : [.. fields[12]!.Trim('"').Split([",", " and "], StringSplitOptions.TrimEntries).Select(x => ParseEnum<Season>(x)).OfType<Season>()],
