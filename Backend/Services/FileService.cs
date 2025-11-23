@@ -156,27 +156,23 @@ namespace Backend.Services
             string? nativeStatusField = fields[10];
 
             // TODO these are null for everything so this aint r i g h t
-            if (!string.IsNullOrWhiteSpace(nativeStatusField))
+            foreach (ValueMatch x in NATIVE_STATUS().EnumerateMatches(nativeStatusField))
             {
-                foreach (ValueMatch x in NATIVE_STATUS().EnumerateMatches(nativeStatusField))
-                {
-                    if (nativeStatusField[x.Index] != 'N') continue;
+                if (nativeStatusField[x.Index + x.Length - 2] != 'N') continue;
 
-                    NativeLocationCode location = Enum.Parse<NativeLocationCode>(nativeStatusField.Substring(x.Index, x.Length - 3));
-                    if (location == NativeLocationCode.NA && x.Length == nativeStatusField.Length)
-                    {
-                        nativeLocations = [.. Enum.GetValues<LocationCode>()];
-                    }
-                    else if (location == NativeLocationCode.NA)
-                    {
-                        // TODO ? 
-                        string s = "";
-                        continue;
-                    }
-                    else
-                    {
-                        nativeLocations.UnionWith(stateAndProvinceSet.Where(x => _LocationToNativeRegion[x].Any(y => y == location)));
-                    }
+                NativeLocationCode location = Enum.Parse<NativeLocationCode>(nativeStatusField.Substring(x.Index, x.Length - 3));
+                if (location == NativeLocationCode.NA && x.Length == nativeStatusField.Length)
+                {
+                    nativeLocations = [.. Enum.GetValues<LocationCode>()];
+                }
+                else if (location == NativeLocationCode.NA)
+                {
+                    // TODO ? 
+                    continue;
+                }
+                else
+                {
+                    nativeLocations.UnionWith(stateAndProvinceSet.Where(x => _LocationToNativeRegion[x].Contains(location)));
                 }
             }
 
