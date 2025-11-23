@@ -1,0 +1,20 @@
+{
+    "SORT_OPTIONS": {
+        "COMMONNAME": "Common Name",
+        "SCIENTIFICNAME": "Scientific Name",
+        "GROWTHHABIT": "Growth Habit"
+    },
+    "GROWTH_HABITS": {
+        "ANY": "Any",
+        "GRAMINOID": "Grasslike",
+        "SHRUB": "Shrub",
+        "SUBSHRUB": "Subshrub",
+        "TREE": "Tree",
+        "VINE": "Vine",
+        "NONVASCULAR": "Nonvascular",
+        "FORB/HERB": "Forb/Herb",
+        "FORBHERB": "Forb/Herb"
+    },
+    "NATIVE_PLANTS_IN": "Native Plants In ",
+    "SEARCHBAR_PLACEHOLDER": "e.g. Lupinus agardhianus, Apache plume,...,"
+}

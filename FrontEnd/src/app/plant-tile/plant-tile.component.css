@@ -1,0 +1,82 @@
+:root {
+    --item-size: 5em;
+}
+
+.plant-holder {
+    height: calc(100% - 2em);
+    width: calc(100% - 2em);
+    display: flex;
+    padding: 1em;
+    flex-direction: column;
+    background-color: var(--grass-light-green);
+}
+
+.result-common-name {
+    display: flex;
+    place-items: center;
+    gap: .5em;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    all: unset;
+}
+
+.result-scientific-name {
+    font-style: italic;
+}
+
+.result-property {
+    margin-bottom: 0;
+}
+
+.symbolAndShadeRow {
+    display: inline-flex;
+    gap: .25em;
+    place-items: center;
+}
+
+.overlapped-icon {
+    grid-area: 1/1/2/2;
+}
+
+.overlapped-sun {
+    padding-left: 12px;
+}
+
+.sun,
+.overlapped-sun {
+    color: rgb(255, 208, 0);
+}
+
+.overlapped-cloud,
+.cloud {
+    color: grey;
+}
+
+.info-btn {
+    background-color: transparent;
+    border-radius: 50%;
+    height: 32px;
+    width: 32px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px solid var(--wood-dark-brown);
+}
+
+.info-icon{
+    color: var(--wood-dark-brown);
+}
+
+.last-row{
+    display:inline-flex;
+    justify-content: space-between;
+    margin-top: auto;
+    align-content: center;
+}
