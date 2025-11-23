@@ -2,7 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import { PlantData, Season } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 import { ResolveFn } from "@angular/router";
-import { catchError, map, Observable, of, shareReplay, tap } from "rxjs";
+import { catchError, map, Observable, of, shareReplay } from "rxjs";
 
 export const csvResolver: ResolveFn<ReadonlyArray<Readonly<PlantData>>> = () => {
     return inject(GovPlantsDataService).loadNativePlantData;
