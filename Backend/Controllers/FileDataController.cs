@@ -18,6 +18,21 @@ namespace Backend.Controllers
             }
         }
 
+        [HttpGet("plantdata/{id}")]
+        public async Task<PlantData?> GetPlantDataAsync(string id)
+        {
+            return await FileService.PlantData.FirstOrDefaultAsync(x => x.AcceptedSymbol == id);
+        }
+
+        [HttpGet("plantdata/id")]
+        public async IAsyncEnumerable<string> GetPlantDataIdsAsync()
+        {
+            await foreach (var item in FileService.PlantData)
+            {
+                yield return item.AcceptedSymbol;
+            }
+        }
+
         [HttpGet("states")]
         public async IAsyncEnumerable<StateCSVItem> GetStatesAsync()
         {

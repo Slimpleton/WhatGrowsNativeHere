@@ -1,22 +1,18 @@
 ﻿
 using Backend.Models;
 using Microsoft.VisualBasic.FileIO;
-using System.Diagnostics.Eventing.Reader;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace Backend.Services
 {
     public static partial class FileService
     {
-        //TODO preserialize into bytes?
-        public static byte[] PlantDataRaw { get; }
         public static IAsyncEnumerable<PlantData> PlantData { get; }
         public static IAsyncEnumerable<StateCSVItem> States { get; }
         public static IAsyncEnumerable<CountyCSVItem> Counties { get; }
-
+        private const int MinimumSpeciesNameWords = 2;
 
         private static readonly Dictionary<LocationCode, NativeLocationCode[]> _LocationToNativeRegion =
     new()
@@ -106,25 +102,42 @@ namespace Backend.Services
         { LocationCode.LB, new[] { NativeLocationCode.CAN } }
     };
 
-
-
         static FileService()
         {
             string dirName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-
             List<PlantDataRow> rows = ParsePlantDataRow(dirName);
             Dictionary<string, ExtraInfo> extraInfo = ParseExtraInfo(dirName);
 
-            PlantData[] data = new PlantData[rows.Count];
-            for (int i = 0; i < rows.Count; i++)
-            {
-                extraInfo.TryGetValue(rows[i].Symbol, out ExtraInfo? correctInfo);
-                data[i] = correctInfo != null ?
-                    new PlantData(rows[i], correctInfo.CommonName, correctInfo.CombinedFIPs)
-                    : new PlantData(rows[i], null, []);
-            }
+            PlantDataRow[] filteredRows =
+                [.. rows.Where(p =>
+                {
+                    string[]? words = p.ScientificName?
+                        .Split(' ');
 
-            PlantData = data.ToAsyncEnumerable();
+                    return words?.Length >= MinimumSpeciesNameWords
+                        && !p.GrowthHabit.Contains(GrowthHabit.Lichenous)
+                        && p.NativeStateAndProvinceCodes.Count != 0;
+                })
+            //Group by base species(first 2 words)
+           .GroupBy(p => String.Join(' ', p.ScientificName.Split(' ').Take(2)))
+           // Choose subspecies or full group
+           .SelectMany(group =>
+           {
+               IEnumerable<PlantDataRow> subspecies = group
+                   .Where(p => SCIENTIFIC_NAME_SPLIT().IsMatch(p.ScientificName));
+
+               return subspecies.Any() ? subspecies : group;
+           })];
+
+            IAsyncEnumerable<PlantData> data = filteredRows.Select(row =>
+            {
+                extraInfo.TryGetValue(row.Symbol, out var info);
+                return info != null
+                    ? new PlantData(row, info.CommonName, info.CombinedFIPs)
+                    : new PlantData(row, null, []);
+            }).ToArray().ToAsyncEnumerable();
+
+            PlantData = data;
             States = ParseStateCSV(dirName).ToAsyncEnumerable();
             Counties = ParseCountyCSV(dirName).ToAsyncEnumerable();
         }
@@ -161,7 +174,7 @@ namespace Backend.Services
             // TODO these are null for everything so this aint r i g h t
             foreach (ValueMatch x in NATIVE_STATUS().EnumerateMatches(nativeStatusField))
             {
-                if (nativeStatusField[x.Index + x.Length - 2] != 'N') continue;
+                if (nativeStatusField![x.Index + x.Length - 2] != 'N') continue;
 
                 NativeLocationCode location = Enum.Parse<NativeLocationCode>(nativeStatusField.Substring(x.Index, x.Length - 3));
                 if (location == NativeLocationCode.NA && x.Length == nativeStatusField.Length)
@@ -333,7 +346,7 @@ namespace Backend.Services
             string fileName = Path.Combine(dirName, "PLANTS_EXTRA_DATA.csv");
             Dictionary<string, ExtraInfo> items = [];
 
-            TextFieldParser parser = new(fileName)
+           using TextFieldParser parser = new(fileName)
             {
                 Delimiters = [","],
                 HasFieldsEnclosedInQuotes = true,
@@ -357,7 +370,7 @@ namespace Backend.Services
         {
             string fileName = Path.Combine(dirName, "statesFipsInfo.csv");
             List<StateCSVItem> items = [];
-            TextFieldParser parser = new(fileName)
+            using TextFieldParser parser = new(fileName)
             {
                 Delimiters = [","],
                 HasFieldsEnclosedInQuotes = true,
@@ -388,7 +401,7 @@ namespace Backend.Services
             string fileName = Path.Combine(dirName, "countyInfo.csv");
             List<CountyCSVItem> items = [];
 
-            TextFieldParser parser = new(fileName)
+           using TextFieldParser parser = new(fileName)
             {
                 Delimiters = [","],
                 HasFieldsEnclosedInQuotes = true,
@@ -418,5 +431,7 @@ namespace Backend.Services
 
         [GeneratedRegex(@"([A-Z0-9]+)\((N)\)")]
         private static partial Regex NATIVE_STATUS();
+        [GeneratedRegex(@"\b(subsp\.|var\.|f\.)\b")]
+        private static partial Regex SCIENTIFIC_NAME_SPLIT();
     }
 }
