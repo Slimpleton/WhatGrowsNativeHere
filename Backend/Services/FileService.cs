@@ -10,6 +10,8 @@ namespace Backend.Services
 {
     public static partial class FileService
     {
+        //TODO preserialize into bytes?
+        public static byte[] PlantDataRaw { get; }
         public static PlantData[] PlantData { get; }
         public static List<StateCSVItem> States { get; }
         public static List<CountyCSVItem> Counties { get; }
