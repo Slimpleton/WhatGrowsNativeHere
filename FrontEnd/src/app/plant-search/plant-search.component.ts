@@ -85,6 +85,11 @@ export class PlantSearchComponent implements OnDestroy {
     tap((value) => console.log(value)),
   );
 
+
+  // TODO swap the search for using the backend instead of getting everything at once,
+  // only fetch items for the frontend initially based on the user's location anyways
+
+
   // Using a combineLatest to combine multiple state changes at once for filtering easy
   private _fullyFilteredNativePlants: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._growthHabitEmitter$,
@@ -96,14 +101,13 @@ export class PlantSearchComponent implements OnDestroy {
     map(([plants, searchString]) => this.filterPlantsBySearchString(plants, searchString)),
     combineLatestWith(this.sortOptionsEmitter$, this.isSortOptionAlphabeticOrderEmitter$),
     map(([plants, sort, isSortAlphabeticOrder]: [ReadonlyArray<Readonly<PlantData>>, SortOption, boolean]) => {
-      return [...plants].sort((x, y) => {
+      const sorted = [...plants].sort((x, y) => {
         const comparison: number = x[sort].localeCompare(y[sort]);
         return isSortAlphabeticOrder ? comparison : -comparison;
       });
-    }),
-    tap((plants) => {
-      this.filteredData.emit(plants);
+      this.filteredData.emit(sorted);
       this.filterInProgress$.next(false);
+      return sorted;
     }),
     takeUntil(this._ngDestroy$)
   );
@@ -123,15 +127,12 @@ export class PlantSearchComponent implements OnDestroy {
     private readonly _positionService: PositionService,
     private readonly _fileService: FileService) {
     // HACK starts the plant retrieval, sets start value for search bar
-    this._fullyFilteredNativePlants.subscribe();
-    this._searchStarter$.next('');
-    this._sortOptionsEmitter$.next('commonName');
-
     this._positionService.countyEmitter$.pipe(
       filter((x) => x != null && x != undefined),
       map((x) => combineCountyFIP(x)),
-      tap((x) => console.log(x)),
+      // tap((x) => console.log(x)),
       this._fileService.getCountyCSVItemAsync(),
+      takeUntil(this._ngDestroy$)
     ).subscribe({
       next: (value) => {
         console.log(value);
@@ -140,6 +141,11 @@ export class PlantSearchComponent implements OnDestroy {
       },
       error: err => console.error(err),
     });
+
+    this._fullyFilteredNativePlants.subscribe();
+    this._searchStarter$.next('');
+    this._sortOptionsEmitter$.next('commonName');
+
   }
 
   ngOnDestroy(): void {

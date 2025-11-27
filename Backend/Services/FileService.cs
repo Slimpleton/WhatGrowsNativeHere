@@ -171,7 +171,6 @@ namespace Backend.Services
             HashSet<LocationCode> nativeLocations = [];
             string? nativeStatusField = fields[10];
 
-            // TODO these are null for everything so this aint r i g h t
             foreach (ValueMatch x in NATIVE_STATUS().EnumerateMatches(nativeStatusField))
             {
                 if (nativeStatusField![x.Index + x.Length - 2] != 'N') continue;
@@ -194,10 +193,10 @@ namespace Backend.Services
 
             return new()
             {
-                AcceptedSymbol = fields[0],
+                AcceptedSymbol = fields[0]!,
                 SynonymSymbol = fields[1],
-                Symbol = fields[2],
-                ScientificName = fields[3],
+                Symbol = fields[2]!,
+                ScientificName = fields[3]!,
                 PlantsFlorisiticArea = fields[4],
                 StateAndProvince = stateAndProvinceSet,
                 Category = ParseEnum<Category>(fields[6]),
@@ -299,13 +298,11 @@ namespace Backend.Services
             HashSet<LocationCode> stateAndProvinceSet = [];
             if (!String.IsNullOrWhiteSpace(stateAndProvince))
             {
-                // TODO No support for FRA(SB) i believe french colony
+                // TODO No support for FRA(SB) i believe french colony, i think gl is greenland
                 stateAndProvince = stateAndProvince.Replace("FRA(SB)", "").Replace("DEN(GL)", "");
                 string v = GROWTH_HABIT_USA_CAN().Replace(stateAndProvince, match => match.Groups[1].Value);
 
-                stateAndProvinceSet = [
-                    .. Regex.Replace(v, @"\s", "").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => ParseEnum<LocationCode>(x)).OfType<LocationCode>()
-                    ];
+                stateAndProvinceSet = [..Regex.Replace(v, @"\s", "").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => ParseEnum<LocationCode>(x)).OfType<LocationCode>()];
             }
 
             return stateAndProvinceSet;
@@ -337,7 +334,7 @@ namespace Backend.Services
 
         private static TEnum? ParseEnum<TEnum>(string? field) where TEnum : struct, IConvertible, IComparable, IFormattable => String.IsNullOrWhiteSpace(field) ? null : ParseEnumInternal<TEnum>(field.Trim());
         private static HashSet<TEnum> ParseEnumHashSet<TEnum>(string? field) where TEnum : struct, IConvertible, IComparable, IFormattable => String.IsNullOrWhiteSpace(field.Trim()) ? [] : ParseCsvList<TEnum>(field.Trim());
-        private static HashSet<TEnum> ParseCsvList<TEnum>(string field) where TEnum : struct, IConvertible, IComparable, IFormattable => [.. field.Trim('"').Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => ParseEnumInternal<TEnum>(x.Trim()))];
+        private static HashSet<TEnum> ParseCsvList<TEnum>(string field) where TEnum : struct, IConvertible, IComparable, IFormattable => [.. field.Trim('"').Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => ParseEnumInternal<TEnum>(x.Trim())).Order()];
 
 
 
