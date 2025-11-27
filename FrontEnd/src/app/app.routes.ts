@@ -32,6 +32,6 @@ export const routes: Routes = [
         component: PlantOverviewComponent,
         resolve: {
             plant: plantOverviewResolver
-        }
+        },
     }
 ];
