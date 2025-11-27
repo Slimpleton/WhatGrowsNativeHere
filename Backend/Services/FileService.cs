@@ -4,6 +4,7 @@ using Microsoft.VisualBasic.FileIO;
 using System.Diagnostics.Eventing.Reader;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace Backend.Services
@@ -12,9 +13,9 @@ namespace Backend.Services
     {
         //TODO preserialize into bytes?
         public static byte[] PlantDataRaw { get; }
-        public static PlantData[] PlantData { get; }
-        public static List<StateCSVItem> States { get; }
-        public static List<CountyCSVItem> Counties { get; }
+        public static IAsyncEnumerable<PlantData> PlantData { get; }
+        public static IAsyncEnumerable<StateCSVItem> States { get; }
+        public static IAsyncEnumerable<CountyCSVItem> Counties { get; }
 
 
         private static readonly Dictionary<LocationCode, NativeLocationCode[]> _LocationToNativeRegion =
@@ -123,9 +124,9 @@ namespace Backend.Services
                     : new PlantData(rows[i], null, []);
             }
 
-            PlantData = data;
-            States = ParseStateCSV(dirName);
-            Counties = ParseCountyCSV(dirName);
+            PlantData = data.ToAsyncEnumerable();
+            States = ParseStateCSV(dirName).ToAsyncEnumerable();
+            Counties = ParseCountyCSV(dirName).ToAsyncEnumerable();
         }
 
         private static List<PlantDataRow> ParsePlantDataRow(string dirName)

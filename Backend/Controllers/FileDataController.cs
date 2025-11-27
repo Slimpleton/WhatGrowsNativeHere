@@ -10,21 +10,30 @@ namespace Backend.Controllers
     {
 
         [HttpGet("plantdata")]
-        public async Task<ActionResult<IEnumerable<PlantData>>> GetPlantDataAsync()
+        public async IAsyncEnumerable<PlantData> GetPlantDataAsync()
         {
-            return Ok(FileService.PlantData);
+            await foreach(var item in FileService.PlantData)
+            {
+                yield return item;
+            }
         }
 
         [HttpGet("states")]
-        public async Task<ActionResult<IEnumerable<StateCSVItem>>> GetStatesAsync()
+        public async IAsyncEnumerable<StateCSVItem> GetStatesAsync()
         {
-            return Ok(FileService.States);
+            await foreach (var item in FileService.States)
+            {
+                yield return item;
+            }
         }
 
         [HttpGet("counties")]
-        public async Task<ActionResult<IEnumerable<CountyCSVItem>>> GetCountiesAsync()
+        public async IAsyncEnumerable<CountyCSVItem> GetCountiesAsync()
         {
-            return Ok(FileService.Counties);
+            await foreach (var item in FileService.Counties)
+            {
+                yield return item;
+            }
         }
     }
 }

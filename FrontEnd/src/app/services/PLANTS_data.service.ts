@@ -2,7 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import { PlantData, Season } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 import { ResolveFn } from "@angular/router";
-import { catchError, map, Observable, of, shareReplay, tap } from "rxjs";
+import { catchError, map, Observable, of, shareReplay } from "rxjs";
 
 export const csvResolver: ResolveFn<ReadonlyArray<Readonly<PlantData>>> = () => {
     return inject(GovPlantsDataService).loadNativePlantData;
@@ -46,7 +46,7 @@ export class GovPlantsDataService {
     }
 
     private nativePlantData = this.getRecordsFromCSV().pipe(
-        tap((val) => console.log(val)),
+        // tap((val) => console.log(val)),
         // Filters out non species listings
         map((plantData: Readonly<PlantData>[]) => {
             const speciesGroups = new Map<string, PlantData[]>();
@@ -77,14 +77,12 @@ export class GovPlantsDataService {
                 }
             });
 
-            return result;
+            return Object.freeze(result.filter(plantDatum => plantDatum.nativeStateAndProvinceCodes.size > 0
+                && !plantDatum.growthHabit.has('Lichenous')));
         }),
-        tap((val) => console.log(val)),
-        map((plantData: Readonly<PlantData>[]) => plantData.filter(plantDatum => plantDatum.nativeStateAndProvinceCodes.size > 0
-            && !plantDatum.growthHabit.has('Lichenous'))),
+        // tap((val) => console.log(val)),
         // Return as a deeply immutable array
-        tap((val) => console.log(val)),
-        map((plantData: Readonly<PlantData>[]) => Object.freeze(plantData)),
+        // tap((val) => console.log(val)),
         shareReplay(1),
     );
 
