@@ -25,7 +25,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("plantdata/search")]
-        public async IAsyncEnumerable<PlantData> SearchForPlantDataAsync([FromQuery] string? searchString, [FromQuery]string combinedFIP, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, [EnumeratorCancellation] CancellationToken cancellationToken)
+        public async IAsyncEnumerable<PlantData> SearchForPlantDataAsync( [FromQuery]string combinedFIP, [FromQuery] string? searchString, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var filtered = FileService.PlantData.Where(x => x.CombinedCountyFIPs.Contains(combinedFIP));
             if (growthHabit != null && growthHabit != GrowthHabit.Any)
