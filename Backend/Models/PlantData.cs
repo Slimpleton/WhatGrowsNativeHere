@@ -482,4 +482,12 @@ namespace Backend.Models
         FM,
         MH, //Marshal islands
     }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum SortOption
+    {
+        CommonName,
+        ScientificName,
+        Symbol
+    }
 }
