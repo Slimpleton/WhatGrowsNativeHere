@@ -6,7 +6,7 @@ import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
-import { combineLatest, combineLatestWith, debounceTime, distinctUntilChanged, filter, map, takeUntil, tap } from 'rxjs';
+import { combineLatest, combineLatestWith, debounceTime, distinctUntilChanged, filter, map, switchMap, takeUntil, tap } from 'rxjs';
 import { FileService } from '../services/file.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,7 +26,7 @@ export class PlantSearchComponent implements OnDestroy {
   private _growthHabitEmitter$: Subject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
   private _isSortOptionAlphabeticOrderEmitter$: Subject<boolean> = new BehaviorSubject<boolean>(true);
-  private readonly _searchDebounceTime: number = 75;
+  private readonly _searchDebounceTime: number = 400;
 
   private get isSortOptionAlphabeticOrderEmitter$(): Observable<boolean> {
     return this._isSortOptionAlphabeticOrderEmitter$.asObservable();
@@ -58,26 +58,6 @@ export class PlantSearchComponent implements OnDestroy {
     this._countyName = value;
   }
 
-  private _allNativePlants$: Observable<ReadonlyArray<PlantData>> = this._plantService.loadNativePlantData
-    .pipe(takeUntil(this._ngDestroy$));
-
-  private _filteredNativePlantsByState$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
-    this._positionService.stateEmitter$,
-    this._allNativePlants$])
-    .pipe(
-      map(([state, plants]: [StateInfo, ReadonlyArray<Readonly<PlantData>>]) => this.filterForState(state, plants)),
-      // TODO use state info to filter gbifoccurences ? 
-      takeUntil(this._ngDestroy$)
-    );
-
-  private _filteredNativePlantsByCounty$: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
-    this._positionService.countyEmitter$,
-    this._filteredNativePlantsByState$
-  ]).pipe(
-    map(([county, plants]: [County, ReadonlyArray<Readonly<PlantData>>]) => this.filterForCounty(county, plants)),
-    takeUntil(this._ngDestroy$)
-  );
-
   private _searchStarter$: Subject<string> = new Subject<string>();
   private _search$: Observable<string> = this._searchStarter$.pipe(
     debounceTime(this._searchDebounceTime),
@@ -93,12 +73,11 @@ export class PlantSearchComponent implements OnDestroy {
   // Using a combineLatest to combine multiple state changes at once for filtering easy
   private _fullyFilteredNativePlants: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._growthHabitEmitter$,
-    this._filteredNativePlantsByCounty$,
+    this._positionService.countyEmitter$.pipe(map(val => combineCountyFIP(val))),
+    this._search$
   ]).pipe(
     tap(() => this.filterInProgress$.next(true)),
-    map(([growthHabit, plants]: [GrowthHabit | null, ReadonlyArray<Readonly<PlantData>>]) => this.filterForGrowthHabit(growthHabit, plants)),
-    combineLatestWith(this._search$),
-    map(([plants, searchString]) => this.filterPlantsBySearchString(plants, searchString)),
+    switchMap(([growthHabit, combinedFIP, searchString]: [GrowthHabit, string, string]) => this._plantService.searchNativePlants(searchString, combinedFIP, growthHabit)),
     combineLatestWith(this.sortOptionsEmitter$, this.isSortOptionAlphabeticOrderEmitter$),
     map(([plants, sort, isSortAlphabeticOrder]: [ReadonlyArray<Readonly<PlantData>>, SortOption, boolean]) => {
       const sorted = [...plants].sort((x, y) => {

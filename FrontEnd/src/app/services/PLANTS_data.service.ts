@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { PlantData } from "../models/gov/models";
+import { GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 import { catchError, map, Observable, of, shareReplay } from "rxjs";
 
@@ -20,6 +20,16 @@ export class GovPlantsDataService {
 
     public getAllDefiniteNativePlantIds(): Observable<ReadonlyArray<Readonly<string>>> {
         return this._http.get<string[]>(this._dataUrl + '/id');
+    }
+
+    public searchNativePlants(searchString: string, combinedFIP: string, growthHabit: GrowthHabit): Observable<readonly PlantData[]> {
+        return this._http.get<PlantData[]>(this._dataUrl + '/search', {
+            params: {
+                searchString,
+                combinedFIP,
+                growthHabit
+            }
+        }).pipe(map((vals) => vals.map(GovPlantsDataService.parsePlantData)));
     }
 
     public get loadNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {
