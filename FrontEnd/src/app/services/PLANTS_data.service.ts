@@ -22,12 +22,14 @@ export class GovPlantsDataService {
         return this._http.get<string[]>(this._dataUrl + '/id');
     }
 
-    public searchNativePlants(searchString: string, combinedFIP: string, growthHabit: GrowthHabit): Observable<readonly PlantData[]> {
+    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit): Observable<readonly PlantData[]> {
+        const batchSize: number = 100;
         return this._http.get<PlantData[]>(this._dataUrl + '/search', {
             params: {
                 searchString,
                 combinedFIP,
-                growthHabit
+                growthHabit,
+                batchSize
             }
         }).pipe(map((vals) => vals.map(GovPlantsDataService.parsePlantData)));
     }

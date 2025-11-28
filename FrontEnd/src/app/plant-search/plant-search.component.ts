@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, OnDestroy } from '@angular/core';
-import { combineCountyFIP, County, GrowthHabit, LocationCode, PlantData, StateInfo } from '../models/gov/models';
+import { combineCountyFIP, GrowthHabit, PlantData } from '../models/gov/models';
 import { Subject } from 'rxjs/internal/Subject';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
@@ -65,11 +65,6 @@ export class PlantSearchComponent implements OnDestroy {
     tap((value) => console.log(value)),
   );
 
-
-  // TODO swap the search for using the backend instead of getting everything at once,
-  // only fetch items for the frontend initially based on the user's location anyways
-
-
   // Using a combineLatest to combine multiple state changes at once for filtering easy
   private _fullyFilteredNativePlants: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
     this._growthHabitEmitter$,
@@ -77,14 +72,14 @@ export class PlantSearchComponent implements OnDestroy {
     this._search$
   ]).pipe(
     tap(() => this.filterInProgress$.next(true)),
-    switchMap(([growthHabit, combinedFIP, searchString]: [GrowthHabit, string, string]) => this._plantService.searchNativePlants(searchString, combinedFIP, growthHabit)),
+    switchMap(([growthHabit, combinedFIP, searchString]: [GrowthHabit, string, string]) => this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit)), // TODO handle the batching here somehow?? do i wait for all batches 
     combineLatestWith(this.sortOptionsEmitter$, this.isSortOptionAlphabeticOrderEmitter$),
     map(([plants, sort, isSortAlphabeticOrder]: [ReadonlyArray<Readonly<PlantData>>, SortOption, boolean]) => {
       const sorted = [...plants].sort((x, y) => {
         const comparison: number = x[sort].localeCompare(y[sort]);
         return isSortAlphabeticOrder ? comparison : -comparison;
       });
-      this.filteredData.emit(sorted);
+      this.filteredDataBatch.emit(sorted);
       this.filterInProgress$.next(false);
       return sorted;
     }),
@@ -95,12 +90,8 @@ export class PlantSearchComponent implements OnDestroy {
     return this._fullyFilteredNativePlants;
   }
 
-  private filterPlantsBySearchString(plants: ReadonlyArray<Readonly<PlantData>>, searchString: string): ReadonlyArray<Readonly<PlantData>> {
-    searchString = searchString.toLowerCase();
-    return plants.filter(plant => plant.commonName.toLowerCase().includes(searchString) || plant.scientificName.toLowerCase().includes(searchString));
-  }
 
-  @Output() public filteredData: EventEmitter<ReadonlyArray<Readonly<PlantData>>> = new EventEmitter();
+  @Output() public filteredDataBatch: EventEmitter<ReadonlyArray<Readonly<PlantData>>> = new EventEmitter();
 
   public constructor(private readonly _plantService: GovPlantsDataService,
     private readonly _positionService: PositionService,
@@ -146,20 +137,4 @@ export class PlantSearchComponent implements OnDestroy {
   public changeGrowthHabit(habit: string) {
     this._growthHabitEmitter$.next(habit as GrowthHabit);
   }
-
-  private filterForGrowthHabit(growthHabit: GrowthHabit | null, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
-    if (growthHabit == 'Any' || growthHabit == null) {
-      return plants;
-    }
-    return plants.filter(plant => plant.growthHabit?.has(growthHabit));
-  }
-
-  private filterForState(state: StateInfo, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
-    return plants.filter(plant => plant.nativeStateAndProvinceCodes?.has(state.abbreviation as LocationCode));
-  }
-
-  private filterForCounty(county: County, plants: ReadonlyArray<Readonly<PlantData>>): ReadonlyArray<Readonly<PlantData>> {
-    return plants.filter(plant => plant.combinedCountyFIPs.some(plantCounty => plantCounty == combineCountyFIP(county)));
-  }
-
 }

@@ -84,9 +84,7 @@ export class HomeComponent {
   public gutterSize: string = '.25em';
   public columns: number = Math.min(window.innerWidth / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER), 6);
 
-  public constructor(
-  ) {
-  }
+  public constructor() { }
 
   @HostListener('screen.orientation.change', ['$event'])
   @HostListener('window:resize', ['$event'])
@@ -96,6 +94,7 @@ export class HomeComponent {
   }
 
   public updatePlantData(plantData: ReadonlyArray<Readonly<PlantData>>) {
+    // TODO add awareness of when the search is going off vs when its just adding batches from the last search
     this.plantData = plantData;
   }
 }
