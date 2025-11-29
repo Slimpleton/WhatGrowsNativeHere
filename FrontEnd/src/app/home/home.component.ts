@@ -17,7 +17,7 @@ import { NavBarComponent } from '../nav-bar/nav-bar.component';
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
-  public plantData?: ReadonlyArray<Readonly<PlantData>>;
+  public plantData: Readonly<PlantData>[] = [];
   // private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
   // private _lastSearch$: Observable<GbifOccurrence[]> = this._lastUnfilteredSearch$.pipe(
   //   //HACK gets all the non copies of plants
@@ -94,11 +94,15 @@ export class HomeComponent {
     this.columns = width / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER);
   }
 
+  public clearData(searchStart: boolean): void{
+    if(searchStart)
+      this.plantData = [];
+  }
+
   public updatePlantData(plantData: ReadonlyArray<Readonly<PlantData>>) {
     // TODO maybe by catching the event emitted via search or differently somehow idk. if i did clear it on search initialization, it would be easy to collect batches until next 
     // TODO calculate avg number of items on screen using variables above + added buffer of items to decide batch size and load what fills the page
     // TODO add awareness of when the search is going off vs when its just adding batches from the last search
-
-    this.plantData = plantData;
+    this.plantData.push(...plantData);
   }
 }

@@ -1,5 +1,5 @@
 <nav-bar>
-    <plant-search (filteredData)="updatePlantData($event)" style="width:100%"></plant-search>
+    <plant-search (filteredDataBatch)="updatePlantData($event)" (filterInProgress$)="clearData($event)" style="width:100%"></plant-search>
 </nav-bar>
 
 <body class="container" id="container">

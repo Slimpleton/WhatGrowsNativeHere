@@ -48,7 +48,7 @@ export class PlantSearchComponent implements OnDestroy {
   }
 
   private _ngDestroy$: Subject<void> = new Subject<void>();
-  public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
+  @Output() public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
 
   public _countyName: string = '';
   public get countyName(): string {
@@ -73,6 +73,7 @@ export class PlantSearchComponent implements OnDestroy {
   ]).pipe(
     tap(() => this.filterInProgress$.next(true)),
     switchMap(([growthHabit, combinedFIP, searchString]: [GrowthHabit, string, string]) => this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit)), // TODO handle the batching here somehow?? do i wait for all batches 
+    tap((val) => console.log(val)),
     combineLatestWith(this.sortOptionsEmitter$, this.isSortOptionAlphabeticOrderEmitter$),
     map(([plants, sort, isSortAlphabeticOrder]: [ReadonlyArray<Readonly<PlantData>>, SortOption, boolean]) => {
       const sorted = [...plants].sort((x, y) => {

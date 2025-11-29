@@ -14,7 +14,7 @@ namespace Backend.Controllers
         [HttpGet("plantdata")]
         public async IAsyncEnumerable<PlantData> GetPlantDataAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            await foreach(var item in FileService.PlantData.WithCancellation(cancellationToken))
+            await foreach (var item in FileService.PlantData.WithCancellation(cancellationToken))
                 yield return item;
         }
 
@@ -25,7 +25,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("plantdata/search")]
-        public async IAsyncEnumerable<PlantData[]> SearchForPlantDataAsync( [FromQuery]string combinedFIP, [FromQuery] string? searchString,  [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, [FromQuery] int batchSize = 100, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<PlantData[]> SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, [FromQuery] int batchSize = 100, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var filtered = FileService.PlantData.Where(x => x.CombinedCountyFIPs.Contains(combinedFIP));
             if (growthHabit != null && growthHabit != GrowthHabit.Any)
@@ -33,27 +33,27 @@ namespace Backend.Controllers
                 filtered = filtered.Where(x => x.GrowthHabit.Contains((GrowthHabit)growthHabit));
             }
 
-            if(!String.IsNullOrWhiteSpace(searchString))
+            if (!String.IsNullOrWhiteSpace(searchString))
                 filtered = filtered.Where(x => x.ScientificName.Contains(searchString, StringComparison.OrdinalIgnoreCase) || (x.CommonName != null && x.CommonName.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
 
             var batch = new PlantData[batchSize];
             int count = 0;
-            
+
             await foreach (var item in filtered.WithCancellation(cancellationToken))
             {
                 batch[count++] = item;
-                if(count == batchSize)
+                if (count == batchSize)
                 {
                     yield return batch;   // send batch to client
                     batch = new PlantData[batchSize];
                     count = 0;
                 }
+            }
 
-                if(count > 0)
-                {
-                    Array.Resize(ref batch, count); // send last partial batch
-                    yield return batch;
-                }
+            if (count > 0)
+            {
+                Array.Resize(ref batch, count); // send last partial batch
+                yield return batch;
             }
         }
 

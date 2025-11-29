@@ -1,7 +1,8 @@
 import { Injectable } from "@angular/core";
 import { GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
-import { catchError, map, Observable, of, shareReplay } from "rxjs";
+import { catchError, map, mergeMap, Observable, of, shareReplay, tap } from "rxjs";
+import { fromFetch } from 'rxjs/fetch';
 
 
 @Injectable({
@@ -25,14 +26,57 @@ export class GovPlantsDataService {
     // TODO add batch size param
     public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit): Observable<readonly PlantData[]> {
         const batchSize: number = 100;
-        return this._http.get<PlantData[]>(this._dataUrl + '/search', {
-            params: {
-                searchString,
-                combinedFIP,
-                growthHabit,
-                batchSize
-            }
-        }).pipe(map((vals) => vals.map(GovPlantsDataService.parsePlantData)));
+        const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}&batchSize=${batchSize}`;
+        let batches : PlantData[] = new Array(batchSize);
+
+        // TODO have to use fromFetch and parse line by line/ batch by batch. idk how to split the batches tho
+        // TODO how to read the batches and shit idk man this is tough
+        return fromFetch(apiUrl).pipe(
+            mergeMap(async response => {
+                if(!response.ok)
+                    throw new Error(response.status + ' | ' + response.statusText);
+
+                const reader = response.body!.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                batches = new Array(batchSize);
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+
+                    const chunks = buffer.split('\n');
+                    buffer = chunks.pop()!;
+
+                    for (const chunk of chunks) {
+                        if (chunk.trim().length > 0) {
+                            batches.push(JSON.parse(chunk));
+                        }
+                    }
+                }
+
+                return batches;
+            }),
+            map((vals) => vals.map(GovPlantsDataService.parsePlantData)),
+            tap((val) => console.log(val)),
+
+        );
+        // return this._http.get<PlantData[]>(this._dataUrl + '/search', {
+        //     params: {
+        //         searchString,
+        //         combinedFIP,
+        //         growthHabit,
+        //         batchSize
+        //     },
+        //     responseType: 'text'
+
+        // }).pipe(
+        //     mergeMap(text => {
+
+        //     })
+        //     map((vals) => vals.map(GovPlantsDataService.parsePlantData)));
     }
 
     public get loadNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {
