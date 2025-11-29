@@ -94,6 +94,7 @@ export class HomeComponent {
   }
 
   public updatePlantData(plantData: ReadonlyArray<Readonly<PlantData>>) {
+    // TODO maybe by catching the event emitted via search or differently somehow idk. if i did clear it on search initialization, it would be easy to collect batches until next 
     // TODO add awareness of when the search is going off vs when its just adding batches from the last search
     this.plantData = plantData;
   }
