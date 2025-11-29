@@ -80,8 +80,9 @@ export class HomeComponent {
   // HIGHEST 
   // Remove some of the plants where native data is unsure aka on site it might say not in pfa
   private readonly _MAGIC_MULTIPLIER = 4;
-  public itemSize: string = '96px';
-  public gutterSize: string = '.25em';
+  public readonly itemSize: string = '96px';
+  public readonly gutterSize: string = '.25em';
+  public readonly rowHeightRatio: string = '1.75:1';
   public columns: number = Math.min(window.innerWidth / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER), 6);
 
   public constructor() { }
@@ -95,7 +96,9 @@ export class HomeComponent {
 
   public updatePlantData(plantData: ReadonlyArray<Readonly<PlantData>>) {
     // TODO maybe by catching the event emitted via search or differently somehow idk. if i did clear it on search initialization, it would be easy to collect batches until next 
+    // TODO calculate avg number of items on screen using variables above + added buffer of items to decide batch size and load what fills the page
     // TODO add awareness of when the search is going off vs when its just adding batches from the last search
+
     this.plantData = plantData;
   }
 }

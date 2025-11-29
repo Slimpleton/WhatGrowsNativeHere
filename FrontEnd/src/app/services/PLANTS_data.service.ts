@@ -22,6 +22,7 @@ export class GovPlantsDataService {
         return this._http.get<string[]>(this._dataUrl + '/id');
     }
 
+    // TODO add batch size param
     public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit): Observable<readonly PlantData[]> {
         const batchSize: number = 100;
         return this._http.get<PlantData[]>(this._dataUrl + '/search', {
