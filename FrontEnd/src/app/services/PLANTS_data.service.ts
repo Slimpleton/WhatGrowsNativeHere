@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
-import { catchError, map, mergeMap, Observable, of, shareReplay, tap } from "rxjs";
+import { catchError, map, Observable, of, shareReplay, switchMap, tap } from "rxjs";
 import { fromFetch } from 'rxjs/fetch';
 
 
@@ -25,19 +25,32 @@ export class GovPlantsDataService {
 
     // TODO add batch size param
     public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit): Observable<readonly PlantData[]> {
+        const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}`;
+        let batches = [];
+        // TODO create batches on the dataService side so i dont have to do complex bs parsing lol
         const batchSize: number = 100;
-        const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}&batchSize=${batchSize}`;
-        let batches : PlantData[] = new Array(batchSize);
+        const regex: RegExp = /}(,){/;
 
-        // TODO have to use fromFetch and parse line by line/ batch by batch. idk how to split the batches tho
-        // TODO how to read the batches and shit idk man this is tough
         return fromFetch(apiUrl).pipe(
-            mergeMap(async response => {
-                if(!response.ok)
+            tap(val => console.log(val)),
+            // switchMap((response) => {
+            //     if (!response.ok)
+            //         throw new Error(response.status + ' | ' + response.statusText);
+
+            //     const reader = response.body!.getReader();
+            //     const decoder = new TextDecoder();
+
+            //     while (true) {
+
+            //     }
+
+            // }),
+            // TODO
+            switchMap(async response => {
+                if (!response.ok)
                     throw new Error(response.status + ' | ' + response.statusText);
 
-                const reader = response.body!.getReader();
-                const decoder = new TextDecoder();
+                const reader = response.body!.pipeThrough(new TextDecoderStream).getReader();
                 let buffer = '';
                 batches = new Array(batchSize);
 
@@ -45,11 +58,13 @@ export class GovPlantsDataService {
                     const { done, value } = await reader.read();
                     if (done) break;
 
-                    buffer += decoder.decode(value, { stream: true });
+                    buffer += value;
+                    console.log(buffer);
 
-                    const chunks = buffer.split('\n');
+                    const chunks = buffer.split(regex);
+
                     buffer = chunks.pop()!;
-
+                    console.log(buffer);
                     for (const chunk of chunks) {
                         if (chunk.trim().length > 0) {
                             batches.push(JSON.parse(chunk));
@@ -59,6 +74,7 @@ export class GovPlantsDataService {
 
                 return batches;
             }),
+            tap((val) => console.log(val)),
             map((vals) => vals.map(GovPlantsDataService.parsePlantData)),
             tap((val) => console.log(val)),
 
