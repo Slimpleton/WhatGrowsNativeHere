@@ -11,7 +11,6 @@ namespace Backend.Controllers
     [Route("api/[controller]")]
     public class FileDataController : ControllerBase
     {
-
         [HttpGet("plantdata")]
         public async IAsyncEnumerable<PlantData> GetPlantDataAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -25,8 +24,9 @@ namespace Backend.Controllers
             return await FileService.PlantData.FirstOrDefaultAsync(x => x.AcceptedSymbol == id, cancellationToken: cancellationToken);
         }
 
+        // TODO put sorting back on the backend for streaming purposes
         [HttpGet("plantdata/search")]
-        public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, CancellationToken cancellationToken = default)
+        public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString,[FromQuery]SortOption sortOption, [FromQuery] bool ascending,  [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, CancellationToken cancellationToken = default)
         {
             const string newLine = "\n";
             var filtered = FileService.PlantData.Where(x => x.CombinedCountyFIPs.Contains(combinedFIP));
@@ -40,7 +40,16 @@ namespace Backend.Controllers
 
             Response.ContentType = "application/x-ndjson";
 
-            //await using var writer = new Utf8JsonWriter(Response.BodyWriter, new() { Indented = false });
+            Func<PlantData,string?> selector = sortOption switch
+            {
+                SortOption.CommonName => x => x.CommonName,
+                SortOption.ScientificName => x => x.ScientificName,
+                SortOption.Symbol => x => x.Symbol,
+                _ => x => x.ScientificName
+            };
+
+            filtered = ascending ? filtered.OrderBy(selector) : filtered.OrderByDescending(selector);
+
             await foreach (var item in filtered.WithCancellation(cancellationToken))
             {
                 await JsonSerializer.SerializeAsync(Response.Body, item, options: new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase} ,cancellationToken: cancellationToken);

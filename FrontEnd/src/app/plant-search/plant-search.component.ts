@@ -6,7 +6,7 @@ import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
-import { combineLatest, combineLatestWith, debounceTime, distinctUntilChanged, filter, map, switchMap, takeUntil, tap } from 'rxjs';
+import { combineLatest, debounceTime, distinctUntilChanged, filter, map, switchMap, takeUntil, tap } from 'rxjs';
 import { FileService } from '../services/file.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -69,23 +69,19 @@ export class PlantSearchComponent implements OnDestroy {
   private _fullyFilteredNativePlants: Observable<Readonly<PlantData>[]> = combineLatest([
     this._growthHabitEmitter$,
     this._positionService.countyEmitter$.pipe(map(val => combineCountyFIP(val))),
-    this._search$
+    this._search$,
+    this.sortOptionsEmitter$,
+    this.isSortOptionAlphabeticOrderEmitter$
   ]).pipe(
     tap(() => this.filterInProgress$.next(true)),
-    switchMap(([growthHabit, combinedFIP, searchString]: [GrowthHabit, string, string]) => this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit)), // TODO handle the batching here somehow?? do i wait for all batches 
-    tap((val) => console.log(val)),
-    combineLatestWith(this.sortOptionsEmitter$, this.isSortOptionAlphabeticOrderEmitter$),
-    map(([plants, sort, isSortAlphabeticOrder]: [Readonly<PlantData>[], SortOption, boolean]) => {
-
-      const sorted = plants.sort((x, y) => {
-        const comparison: number = x[sort].localeCompare(y[sort]);
-        return isSortAlphabeticOrder ? comparison : -comparison;
-      });
-      this.filteredDataBatch.emit(sorted);
+    // TODO pass in batch size at some point?
+    switchMap(([growthHabit, combinedFIP, searchString, sortOption, isSortAlphabeticOrder]: [GrowthHabit, string, string, SortOption, boolean]) =>
+      this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, sortOption, isSortAlphabeticOrder)),
+    map((plants: Readonly<PlantData>[]) => {
+      this.filteredDataBatch.emit(plants);
       this.filterInProgress$.next(false);
-      return sorted;
+      return plants;
     }),
-    tap((val) => console.log(val)),
     takeUntil(this._ngDestroy$)
   );
 

@@ -3,6 +3,7 @@ import { GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 import { bufferCount, catchError, defer, from, map, Observable, of, shareReplay, switchMap } from "rxjs";
 import { fromFetch } from 'rxjs/fetch';
+import { SortOption } from "../plant-search/plant-search.component";
 
 
 @Injectable({
@@ -24,9 +25,8 @@ export class GovPlantsDataService {
     }
 
     // TODO add batch size param
-    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit): Observable<Readonly<PlantData>[]> {
-        const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}`;
-        // TODO create batches on the dataService side so i dont have to do complex bs parsing lol
+    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, sortOption: SortOption, isSortAlphabeticOrder: boolean): Observable<Readonly<PlantData>[]> {
+        const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}&sortOption=${sortOption}&ascending=${isSortAlphabeticOrder}`;
         const batchSize: number = 100;
 
         return fromFetch(apiUrl).pipe(
