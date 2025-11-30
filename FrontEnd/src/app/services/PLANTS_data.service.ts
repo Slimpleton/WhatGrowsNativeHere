@@ -39,6 +39,7 @@ export class GovPlantsDataService {
                 const stream: ReadableStream<PlantData> = response.body!.pipeThrough(new TextDecoderStream).pipeThrough(this.ndJsonTransformStream<PlantData>());
                 return this.readableStreamToObservable(stream);
             }),
+            tap((val) => console.log(val)),
             map((val) => GovPlantsDataService.parsePlantData(val)),
             // TODO use bufferCount for batches?
             bufferCount(batchSize),
@@ -70,6 +71,7 @@ export class GovPlantsDataService {
                     while (true) {
                         const { done, value } = await reader.read();
                         if (done) break;
+                        console.log(value);
                         yield value;
                     }
                 } finally {
@@ -92,7 +94,7 @@ export class GovPlantsDataService {
                 for (const line of lines) {
                     if (!line.trim()) continue;
 
-                    const value = line as R;
+                    const value = JSON.parse(line) as R;
                     controller.enqueue(value);
                 }
             },
@@ -100,7 +102,7 @@ export class GovPlantsDataService {
                 const line = leftover.trim();
                 if (!line) return;
 
-                const value = line as R;
+                const value = JSON.parse(line) as R;
                 controller.enqueue(value);
             }
         });

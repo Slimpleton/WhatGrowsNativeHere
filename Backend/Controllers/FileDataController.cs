@@ -26,8 +26,9 @@ namespace Backend.Controllers
         }
 
         [HttpGet("plantdata/search")]
-        public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, CancellationToken cancellationToken = default)
         {
+            const string newLine = "\n";
             var filtered = FileService.PlantData.Where(x => x.CombinedCountyFIPs.Contains(combinedFIP));
             if (growthHabit != null && growthHabit != GrowthHabit.Any)
             {
@@ -39,13 +40,14 @@ namespace Backend.Controllers
 
             Response.ContentType = "application/x-ndjson";
 
+            //await using var writer = new Utf8JsonWriter(Response.BodyWriter, new() { Indented = false });
             await foreach (var item in filtered.WithCancellation(cancellationToken))
             {
-                var json = JsonSerializer.Serialize(item);
-                await Response.WriteAsync(json + "\n", cancellationToken);
+                await JsonSerializer.SerializeAsync(Response.Body, item, cancellationToken: cancellationToken);
+                await Response.WriteAsync(newLine, cancellationToken);
                 await Response.Body.FlushAsync(cancellationToken);
-                //yield return item;
             }
+
         }
 
         [HttpGet("plantdata/id")]
