@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
-import { catchError, map, Observable, of, shareReplay, switchMap, tap } from "rxjs";
+import { bufferCount, catchError, defer, from, map, Observable, of, shareReplay, switchMap, tap } from "rxjs";
 import { fromFetch } from 'rxjs/fetch';
 
 
@@ -26,56 +26,23 @@ export class GovPlantsDataService {
     // TODO add batch size param
     public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit): Observable<readonly PlantData[]> {
         const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}`;
-        let batches = [];
         // TODO create batches on the dataService side so i dont have to do complex bs parsing lol
         const batchSize: number = 100;
-        const regex: RegExp = /}(,){/;
 
         return fromFetch(apiUrl).pipe(
             tap(val => console.log(val)),
-            // switchMap((response) => {
-            //     if (!response.ok)
-            //         throw new Error(response.status + ' | ' + response.statusText);
-
-            //     const reader = response.body!.getReader();
-            //     const decoder = new TextDecoder();
-
-            //     while (true) {
-
-            //     }
-
-            // }),
             // TODO
-            switchMap(async response => {
+            switchMap(response => {
                 if (!response.ok)
                     throw new Error(response.status + ' | ' + response.statusText);
 
-                const reader = response.body!.pipeThrough(new TextDecoderStream).getReader();
-                let buffer = '';
-                batches = new Array(batchSize);
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-
-                    buffer += value;
-                    console.log(buffer);
-
-                    const chunks = buffer.split(regex);
-
-                    buffer = chunks.pop()!;
-                    console.log(buffer);
-                    for (const chunk of chunks) {
-                        if (chunk.trim().length > 0) {
-                            batches.push(JSON.parse(chunk));
-                        }
-                    }
-                }
-
-                return batches;
+                const stream: ReadableStream<PlantData> = response.body!.pipeThrough(new TextDecoderStream).pipeThrough(this.ndJsonTransformStream<PlantData>());
+                return this.readableStreamToObservable(stream);
             }),
-            tap((val) => console.log(val)),
-            map((vals) => vals.map(GovPlantsDataService.parsePlantData)),
+            map((val) => GovPlantsDataService.parsePlantData(val)),
+            // TODO use bufferCount for batches?
+            bufferCount(batchSize),
+            // map((vals) => vals.map(GovPlantsDataService.parsePlantData)),
             tap((val) => console.log(val)),
 
         );
@@ -95,6 +62,51 @@ export class GovPlantsDataService {
         //     map((vals) => vals.map(GovPlantsDataService.parsePlantData)));
     }
 
+    private readableStreamToObservable<T>(stream: ReadableStream<T>): Observable<T> {
+        return defer(() => {
+            const reader = stream.getReader();
+            async function* gen() {
+                try {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        yield value;
+                    }
+                } finally {
+                    reader.releaseLock();
+                }
+            }
+            return from(gen());
+        });
+    }
+
+    private ndJsonTransformStream<R = string>(): TransformStream<string, R> {
+        let leftover = '';
+
+        return new TransformStream<string, R>({
+            transform(chunk, controller) {
+                leftover += chunk;
+                const lines = leftover.split('\n');
+                leftover = lines.pop()!; // keep last incomplete line
+
+                for (const line of lines) {
+                    if (!line.trim()) continue;
+
+                    const value = line as R;
+                    controller.enqueue(value);
+                }
+            },
+            flush(controller) {
+                const line = leftover.trim();
+                if (!line) return;
+
+                const value = line as R;
+                controller.enqueue(value);
+            }
+        });
+    }
+
+
     public get loadNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {
         return this.getAllNativePlantData().pipe(
             shareReplay(1),
@@ -111,6 +123,8 @@ export class GovPlantsDataService {
     private getAllNativePlantData(): Observable<PlantData[]> {
         return this._http.get<PlantData[]>(this._dataUrl).pipe(map(rawPlants => rawPlants.map(GovPlantsDataService.parsePlantData)));
     }
+
+
 
     private static parsePlantData(raw: PlantData) {
         return Object.freeze({

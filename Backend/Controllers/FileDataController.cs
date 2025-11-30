@@ -3,6 +3,7 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace Backend.Controllers
 {
@@ -25,7 +26,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("plantdata/search")]
-        public async IAsyncEnumerable<PlantData> SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var filtered = FileService.PlantData.Where(x => x.CombinedCountyFIPs.Contains(combinedFIP));
             if (growthHabit != null && growthHabit != GrowthHabit.Any)
@@ -36,8 +37,15 @@ namespace Backend.Controllers
             if (!String.IsNullOrWhiteSpace(searchString))
                 filtered = filtered.Where(x => x.ScientificName.Contains(searchString, StringComparison.OrdinalIgnoreCase) || (x.CommonName != null && x.CommonName.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
 
+            Response.ContentType = "application/x-ndjson";
+
             await foreach (var item in filtered.WithCancellation(cancellationToken))
-                yield return item;
+            {
+                var json = JsonSerializer.Serialize(item);
+                await Response.WriteAsync(json + "\n", cancellationToken);
+                await Response.Body.FlushAsync(cancellationToken);
+                //yield return item;
+            }
         }
 
         [HttpGet("plantdata/id")]
