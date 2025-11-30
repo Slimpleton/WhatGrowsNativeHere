@@ -66,7 +66,7 @@ export class PlantSearchComponent implements OnDestroy {
   );
 
   // Using a combineLatest to combine multiple state changes at once for filtering easy
-  private _fullyFilteredNativePlants: Observable<ReadonlyArray<Readonly<PlantData>>> = combineLatest([
+  private _fullyFilteredNativePlants: Observable<Readonly<PlantData>[]> = combineLatest([
     this._growthHabitEmitter$,
     this._positionService.countyEmitter$.pipe(map(val => combineCountyFIP(val))),
     this._search$
@@ -75,8 +75,9 @@ export class PlantSearchComponent implements OnDestroy {
     switchMap(([growthHabit, combinedFIP, searchString]: [GrowthHabit, string, string]) => this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit)), // TODO handle the batching here somehow?? do i wait for all batches 
     tap((val) => console.log(val)),
     combineLatestWith(this.sortOptionsEmitter$, this.isSortOptionAlphabeticOrderEmitter$),
-    map(([plants, sort, isSortAlphabeticOrder]: [ReadonlyArray<Readonly<PlantData>>, SortOption, boolean]) => {
-      const sorted = [...plants].sort((x, y) => {
+    map(([plants, sort, isSortAlphabeticOrder]: [Readonly<PlantData>[], SortOption, boolean]) => {
+
+      const sorted = plants.sort((x, y) => {
         const comparison: number = x[sort].localeCompare(y[sort]);
         return isSortAlphabeticOrder ? comparison : -comparison;
       });
@@ -84,6 +85,7 @@ export class PlantSearchComponent implements OnDestroy {
       this.filterInProgress$.next(false);
       return sorted;
     }),
+    tap((val) => console.log(val)),
     takeUntil(this._ngDestroy$)
   );
 

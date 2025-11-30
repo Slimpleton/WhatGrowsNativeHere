@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
-import { bufferCount, catchError, defer, from, map, Observable, of, shareReplay, switchMap, tap } from "rxjs";
+import { bufferCount, catchError, defer, from, map, Observable, of, shareReplay, switchMap } from "rxjs";
 import { fromFetch } from 'rxjs/fetch';
 
 
@@ -24,14 +24,12 @@ export class GovPlantsDataService {
     }
 
     // TODO add batch size param
-    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit): Observable<readonly PlantData[]> {
+    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit): Observable<Readonly<PlantData>[]> {
         const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}`;
         // TODO create batches on the dataService side so i dont have to do complex bs parsing lol
         const batchSize: number = 100;
 
         return fromFetch(apiUrl).pipe(
-            tap(val => console.log(val)),
-            // TODO
             switchMap(response => {
                 if (!response.ok)
                     throw new Error(response.status + ' | ' + response.statusText);
@@ -39,28 +37,9 @@ export class GovPlantsDataService {
                 const stream: ReadableStream<PlantData> = response.body!.pipeThrough(new TextDecoderStream).pipeThrough(this.ndJsonTransformStream<PlantData>());
                 return this.readableStreamToObservable(stream);
             }),
-            tap((val) => console.log(val)),
             map((val) => GovPlantsDataService.parsePlantData(val)),
-            // TODO use bufferCount for batches?
             bufferCount(batchSize),
-            // map((vals) => vals.map(GovPlantsDataService.parsePlantData)),
-            tap((val) => console.log(val)),
-
         );
-        // return this._http.get<PlantData[]>(this._dataUrl + '/search', {
-        //     params: {
-        //         searchString,
-        //         combinedFIP,
-        //         growthHabit,
-        //         batchSize
-        //     },
-        //     responseType: 'text'
-
-        // }).pipe(
-        //     mergeMap(text => {
-
-        //     })
-        //     map((vals) => vals.map(GovPlantsDataService.parsePlantData)));
     }
 
     private readableStreamToObservable<T>(stream: ReadableStream<T>): Observable<T> {
@@ -71,7 +50,6 @@ export class GovPlantsDataService {
                     while (true) {
                         const { done, value } = await reader.read();
                         if (done) break;
-                        console.log(value);
                         yield value;
                     }
                 } finally {

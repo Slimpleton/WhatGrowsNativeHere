@@ -43,7 +43,7 @@ namespace Backend.Controllers
             //await using var writer = new Utf8JsonWriter(Response.BodyWriter, new() { Indented = false });
             await foreach (var item in filtered.WithCancellation(cancellationToken))
             {
-                await JsonSerializer.SerializeAsync(Response.Body, item, cancellationToken: cancellationToken);
+                await JsonSerializer.SerializeAsync(Response.Body, item, options: new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase} ,cancellationToken: cancellationToken);
                 await Response.WriteAsync(newLine, cancellationToken);
                 await Response.Body.FlushAsync(cancellationToken);
             }
