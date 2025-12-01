@@ -24,7 +24,6 @@ namespace Backend.Controllers
             return await FileService.PlantData.FirstOrDefaultAsync(x => x.AcceptedSymbol == id, cancellationToken: cancellationToken);
         }
 
-        // TODO put sorting back on the backend for streaming purposes
         [HttpGet("plantdata/search")]
         public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString,[FromQuery]SortOption sortOption, [FromQuery] bool ascending,  [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, CancellationToken cancellationToken = default)
         {
@@ -73,8 +72,7 @@ namespace Backend.Controllers
                 yield return item;
         }
 
-        // TODO implement geolocation thru ip address checks via https://www.nuget.org/packages/MaxMind.GeoIP2
-        // this allows for loading data before angular has fully bootstrapped ^ skip delivering all county info when its not needed as well 
+        // TODO use geoip-lite with angular ssr to convert to using ip address to get fip and then ssr can be done for indexing / super fast loads 
 
         [HttpGet("counties")]
         public async IAsyncEnumerable<CountyCSVItem> GetCountiesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
