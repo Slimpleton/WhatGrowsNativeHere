@@ -73,6 +73,9 @@ namespace Backend.Controllers
                 yield return item;
         }
 
+        // TODO implement geolocation thru ip address checks via https://www.nuget.org/packages/MaxMind.GeoIP2
+        // this allows for loading data before angular has fully bootstrapped ^ skip delivering all county info when its not needed as well 
+
         [HttpGet("counties")]
         public async IAsyncEnumerable<CountyCSVItem> GetCountiesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
