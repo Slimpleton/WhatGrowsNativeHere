@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from "@angular/core";
-import { combineLatestWith, map, Observable, pipe, shareReplay, Subject, takeUntil, UnaryFunction } from "rxjs";
+import { combineLatestWith, map, Observable, pipe, shareReplay, Subject, switchMap, takeUntil, UnaryFunction } from "rxjs";
 import { CountyCSVItem, StateCSVItem } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
 
@@ -20,6 +20,8 @@ export class FileService implements OnDestroy {
         shareReplay(),
         takeUntil(this._destroy$));
 
+
+
     public get counties$(): Observable<CountyCSVItem[]> {
         return this._counties$;
     }
@@ -37,16 +39,13 @@ export class FileService implements OnDestroy {
 
     // kinda a lotta data for slow internet
     // TODO make more like the other apis
-    public getCountyCSVItemAsync(): UnaryFunction<Observable<string>, Observable<CountyCSVItem | undefined>> {
+    public getCountyCSVItemAsync(): UnaryFunction<Observable<string>, Observable<CountyCSVItem | null>> {
         return pipe(
-            combineLatestWith(this.counties$), // todo query dont take the whole damn thing,
-            //then figure out how to cache each queried one
-            // tap(([_, counties]) => console.log(counties)),
-            map(([fip, counties]: [string, CountyCSVItem[]]) => {
+            switchMap((fip: string) => {
                 const stateFip = parseInt(fip.substring(0, 2));
                 const countyFip = fip.substring(2);
-                return counties.find(x => x.countyFip == countyFip && x.stateFip == stateFip);
-            })
+                return this._client.get<CountyCSVItem | null>(this._countyUrl + '/' + stateFip + '/' + countyFip)
+            }),
         );
     }
 

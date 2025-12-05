@@ -81,6 +81,12 @@ namespace Backend.Controllers
                 yield return item;
         }
 
+        [HttpGet("counties/{stateFip}/{countyFip}")]
+        public async Task<ActionResult<CountyCSVItem?>> GetCounty(short stateFip, string countyFip, CancellationToken cancellationToken = default)
+        {
+            return Ok(await FileService.Counties.FirstOrDefaultAsync(x => x.CountyFip == countyFip && x.StateFip == stateFip, cancellationToken));
+        }
+
 
     }
 }

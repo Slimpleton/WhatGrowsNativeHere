@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
-import { bufferCount, catchError, defer, from, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { bufferCount, catchError, map, Observable, of, shareReplay, switchMap } from "rxjs";
 import { fromFetch } from 'rxjs/fetch';
 import { SortOption } from "../plant-search/plant-search.component";
 

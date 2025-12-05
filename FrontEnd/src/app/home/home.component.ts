@@ -56,7 +56,6 @@ export class HomeComponent {
   // TODO possibly use webcrawlers to gather information about local flora using more local websites?? 
 
   // MEDIUM 
-  // TODO on search, might be cool to scrape the web for results on most common name associated with scientific name if i cant find an official mapping 
   // TODO make a calflora service cuz their db is extensive possibly with many records
   // TODO use d3-geo / us-atlas maps to display gbif occurence data and other occurence data??? 
   // TODO use inaturalist api for occurrences as well, research grade only, use for occurrences because its community driven
@@ -68,27 +67,14 @@ export class HomeComponent {
   // TODO make a reader for the gbif occurrence download records
   // TODO use d3-geo and us-atlas to display maps of the geo locations
   // Maps are drawn on canvas btw its not like ur unfamiliar with it
-  // TODO create indexing file so that searching via common name / scientific name / symbol be fast as fuck boi
-  // TODO better home screen scaling
 
-
-  // TODO use server side prerendering and  https://angular.dev/guide/ssr && https://angular.dev/guide/hydration to work to get the results of searches prerendered in html, therefore allowing better indexing / search times
-  // TODO  different index files ??? one for each search variant? can execute all separately on the same file and combine the results ?? <- only good when ssr and prerender and hyrdation
-  // I think we do this by analyzing how many different combinations of letters exist within the name??? 
-  // i dont fully remember but it was probably a hashmap of letter groups to symbols would work
-  //
-
-  // HIGHEST 
-  // Remove some of the plants where native data is unsure aka on site it might say not in pfa
   private readonly _MAGIC_MULTIPLIER = 4;
   public readonly itemSize: string = '96px';
   public readonly gutterSize: string = '.25em';
   public readonly rowHeightRatio: string = '1.75:1';
 
-  // TODO remove window 
   public columns: number = NaN;
-
-  public constructor(@Inject(PLATFORM_ID) private readonly _platformId: Object) {
+  public constructor(@Inject(PLATFORM_ID) private readonly _platformId: object) {
     afterNextRender({
       write: () => {
         if (isPlatformBrowser(this._platformId)) {
@@ -102,7 +88,6 @@ export class HomeComponent {
   @HostListener('screen.orientation.change', ['$event'])
   @HostListener('window:resize', ['$event'])
   onResizeOrRotate(event: Event) {
-    // TODO remove window
     if (isPlatformBrowser(this._platformId)) {
       const width = (event.target as Window).innerWidth;
       this.columns = width / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER);
@@ -115,10 +100,8 @@ export class HomeComponent {
   }
 
   public updatePlantData(plantData: ReadonlyArray<Readonly<PlantData>>) {
-    // TODO maybe by catching the event emitted via search or differently somehow idk. if i did clear it on search initialization, it would be easy to collect batches until next 
     // TODO calculate avg number of items on screen using variables above + added buffer of items to decide batch size and load what fills the page
-    // TODO add awareness of when the search is going off vs when its just adding batches from the last search
-    // this.plantData.push(...plantData);
+
     this.plantData = [...this.plantData, ...plantData];
     console.log(this.plantData, plantData);
   }

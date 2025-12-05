@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-  import * as USCounties from 'us-atlas/counties-10m.json';
+import * as USCounties from 'us-atlas/counties-10m.json';
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';// With your type declaration from earlier:
 import { County, CountyCSVItem, StateCSVItem, StateInfo } from '../models/gov/models';
@@ -50,7 +50,7 @@ export class StateGeometryService {
 
         return of(county.id).pipe(
           this._fipsFileService.getCountyCSVItemAsync(),
-          map((countyItem: CountyCSVItem | undefined) => countyItem ? countyItem as County : null),
+          map((countyItem: CountyCSVItem | null) => countyItem ? countyItem as County : null),
         );
       }));
   }

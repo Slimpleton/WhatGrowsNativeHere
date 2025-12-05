@@ -76,7 +76,7 @@ export class CountyMapComponent {
   @ViewChild('mapCanvas') private readonly _canvas!: ElementRef<HTMLCanvasElement>;
 
   // TODO canvas cannot draw on angular ssr, if we switch to a plain svg drawn to an image and attach event listeners to diff areas, that would work for ssr  
-  public constructor(@Inject(PLATFORM_ID) private readonly _platformId: Object, private readonly _positionService: PositionService, public readonly fileService: FileService) {
+  public constructor(@Inject(PLATFORM_ID) private readonly _platformId: object, private readonly _positionService: PositionService, public readonly fileService: FileService) {
     if (isPlatformBrowser(this._platformId))
       afterNextRender({
         write: () => {
