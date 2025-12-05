@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { afterNextRender, AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import * as us from 'us-atlas/counties-albers-10m.json';
@@ -16,7 +16,7 @@ import { FormsModule } from "@angular/forms";
   templateUrl: './county-map.component.html',
   styleUrl: './county-map.component.css'
 })
-export class CountyMapComponent implements AfterViewInit {
+export class CountyMapComponent {
   private readonly _destroy$: Subject<void> = new Subject<void>();
   public combineCountyFIP = combineCountyFIP;
   private readonly _usa: any = us;
@@ -75,34 +75,35 @@ export class CountyMapComponent implements AfterViewInit {
   @ViewChild('mapCanvas') private readonly _canvas!: ElementRef<HTMLCanvasElement>;
 
   public constructor(private readonly _positionService: PositionService, public readonly fileService: FileService) {
-  }
+    afterNextRender({
+      write: () => {
+        const context = this._canvas.nativeElement.getContext('2d');
+        if (!context)
+          return;
 
-  public ngAfterViewInit(): void {
-    const context = this._canvas.nativeElement.getContext('2d');
-    if (!context)
-      return;
+        this.handleCanvasClick();
 
-    this.handleCanvasClick();
+        const path = d3.geoPath(null, context);
+        context.lineJoin = "round";
+        context.lineCap = "round";
 
-    const path = d3.geoPath(null, context);
-    context.lineJoin = "round";
-    context.lineCap = "round";
+        this.drawEntireMap(context, path);
 
-    this.drawEntireMap(context, path);
-
-    this._positionService.countyEmitter$.pipe(
-      filter((x) => x != null),
-      map((county) => {
-        const fip: string = combineCountyFIP(county);
-        this._selectedStateFIP = county.stateFip;
-        this._selectedCountyFIP = fip;
-        this.drawCountyLine(context, path, fip);
-        return fip;
-      }),
-      this.fileService.getCountyCSVItemAsync(),
-      tap((county) => this.countyName = county?.countyName),
-      takeUntil(this._destroy$)
-    ).subscribe();
+        this._positionService.countyEmitter$.pipe(
+          filter((x) => x != null),
+          map((county) => {
+            const fip: string = combineCountyFIP(county);
+            this._selectedStateFIP = county.stateFip;
+            this._selectedCountyFIP = fip;
+            this.drawCountyLine(context, path, fip);
+            return fip;
+          }),
+          this.fileService.getCountyCSVItemAsync(),
+          tap((county) => this.countyName = county?.countyName),
+          takeUntil(this._destroy$)
+        ).subscribe();
+      }
+    });
   }
 
   private handleCanvasClick() {
@@ -110,7 +111,6 @@ export class CountyMapComponent implements AfterViewInit {
       const x: number = ev.offsetX;
       const y: number = ev.offsetY;
       console.log(x, y);
-
     });
   }
 

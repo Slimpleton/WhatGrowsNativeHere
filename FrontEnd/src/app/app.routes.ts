@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 import { inject } from '@angular/core';
 import { GovPlantsDataService } from './services/PLANTS_data.service';
 
-enum Route {
+export enum Route {
     mapRoute = 'map',
     searchRoute = 'search',
     plantRawRoute = 'plant/raw/:id'

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostListener } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, HostListener, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -7,6 +7,7 @@ import { PlantData } from '../models/gov/models';
 import { MatIconModule } from '@angular/material/icon';
 import { PlantTileComponent } from '../plant-tile/plant-tile.component';
 import { NavBarComponent } from '../nav-bar/nav-bar.component';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -83,15 +84,29 @@ export class HomeComponent {
   public readonly itemSize: string = '96px';
   public readonly gutterSize: string = '.25em';
   public readonly rowHeightRatio: string = '1.75:1';
-  public columns: number = Math.min(window.innerWidth / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER), 6);
 
-  public constructor() { }
+  // TODO remove window 
+  public columns: number = NaN;
+
+  public constructor(@Inject(PLATFORM_ID) private readonly _platformId: Object) {
+    afterNextRender({
+      write: () => {
+        if (isPlatformBrowser(this._platformId)) {
+          this.columns = Math.min(window.innerWidth / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER), 6)
+        }
+      }
+    });
+  }
+
 
   @HostListener('screen.orientation.change', ['$event'])
   @HostListener('window:resize', ['$event'])
   onResizeOrRotate(event: Event) {
-    const width = (event.target as Window).innerWidth;
-    this.columns = width / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER);
+    // TODO remove window
+    if (isPlatformBrowser(this._platformId)) {
+      const width = (event.target as Window).innerWidth;
+      this.columns = width / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER);
+    }
   }
 
   public clearData(searchStart: boolean): void {
