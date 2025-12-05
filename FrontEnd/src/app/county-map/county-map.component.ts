@@ -1,4 +1,4 @@
-import { afterNextRender, Component, ElementRef, Inject, PLATFORM_ID, ViewChild } from '@angular/core';
+import { afterNextRender, AfterViewInit, Component, ElementRef, Inject, PLATFORM_ID, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import * as us from 'us-atlas/counties-albers-10m.json';
@@ -17,7 +17,7 @@ import { TranslocoModule } from '@jsverse/transloco';
   templateUrl: './county-map.component.html',
   styleUrl: './county-map.component.css'
 })
-export class CountyMapComponent {
+export class CountyMapComponent implements AfterViewInit {
   private readonly _destroy$: Subject<void> = new Subject<void>();
   public combineCountyFIP = combineCountyFIP;
   private readonly _usa: any = us;
@@ -76,7 +76,8 @@ export class CountyMapComponent {
   @ViewChild('mapCanvas') private readonly _canvas!: ElementRef<HTMLCanvasElement>;
 
   // TODO canvas cannot draw on angular ssr, if we switch to a plain svg drawn to an image and attach event listeners to diff areas, that would work for ssr  
-  public constructor(@Inject(PLATFORM_ID) private readonly _platformId: object, private readonly _positionService: PositionService, public readonly fileService: FileService) {
+  public constructor(@Inject(PLATFORM_ID) private readonly _platformId: object, private readonly _positionService: PositionService, public readonly fileService: FileService) { }
+  public ngAfterViewInit(): void {
     if (isPlatformBrowser(this._platformId))
       afterNextRender({
         write: () => {
@@ -84,7 +85,11 @@ export class CountyMapComponent {
           if (!context)
             return;
 
-          this.handleCanvasClick();
+          this._canvas.nativeElement.addEventListener('click', (ev: MouseEvent) => {
+            const x: number = ev.offsetX;
+            const y: number = ev.offsetY;
+            console.log(x, y);
+          });
 
           const path = d3.geoPath(null, context);
           context.lineJoin = "round";
@@ -109,13 +114,6 @@ export class CountyMapComponent {
       });
   }
 
-  private handleCanvasClick() {
-    this._canvas.nativeElement.addEventListener('click', (ev: MouseEvent) => {
-      const x: number = ev.offsetX;
-      const y: number = ev.offsetY;
-      console.log(x, y);
-    });
-  }
 
   private drawEntireMap(context: CanvasRenderingContext2D, path: d3.GeoPath<any, d3.GeoPermissibleObjects>) {
     context.beginPath();

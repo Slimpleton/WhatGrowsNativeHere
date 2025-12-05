@@ -16,11 +16,10 @@ export class FileService implements OnDestroy {
         shareReplay(),
         takeUntil(this._destroy$));
 
+    // TODO Large list, consider fromFetch for streaming 
     private readonly _counties$: Observable<CountyCSVItem[]> = this._client.get<CountyCSVItem[]>(this._countyUrl).pipe(
         shareReplay(),
         takeUntil(this._destroy$));
-
-
 
     public get counties$(): Observable<CountyCSVItem[]> {
         return this._counties$;
@@ -37,8 +36,6 @@ export class FileService implements OnDestroy {
         );
     }
 
-    // kinda a lotta data for slow internet
-    // TODO make more like the other apis
     public getCountyCSVItemAsync(): UnaryFunction<Observable<string>, Observable<CountyCSVItem | null>> {
         return pipe(
             switchMap((fip: string) => {
