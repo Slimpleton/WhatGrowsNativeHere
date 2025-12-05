@@ -4,7 +4,7 @@ import { routes } from './app.routes';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { TranslocoHttpLoader } from './transloco-loader';
 import { provideTransloco } from '@jsverse/transloco';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideClientHydration, withEventReplay, withIncrementalHydration } from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes, withComponentInputBinding()), provideHttpClient(withFetch()), provideTransloco({
@@ -16,5 +16,5 @@ export const appConfig: ApplicationConfig = {
           prodMode: !isDevMode(),
         },
         loader: TranslocoHttpLoader
-      }), provideClientHydration(withEventReplay())]
+      }), provideClientHydration(withIncrementalHydration())]
 };

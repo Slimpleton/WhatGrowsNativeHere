@@ -2,10 +2,10 @@
     <div class="nav-bar__container">
         <h1>
             @if(countyName !== null){
-            County Selected: {{countyName}}
+                {{'COUNTY_MAP.COUNTY_SELECTED' | transloco}} {{countyName}}
             }
             @else if(countyName === null){
-            Choose a county!
+                {{'COUNTY_MAP.CHOOSE_COUNTY' | transloco}}
             }
         </h1>
         <div style="display: flex; align-items: center;">
