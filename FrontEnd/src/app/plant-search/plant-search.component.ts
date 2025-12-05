@@ -75,6 +75,7 @@ export class PlantSearchComponent implements OnDestroy {
   ]).pipe(
     tap(() => this.filterInProgress$.next(true)),
     // TODO pass in batch size at some point?
+    // TODO each search is not cancelling the last ones stream, figure out how to do that
     switchMap(([growthHabit, combinedFIP, searchString, sortOption, isSortAlphabeticOrder]: [GrowthHabit, string, string, SortOption, boolean]) =>
       this._plantService.searchNativePlantsBatched(searchString, combinedFIP, growthHabit, sortOption, isSortAlphabeticOrder)),
     map((plants: Readonly<PlantData>[]) => {
