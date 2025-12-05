@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # .NET API Backend
+  api:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      # Add your connection strings, API keys, etc.
+    networks:
+      - seedmapper-network
+
+  # Angular Frontend
+  web:
+    build:
+      context: ./FrontEnd
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - seedmapper-network
+
+networks:
+  seedmapper-network:
+    driver: bridge

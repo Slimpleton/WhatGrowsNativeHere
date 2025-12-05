@@ -35,9 +35,12 @@ export class FileService implements OnDestroy {
         );
     }
 
+    // kinda a lotta data for slow internet
+    // TODO make more like the other apis
     public getCountyCSVItemAsync(): UnaryFunction<Observable<string>, Observable<CountyCSVItem | undefined>> {
         return pipe(
-            combineLatestWith(this.counties$),
+            combineLatestWith(this.counties$), // todo query dont take the whole damn thing,
+            //then figure out how to cache each queried one
             // tap(([_, counties]) => console.log(counties)),
             map(([fip, counties]: [string, CountyCSVItem[]]) => {
                 const stateFip = parseInt(fip.substring(0, 2));

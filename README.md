@@ -1,8 +1,4 @@
-# SeedMapper
-SeedMapper aims to be an application that allows users to easily identify plants that are native to their region or a region of their choice
-Using USDA PLANTS database to identify species nativity regions and GBIF Occurrences api to find occurrences of said species in your area 
+# WhatGrowsNativeHere
+A search engine for native plants using USDA Plants Database info and county mapping information to detect where you are and what grows around you 
 
-
-NatureServe. 2025. NatureServe Network Biodiversity Location Data accessed through NatureServe Explorer [web application]. NatureServe, Arlington, Virginia. Available https://explorer.natureserve.org/. (Accessed: 05 25, 2025).
-The NatureServe Network
-![alt text](image.png)
+<img width="2557" height="1313" alt="image" src="https://github.com/user-attachments/assets/afdc9c79-578a-4757-bd77-7a4de3341eb7" />

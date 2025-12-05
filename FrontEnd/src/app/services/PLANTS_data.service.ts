@@ -1,7 +1,9 @@
 import { Injectable } from "@angular/core";
 import { GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
-import { catchError, map, Observable, of, shareReplay } from "rxjs";
+import { bufferCount, catchError, defer, from, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { fromFetch } from 'rxjs/fetch';
+import { SortOption } from "../plant-search/plant-search.component";
 
 
 @Injectable({
@@ -22,15 +24,68 @@ export class GovPlantsDataService {
         return this._http.get<string[]>(this._dataUrl + '/id');
     }
 
-    public searchNativePlants(searchString: string, combinedFIP: string, growthHabit: GrowthHabit): Observable<readonly PlantData[]> {
-        return this._http.get<PlantData[]>(this._dataUrl + '/search', {
-            params: {
-                searchString,
-                combinedFIP,
-                growthHabit
-            }
-        }).pipe(map((vals) => vals.map(GovPlantsDataService.parsePlantData)));
+    // TODO add batch size param
+    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, sortOption: SortOption, isSortAlphabeticOrder: boolean): Observable<Readonly<PlantData>[]> {
+        const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}&sortOption=${sortOption}&ascending=${isSortAlphabeticOrder}`;
+        const batchSize: number = 100;
+
+        return fromFetch(apiUrl).pipe(
+            switchMap(response => {
+                if (!response.ok)
+                    throw new Error(response.status + ' | ' + response.statusText);
+
+                const stream: ReadableStream<PlantData> = response.body!.pipeThrough(new TextDecoderStream).pipeThrough(this.ndJsonTransformStream<PlantData>());
+                return this.readableStreamToObservable(stream);
+            }),
+            map((val) => GovPlantsDataService.parsePlantData(val)),
+            bufferCount(batchSize),
+        );
     }
+
+    private readableStreamToObservable<T>(stream: ReadableStream<T>): Observable<T> {
+        return defer(() => {
+            const reader = stream.getReader();
+            async function* gen() {
+                try {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        yield value;
+                    }
+                } finally {
+                    reader.releaseLock();
+                }
+            }
+            return from(gen());
+        });
+    }
+
+    private ndJsonTransformStream<R = string>(): TransformStream<string, R> {
+        let leftover = '';
+
+        return new TransformStream<string, R>({
+            transform(chunk, controller) {
+                leftover += chunk;
+                const lines = leftover.split('\n');
+                leftover = lines.pop()!; // keep last incomplete line
+
+                for (const line of lines) {
+                    if (!line.trim()) continue;
+
+                    const value = JSON.parse(line) as R;
+                    controller.enqueue(value);
+                }
+            },
+            flush(controller) {
+                const line = leftover.trim();
+                if (!line) return;
+
+                const value = JSON.parse(line) as R;
+                controller.enqueue(value);
+            }
+        });
+    }
+
 
     public get loadNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {
         return this.getAllNativePlantData().pipe(
@@ -48,6 +103,8 @@ export class GovPlantsDataService {
     private getAllNativePlantData(): Observable<PlantData[]> {
         return this._http.get<PlantData[]>(this._dataUrl).pipe(map(rawPlants => rawPlants.map(GovPlantsDataService.parsePlantData)));
     }
+
+
 
     private static parsePlantData(raw: PlantData) {
         return Object.freeze({
