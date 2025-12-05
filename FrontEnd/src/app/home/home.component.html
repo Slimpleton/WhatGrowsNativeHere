@@ -2,7 +2,7 @@
     <plant-search (filteredDataBatch)="updatePlantData($event)" (filterInProgress$)="clearData($event)" style="width:100%"></plant-search>
 </nav-bar>
 
-<body class="container" id="container">
+<section class="container" id="container">
     <article class="result-container" id="gov-container">
         <cdk-virtual-scroll-viewport [itemSize]="itemSize" id="gov-container-scrollport"
             class="gov-container-scrollport">
@@ -14,4 +14,4 @@
             </mat-grid-list>
         </cdk-virtual-scroll-viewport>
     </article>
-</body>
+</section>

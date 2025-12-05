@@ -43,22 +43,33 @@ export class GovPlantsDataService {
     }
 
     private readableStreamToObservable<T>(stream: ReadableStream<T>): Observable<T> {
-        return defer(() => {
+        return new Observable<T>(subscriber => {
             const reader = stream.getReader();
-            async function* gen() {
+            let cancelled = false;
+
+            const read = async () => {
                 try {
-                    while (true) {
+                    while (!cancelled) {
                         const { done, value } = await reader.read();
                         if (done) break;
-                        yield value;
+                        subscriber.next(value);
                     }
-                } finally {
-                    reader.releaseLock();
+                    if (!cancelled) subscriber.complete();
+                } catch (err) {
+                    if (!cancelled) subscriber.error(err);
                 }
-            }
-            return from(gen());
+            };
+
+            read();
+
+            // teardown called on unsubscribe
+            return () => {
+                cancelled = true;
+                reader.cancel();   // <--- this is the crucial bit
+            };
         });
     }
+
 
     private ndJsonTransformStream<R = string>(): TransformStream<string, R> {
         let leftover = '';

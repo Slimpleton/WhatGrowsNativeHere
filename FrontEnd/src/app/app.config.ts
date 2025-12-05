@@ -1,12 +1,13 @@
 import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter, withComponentInputBinding} from '@angular/router';
 import { routes } from './app.routes';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { TranslocoHttpLoader } from './transloco-loader';
 import { provideTransloco } from '@jsverse/transloco';
+import { provideClientHydration, withEventReplay, withIncrementalHydration } from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes, withComponentInputBinding()), provideHttpClient(), provideHttpClient(), provideTransloco({
+  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes, withComponentInputBinding()), provideHttpClient(withFetch()), provideTransloco({
         config: { 
           availableLangs: ['en'],
           defaultLang: 'en',
@@ -15,5 +16,5 @@ export const appConfig: ApplicationConfig = {
           prodMode: !isDevMode(),
         },
         loader: TranslocoHttpLoader
-      })]
+      }), provideClientHydration(withIncrementalHydration())]
 };
