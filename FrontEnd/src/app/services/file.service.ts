@@ -1,37 +1,51 @@
-import { Injectable, OnDestroy } from "@angular/core";
-import { combineLatestWith, map, Observable, pipe, shareReplay, Subject, switchMap, takeUntil, UnaryFunction } from "rxjs";
-import { CountyCSVItem, StateCSVItem } from "../models/gov/models";
+import { Inject, Injectable, makeStateKey, PLATFORM_ID, TransferState } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
+import { isPlatformServer } from "@angular/common";
+import { Observable, of, pipe, UnaryFunction } from "rxjs";
+import { combineLatestWith, map, switchMap, tap } from "rxjs/operators";
+import { CountyCSVItem, StateCSVItem } from "../models/gov/models";
 
-@Injectable({ providedIn: 'root' })
-export class FileService implements OnDestroy {
-    private readonly _destroy$: Subject<void> = new Subject<void>();
-    private readonly _baseUrl: string = 'api/FileData/';
-    private readonly _stateUrl: string = this._baseUrl + 'states';
-    private readonly _countyUrl: string = this._baseUrl + 'counties';
+@Injectable({ providedIn: "root" })
+export class FileService {
+  private readonly _stateUrl = "api/FileData/states";
+  private readonly _countyUrl = "api/FileData/counties";
 
-    public constructor(private readonly _client: HttpClient) { }
+  private readonly STATE_KEY = makeStateKey<StateCSVItem[]>("STATE_CSV_DATA");
+  private readonly COUNTY_KEY = makeStateKey<CountyCSVItem[]>("COUNTY_CSV_DATA");
 
-    private readonly _states$: Observable<StateCSVItem[]> = this._client.get<StateCSVItem[]>(this._stateUrl).pipe(
-        shareReplay(),
-        takeUntil(this._destroy$));
+  public readonly states$: Observable<StateCSVItem[]>;
+  public readonly counties$: Observable<CountyCSVItem[]>;
 
-    // TODO Large list, consider fromFetch for streaming 
-    private readonly _counties$: Observable<CountyCSVItem[]> = this._client.get<CountyCSVItem[]>(this._countyUrl).pipe(
-        shareReplay(),
-        takeUntil(this._destroy$));
+  constructor(
+    private http: HttpClient,
+    private transferState: TransferState,
+    @Inject(PLATFORM_ID)private platformId: Object
+  ) {
+    this.states$ = this.getSSRData<StateCSVItem[]>(this.STATE_KEY, this._stateUrl);
+    this.counties$ = this.getSSRData<CountyCSVItem[]>(this.COUNTY_KEY, this._countyUrl);
+  }
 
-    public get counties$(): Observable<CountyCSVItem[]> {
-        return this._counties$;
+  private getSSRData<T>(key: any, url: string): Observable<T> {
+    // Client: If SSR already transferred the data → don't re-fetch
+    if (this.transferState.hasKey(key)) {
+      return of(this.transferState.get(key, null as any));
     }
 
-    public get states$(): Observable<StateCSVItem[]> {
-        return this._states$;
-    }
+    // Server: Fetch and store in TransferState
+    return this.http.get<T>(url).pipe(
+      tap(data => {
+        if (isPlatformServer(this.platformId)) {
+          this.transferState.set(key, data);
+        }
+      })
+    );
+  }
 
-    public getStateCSVItemAsync(): UnaryFunction<Observable<string | number>, Observable<StateCSVItem | undefined>> {
+
+      public getStateCSVItemAsync(): UnaryFunction<Observable<string | number>, Observable<StateCSVItem | undefined>> {
         return pipe(
-            combineLatestWith(this.states$),
+            // TODO fix 
+            combineLatestWith(this.getSSRData<StateCSVItem>(this.STATE_KEY, this._stateUrl)),
             map(([fip, states]: [number | string, StateCSVItem[]]) => states.find(x => x.fip == fip))
         );
     }
@@ -40,14 +54,11 @@ export class FileService implements OnDestroy {
         return pipe(
             switchMap((fip: string) => {
                 const stateFip = parseInt(fip.substring(0, 2));
-                const countyFip = fip.substring(2);
+                const countyFip = fip.substring(2); 
+                // TODO switch to here
                 return this._client.get<CountyCSVItem | null>(this._countyUrl + '/' + stateFip + '/' + countyFip)
             }),
         );
     }
 
-    ngOnDestroy(): void {
-        this._destroy$.next();
-        this._destroy$.complete();
-    }
 }
