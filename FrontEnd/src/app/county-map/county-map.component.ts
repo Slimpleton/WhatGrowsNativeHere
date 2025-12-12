@@ -1,4 +1,4 @@
-import { afterNextRender, AfterViewInit, Component, ElementRef, Inject, PLATFORM_ID, ViewChild } from '@angular/core';
+import { afterNextRender, AfterViewInit, Component, ElementRef, Inject, Injector, PLATFORM_ID, runInInjectionContext, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import * as us from 'us-atlas/counties-albers-10m.json';
@@ -76,42 +76,45 @@ export class CountyMapComponent implements AfterViewInit {
   @ViewChild('mapCanvas') private readonly _canvas!: ElementRef<HTMLCanvasElement>;
 
   // TODO canvas cannot draw on angular ssr, if we switch to a plain svg drawn to an image and attach event listeners to diff areas, that would work for ssr  
-  public constructor(@Inject(PLATFORM_ID) private readonly _platformId: object, private readonly _positionService: PositionService, public readonly fileService: FileService) { }
+  public constructor(@Inject(PLATFORM_ID) private readonly _platformId: object, private readonly _positionService: PositionService, private readonly _injector: Injector,
+    public readonly fileService: FileService) { }
   public ngAfterViewInit(): void {
-    if (isPlatformBrowser(this._platformId))
-      afterNextRender({
-        write: () => {
-          const context = this._canvas.nativeElement.getContext('2d');
-          if (!context)
-            return;
+    runInInjectionContext(this._injector, () => {
+      if (isPlatformBrowser(this._platformId))
+        afterNextRender({
+          write: () => {
+            const context = this._canvas.nativeElement.getContext('2d');
+            if (!context)
+              return;
 
-          this._canvas.nativeElement.addEventListener('click', (ev: MouseEvent) => {
-            const x: number = ev.offsetX;
-            const y: number = ev.offsetY;
-            console.log(x, y);
-          });
+            this._canvas.nativeElement.addEventListener('click', (ev: MouseEvent) => {
+              const x: number = ev.offsetX;
+              const y: number = ev.offsetY;
+              console.log(x, y);
+            });
 
-          const path = d3.geoPath(null, context);
-          context.lineJoin = "round";
-          context.lineCap = "round";
+            const path = d3.geoPath(null, context);
+            context.lineJoin = "round";
+            context.lineCap = "round";
 
-          this.drawEntireMap(context, path);
+            this.drawEntireMap(context, path);
 
-          this._positionService.countyEmitter$.pipe(
-            filter((x) => x != null),
-            map((county) => {
-              const fip: string = combineCountyFIP(county);
-              this._selectedStateFIP = county.stateFip;
-              this._selectedCountyFIP = fip;
-              this.drawCountyLine(context, path, fip);
-              return fip;
-            }),
-            this.fileService.getCountyCSVItemAsync(),
-            tap((county) => this.countyName = county?.countyName),
-            takeUntil(this._destroy$)
-          ).subscribe();
-        }
-      });
+            this._positionService.countyEmitter$.pipe(
+              filter((x) => x != null),
+              map((county) => {
+                const fip: string = combineCountyFIP(county);
+                this._selectedStateFIP = county.stateFip;
+                this._selectedCountyFIP = fip;
+                this.drawCountyLine(context, path, fip);
+                return fip;
+              }),
+              this.fileService.getCountyCSVItemAsync(),
+              tap((county) => this.countyName = county?.countyName),
+              takeUntil(this._destroy$)
+            ).subscribe();
+          }
+        });
+    })
   }
 
 

@@ -1,4 +1,4 @@
-import { Inject, Injectable, makeStateKey, PLATFORM_ID, TransferState } from "@angular/core";
+import { Inject, Injectable, makeStateKey, PLATFORM_ID, StateKey, TransferState } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { isPlatformServer } from "@angular/common";
 import { Observable, of, pipe, UnaryFunction } from "rxjs";
@@ -9,56 +9,62 @@ import { CountyCSVItem, StateCSVItem } from "../models/gov/models";
 export class FileService {
   private readonly _stateUrl = "api/FileData/states";
   private readonly _countyUrl = "api/FileData/counties";
+  private readonly STATES_KEY = makeStateKey<StateCSVItem[]>("STATE_CSV_DATA");
+  private readonly COUNTIES_KEY = makeStateKey<CountyCSVItem[]>("COUNTY_CSV_DATA");
+  private readonly COUNTY_KEY = makeStateKey<CountyCSVItem>('COUNTY_CSV_DATUM');
 
-  private readonly STATE_KEY = makeStateKey<StateCSVItem[]>("STATE_CSV_DATA");
-  private readonly COUNTY_KEY = makeStateKey<CountyCSVItem[]>("COUNTY_CSV_DATA");
-
-  public readonly states$: Observable<StateCSVItem[]>;
-  public readonly counties$: Observable<CountyCSVItem[]>;
-
-  constructor(
-    private http: HttpClient,
-    private transferState: TransferState,
-    @Inject(PLATFORM_ID)private platformId: Object
-  ) {
-    this.states$ = this.getSSRData<StateCSVItem[]>(this.STATE_KEY, this._stateUrl);
-    this.counties$ = this.getSSRData<CountyCSVItem[]>(this.COUNTY_KEY, this._countyUrl);
+  public get states$(): Observable<StateCSVItem[]> {
+    return this.getSSRData<StateCSVItem[]>(this.STATES_KEY, this._stateUrl);
+  };
+  public get counties$(): Observable<CountyCSVItem[]> {
+    return this.getSSRData<CountyCSVItem[]>(this.COUNTIES_KEY, this._countyUrl);
   }
 
-  private getSSRData<T>(key: any, url: string): Observable<T> {
+  public county$(stateFip: string | number, countyFip: string): Observable<CountyCSVItem> {
+    const url = this._countyUrl + '/' + stateFip + '/' + countyFip;
+    return this.getSSRData<CountyCSVItem>(this.COUNTY_KEY, url);
+  }
+
+
+  constructor(
+    private readonly _http: HttpClient,
+    private readonly _transferState: TransferState,
+    @Inject(PLATFORM_ID) private readonly _platformId: Object
+  ) {
+  }
+
+  private getSSRData<T>(key: StateKey<T>, url: string): Observable<T> {
     // Client: If SSR already transferred the data → don't re-fetch
-    if (this.transferState.hasKey(key)) {
-      return of(this.transferState.get(key, null as any));
+    if (this._transferState.hasKey(key)) {
+      return of(this._transferState.get(key, null as any));
     }
 
     // Server: Fetch and store in TransferState
-    return this.http.get<T>(url).pipe(
-      tap(data => {
-        if (isPlatformServer(this.platformId)) {
-          this.transferState.set(key, data);
+    return this._http.get<T>(url).pipe(
+      tap((data) => {
+        if (isPlatformServer(this._platformId)) {
+          this._transferState.set(key, data);
         }
       })
     );
   }
 
 
-      public getStateCSVItemAsync(): UnaryFunction<Observable<string | number>, Observable<StateCSVItem | undefined>> {
-        return pipe(
-            // TODO fix 
-            combineLatestWith(this.getSSRData<StateCSVItem>(this.STATE_KEY, this._stateUrl)),
-            map(([fip, states]: [number | string, StateCSVItem[]]) => states.find(x => x.fip == fip))
-        );
-    }
+  public getStateCSVItemAsync(): UnaryFunction<Observable<string | number>, Observable<StateCSVItem | undefined>> {
+    return pipe(
+      combineLatestWith(this.states$),
+      map(([fip, states]: [number | string, StateCSVItem[]]) => states.find(x => x.fip == fip))
+    );
+  }
 
-    public getCountyCSVItemAsync(): UnaryFunction<Observable<string>, Observable<CountyCSVItem | null>> {
-        return pipe(
-            switchMap((fip: string) => {
-                const stateFip = parseInt(fip.substring(0, 2));
-                const countyFip = fip.substring(2); 
-                // TODO switch to here
-                return this._client.get<CountyCSVItem | null>(this._countyUrl + '/' + stateFip + '/' + countyFip)
-            }),
-        );
-    }
+  public getCountyCSVItemAsync(): UnaryFunction<Observable<string>, Observable<CountyCSVItem | null>> {
+    return pipe(
+      switchMap((fip: string) => {
+        const stateFip = parseInt(fip.substring(0, 2));
+        const countyFip = fip.substring(2);
+        return this.county$(stateFip, countyFip);
+      }),
+    );
+  }
 
 }
