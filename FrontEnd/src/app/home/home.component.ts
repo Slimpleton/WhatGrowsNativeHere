@@ -41,7 +41,6 @@ export class HomeComponent {
   //   return aggregate;
   // }, [] as GbifOccurrence[]),
 
-  // TODO search each species to ensure its native somehow using gbif service again
   // TODO the socal area used to belong to the tongva people. visit the tongva community garden in pomona to learn more
   // shareReplay(1)
   // );
@@ -51,10 +50,6 @@ export class HomeComponent {
   // }
 
   // PRIORITIES 
-
-  // LOW 
-  // TODO possibly use webcrawlers to gather information about local flora using more local websites?? 
-
   // MEDIUM 
   // TODO make a calflora service cuz their db is extensive possibly with many records
   // TODO use d3-geo / us-atlas maps to display gbif occurence data and other occurence data??? 
@@ -65,7 +60,8 @@ export class HomeComponent {
 
   // HIGH 
   // TODO make a reader for the gbif occurrence download records
-  // TODO use d3-geo and us-atlas to display maps of the geo locations
+  // TODO use d3-geo and us-atlas to display maps of the geo locatoins
+  // TODO inaturalist images from occurrences, look for non copyright 
   // Maps are drawn on canvas btw its not like ur unfamiliar with it
 
   private readonly _MAGIC_MULTIPLIER = 4;
@@ -84,7 +80,6 @@ export class HomeComponent {
     });
   }
 
-
   @HostListener('screen.orientation.change', ['$event'])
   @HostListener('window:resize', ['$event'])
   onResizeOrRotate(event: Event) {
@@ -101,8 +96,6 @@ export class HomeComponent {
 
   public updatePlantData(plantData: ReadonlyArray<Readonly<PlantData>>) {
     // TODO calculate avg number of items on screen using variables above + added buffer of items to decide batch size and load what fills the page
-
     this.plantData = [...this.plantData, ...plantData];
-    console.log(this.plantData, plantData);
   }
 }
