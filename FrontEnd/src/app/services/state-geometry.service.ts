@@ -1,24 +1,55 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, makeStateKey, PLATFORM_ID, StateKey, TransferState } from '@angular/core';
 import * as USCounties from 'us-atlas/counties-10m.json';
 import * as topojson from 'topojson-client';
 import { geoContains } from 'd3-geo';// With your type declaration from earlier:
 import { County, CountyCSVItem, StateCSVItem, StateInfo } from '../models/gov/models';
 import { FileService } from './file.service';
-import { forkJoin, map, Observable, of, pipe, switchMap, UnaryFunction } from 'rxjs';
+import { defer, forkJoin, tap, map, Observable, of, pipe, switchMap, UnaryFunction } from 'rxjs';
+import { isPlatformServer } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
 })
-export class StateGeometryService {
-  private usStates: any;
-  private usCounties: any;
 
-  constructor(private readonly _fipsFileService: FileService) {
-    // Convert TopoJSON to GeoJSON for US states
-    this.usStates = topojson.feature(USCounties as any, (USCounties as any).objects.states);
-    this.usCounties = topojson.feature(USCounties as any, (USCounties as any).objects.counties);
+// TODO convert this to ssr somehow rip
+export class StateGeometryService {
+  private readonly statesKey: StateKey<any> = makeStateKey('GEOMETRY_STATES_KEY');
+  private readonly countiesKey: StateKey<any> = makeStateKey('GEOMETRY_COUNTIES_KEY');
+
+  private get usStates(): any {
+    return this.getSSRData(this.statesKey);
   }
 
+  private get usCounties(): any {
+    return this.getSSRData(this.countiesKey);
+  }
+
+  constructor(private readonly _fipsFileService: FileService, @Inject(PLATFORM_ID) private readonly _platformId: object, private readonly _transferState: TransferState,
+  ) {
+    // Convert TopoJSON to GeoJSON for US states
+    // this.usStates = topojson.feature(USCounties as any, (USCounties as any).objects.states);
+    // this.usCounties = topojson.feature(USCounties as any, (USCounties as any).objects.counties);
+  }
+
+  private getSSRData<T>(key: StateKey<T>): Observable<T> {
+    // Client: If SSR already transferred the data → don't re-fetch
+    if (this._transferState.hasKey(key)) {
+      return of(this._transferState.get(key, null as any));
+    }
+
+    const obs$ = (key == this.statesKey) ?
+      defer(() => import('us-atlas/states-10m.json')) :
+      defer(() => import('us-atlas/counties-10m.json'));
+    return obs$.pipe(
+      tap((data: any) => {
+        if (isPlatformServer(this._platformId)) {
+          const objectName = key === this.statesKey ? 'states' : 'counties';
+          this._transferState.set(key, topojson.feature(data as any, (data as any).objects[objectName]) as any);
+        }
+      }));
+  }
+
+  // TODO swap to ssr compat
   findUSStateAsync(): UnaryFunction<Observable<GeolocationPosition>, Observable<StateInfo | null>> {
     return pipe(
       switchMap((pos: GeolocationPosition) => {
@@ -41,6 +72,7 @@ export class StateGeometryService {
       }));
   }
 
+  // TODO swap to ssr compat
   public findUSCountyAsync(): UnaryFunction<Observable<GeolocationPosition>, Observable<County | null>> {
     return pipe(
       switchMap((pos: GeolocationPosition) => {

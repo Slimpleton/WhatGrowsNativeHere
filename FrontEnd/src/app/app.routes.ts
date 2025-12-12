@@ -1,7 +1,5 @@
 import { ActivatedRouteSnapshot, RedirectCommand, ResolveData, ResolveFn, Router, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { CountyMapComponent } from './county-map/county-map.component';
-import { PlantOverviewComponent } from './plant-overview/plant-overview.component';
 import { PlantData } from './models/gov/models';
 import { of } from 'rxjs';
 import { inject } from '@angular/core';
@@ -9,7 +7,7 @@ import { GovPlantsDataService } from './services/PLANTS_data.service';
 
 export enum Route {
     mapRoute = 'map',
-    searchRoute = 'search',
+    searchRoute = '',
     plantRawRoute = 'plant/raw/:id'
 };
 
@@ -41,25 +39,20 @@ export type PlantOverviewRouteData = {
 
 export const routes: Routes = [
     {
-        path: '',
-        pathMatch: 'prefix',
-        redirectTo: () => {
-            // TODO figure out how to navigate if no emission from positionService
-            // const posService: PositionService = inject(PositionService);
-            return (navigator.geolocation) ? Route.searchRoute : Route.mapRoute
-        }
-    },
-    {
         path: Route.searchRoute,
-        component: HomeComponent
+        component: HomeComponent,
+        canMatch: [() => {
+            const hasGeo = typeof navigator !== 'undefined' && navigator.geolocation;
+            return hasGeo ? true : Route.mapRoute;
+        }]
     },
     {
         path: Route.mapRoute,
-        component: CountyMapComponent,
+        loadComponent: () =>import('./county-map/county-map.component').then(x => x.CountyMapComponent),
     },
     {
         path: Route.plantRawRoute,
-        component: PlantOverviewComponent,
+        loadComponent: () => import('./plant-overview/plant-overview.component').then(x => x.PlantOverviewComponent),
         resolve: <PlantOverviewResolveData>{
             plant: plantOverviewResolver
         },

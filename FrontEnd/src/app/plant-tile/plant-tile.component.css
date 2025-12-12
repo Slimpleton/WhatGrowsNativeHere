@@ -76,7 +76,11 @@ h4 {
 
 .last-row{
     display:inline-flex;
-    justify-content: space-between;
+    gap:1.5em;
     margin-top: auto;
     align-content: center;
+}
+
+.search-icon{
+    transform: translateY(.5em);
 }
