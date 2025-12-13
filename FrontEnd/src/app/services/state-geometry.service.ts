@@ -1,59 +1,28 @@
-import { Inject, Injectable, makeStateKey, PLATFORM_ID, StateKey, TransferState } from '@angular/core';
-import * as USCounties from 'us-atlas/counties-10m.json';
 import * as topojson from 'topojson-client';
-import { geoContains } from 'd3-geo';// With your type declaration from earlier:
+import * as USCountiesData from 'us-atlas/counties-10m.json';
+import { geoContains } from 'd3-geo';
 import { County, CountyCSVItem, StateCSVItem, StateInfo } from '../models/gov/models';
-import { FileService } from './file.service';
-import { defer, forkJoin, tap, map, Observable, of, pipe, switchMap, UnaryFunction } from 'rxjs';
-import { isPlatformServer } from '@angular/common';
+import { forkJoin, map, Observable, of, pipe, switchMap, UnaryFunction } from 'rxjs';
+import { FileServiceServer } from './fileService/file.service.server';
 
-@Injectable({
-  providedIn: 'root'
-})
+export type Position = [latitude: number, longitude: number];
 
-// TODO convert this to ssr somehow rip
 export class StateGeometryService {
-  private readonly statesKey: StateKey<any> = makeStateKey('GEOMETRY_STATES_KEY');
-  private readonly countiesKey: StateKey<any> = makeStateKey('GEOMETRY_COUNTIES_KEY');
+  private readonly usStates: any[];
+  private readonly usCounties: any[];
 
-  private get usStates(): any {
-    return this.getSSRData(this.statesKey);
+  // TODO do i need platform checks? not sure
+  constructor(private readonly _fipsFileService: FileServiceServer) {
+    // Convert once at construction time
+    const data = USCountiesData as any;
+    this.usStates = (topojson.feature(data, data.objects.states) as any).features as any[];
+    this.usCounties = (topojson.feature(data, data.objects.counties) as any).features as any[];
   }
 
-  private get usCounties(): any {
-    return this.getSSRData(this.countiesKey);
-  }
-
-  constructor(private readonly _fipsFileService: FileService, @Inject(PLATFORM_ID) private readonly _platformId: object, private readonly _transferState: TransferState,
-  ) {
-    // Convert TopoJSON to GeoJSON for US states
-    // this.usStates = topojson.feature(USCounties as any, (USCounties as any).objects.states);
-    // this.usCounties = topojson.feature(USCounties as any, (USCounties as any).objects.counties);
-  }
-
-  private getSSRData<T>(key: StateKey<T>): Observable<T> {
-    // Client: If SSR already transferred the data → don't re-fetch
-    if (this._transferState.hasKey(key)) {
-      return of(this._transferState.get(key, null as any));
-    }
-
-    const obs$ = (key == this.statesKey) ?
-      defer(() => import('us-atlas/states-10m.json')) :
-      defer(() => import('us-atlas/counties-10m.json'));
-    return obs$.pipe(
-      tap((data: any) => {
-        if (isPlatformServer(this._platformId)) {
-          const objectName = key === this.statesKey ? 'states' : 'counties';
-          this._transferState.set(key, topojson.feature(data as any, (data as any).objects[objectName]) as any);
-        }
-      }));
-  }
-
-  // TODO swap to ssr compat
-  findUSStateAsync(): UnaryFunction<Observable<GeolocationPosition>, Observable<StateInfo | null>> {
+  findUSStateAsync(): UnaryFunction<Observable<Position>, Observable<StateInfo | null>> {
     return pipe(
-      switchMap((pos: GeolocationPosition) => {
-        const state: any | null = (this.usStates.features as any[]).find((x: any) => this.isPointInFeature([pos.coords.longitude, pos.coords.latitude], x));
+      switchMap((pos: Position) => {
+        const state: any | null = this.usStates.find((x: any) => this.isPointInFeature(pos, x));
         if (state == undefined || state == null)
           return of(null);
 
@@ -72,11 +41,10 @@ export class StateGeometryService {
       }));
   }
 
-  // TODO swap to ssr compat
-  public findUSCountyAsync(): UnaryFunction<Observable<GeolocationPosition>, Observable<County | null>> {
+  public findUSCountyAsync(): UnaryFunction<Observable<Position>, Observable<County | null>> {
     return pipe(
-      switchMap((pos: GeolocationPosition) => {
-        const county: any | null = (this.usCounties.features as any[]).find((x: any) => this.isPointInFeature([pos.coords.longitude, pos.coords.latitude], x));
+      switchMap((pos: Position) => {
+        const county: any | null = this.usCounties.find((x: any) => this.isPointInFeature(pos, x));
         if (county == undefined || county == null)
           return of(null);
 
@@ -93,7 +61,7 @@ export class StateGeometryService {
    * @param feature GeoJSON feature
    * @returns boolean
    */
-  private isPointInFeature(point: [number, number], feature: any): boolean {
+  private isPointInFeature(point: Position, feature: any): boolean {
     try {
       // Handle different geometry types
       if (feature.geometry.type === 'Polygon') {

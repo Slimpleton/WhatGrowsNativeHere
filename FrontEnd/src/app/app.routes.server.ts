@@ -13,5 +13,9 @@ export const serverRoutes: ServerRoute[] = [
   {
     path: Route.mapRoute,
     renderMode: RenderMode.Server
+  },
+  {
+    path: Route.plantRawRoute,
+    renderMode: RenderMode.Server
   }
 ];

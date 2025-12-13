@@ -6,11 +6,48 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import { FileServiceServer } from './app/services/fileService/file.service.server';
+import { Position, StateGeometryService } from './app/services/state-geometry.service';
+import { firstValueFrom, of } from 'rxjs';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+
+
+const fileService = new FileServiceServer();
+const geomService = new StateGeometryService(fileService);
+
+app.post('/api/geolocation/state', async (req, res) => {
+  const pos: Position = req.body
+  try {
+    console.log(req);
+    const state = await firstValueFrom(
+      of(pos).pipe(geomService.findUSStateAsync())
+    );
+
+    res.json({ state });
+  } catch (error) {
+    console.error('State lookup error:', error);
+    res.status(500).json({ error: 'State lookup failed' });
+  }
+});
+
+app.post('/api/geolocation/county', async (req, res) => {
+  const pos: Position = req.body
+  try {
+    console.log(req);
+    const county = await firstValueFrom(
+      of(pos).pipe(geomService.findUSCountyAsync())
+    );
+
+    res.json({ county });
+  } catch (error) {
+    console.error('County lookup error:', error);
+    res.status(500).json({ error: 'County lookup failed' });
+  }
+});
 
 /**
  * Example Express Rest API endpoints can be defined here.

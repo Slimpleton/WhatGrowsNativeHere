@@ -5,11 +5,14 @@
     "ng": "ng",
     "start": "ng serve",
     "start-ssl": "ng serve --ssl",
+    "start:dev": "npm run start && npm run build && npm run serve:ssr:PlantMapper",
     "lint": "npx eslint --fix",
+    "watch:ssr": "ng build --watch --configuration development && npm run serve:ssr:PlantMapper",
     "build": "ng build",
+    "build:ssr": "ng build && ng run PlantMapper:server:development",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:PlantMapper": "node dist/plant-mapper/server/server.mjs"
+    "serve:ssr:PlantMapper": "node dist/seed-mapper/server/server.mjs"
   },
   "private": true,
   "dependencies": {

@@ -3,10 +3,11 @@ import { HttpClient } from "@angular/common/http";
 import { isPlatformServer } from "@angular/common";
 import { Observable, of, pipe, UnaryFunction } from "rxjs";
 import { combineLatestWith, map, switchMap, tap } from "rxjs/operators";
-import { CountyCSVItem, StateCSVItem } from "../models/gov/models";
+import { CountyCSVItem, StateCSVItem } from "../../models/gov/models";
+import { IFileService } from "./ifile-service";
 
 @Injectable({ providedIn: "root" })
-export class FileService {
+export class FileService implements IFileService {
   private readonly _stateUrl = "api/FileData/states";
   private readonly _countyUrl = "api/FileData/counties";
   private readonly STATES_KEY = makeStateKey<StateCSVItem[]>("STATE_CSV_DATA");
@@ -29,7 +30,7 @@ export class FileService {
   constructor(
     private readonly _http: HttpClient,
     private readonly _transferState: TransferState,
-    @Inject(PLATFORM_ID) private readonly _platformId: Object
+    @Inject(PLATFORM_ID) private readonly _platformId: object
   ) {
   }
 

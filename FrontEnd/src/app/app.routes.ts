@@ -48,7 +48,7 @@ export const routes: Routes = [
     },
     {
         path: Route.mapRoute,
-        loadComponent: () =>import('./county-map/county-map.component').then(x => x.CountyMapComponent),
+        loadComponent: () => import('./county-map/county-map.component').then(x => x.CountyMapComponent),
     },
     {
         path: Route.plantRawRoute,
