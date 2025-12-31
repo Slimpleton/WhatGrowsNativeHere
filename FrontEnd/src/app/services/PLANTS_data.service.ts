@@ -25,6 +25,9 @@ export class GovPlantsDataService {
     }
 
     // TODO add batch size param
+    // TODO add batch index param 
+    // TODO store url, batch index, and batch in map for in-memory cache
+
     public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, sortOption: SortOption, isSortAlphabeticOrder: boolean): Observable<Readonly<PlantData>[]> {
         const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}&sortOption=${sortOption}&ascending=${isSortAlphabeticOrder}`;
         const batchSize: number = 100;
