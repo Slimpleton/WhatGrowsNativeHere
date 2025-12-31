@@ -13,39 +13,48 @@ import { firstValueFrom, of } from 'rxjs';
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+app.use(express.json());
 
+const angularApp = new AngularNodeAppEngine();
 
 const fileService = new FileServiceServer();
 const geomService = new StateGeometryService(fileService);
 
 app.post('/api/geolocation/state', async (req, res) => {
   const pos: Position = req.body
+  if (!pos || pos.length !== 2) {
+    return res.status(400).json({ error: 'Invalid coords' });
+  }
+
   try {
     console.log(req);
     const state = await firstValueFrom(
       of(pos).pipe(geomService.findUSStateAsync())
     );
 
-    res.json({ state });
+    return res.json({ state });
   } catch (error) {
     console.error('State lookup error:', error);
-    res.status(500).json({ error: 'State lookup failed' });
+    return res.status(500).json({ error: 'State lookup failed' });
   }
 });
 
 app.post('/api/geolocation/county', async (req, res) => {
   const pos: Position = req.body
+  if (!pos || pos.length !== 2) {
+    return res.status(400).json({ error: 'Invalid coords', pos });
+  }
+
   try {
     console.log(req);
     const county = await firstValueFrom(
       of(pos).pipe(geomService.findUSCountyAsync())
     );
 
-    res.json({ county });
+    return res.json({ county });
   } catch (error) {
     console.error('County lookup error:', error);
-    res.status(500).json({ error: 'County lookup failed' });
+    return res.status(500).json({ error: 'County lookup failed' });
   }
 });
 

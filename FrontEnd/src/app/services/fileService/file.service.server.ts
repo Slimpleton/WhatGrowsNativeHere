@@ -1,22 +1,22 @@
 // app/services/file.service.server.ts
 import { Observable, from, pipe, UnaryFunction, switchMap, map } from 'rxjs';
 import { CountyCSVItem, StateCSVItem } from '../../models/gov/models';
-import { environment } from '../../../environments/environment.prod';
+// import { environment } from '../../../environments/environment.prod';
 import { IFileService } from './ifile-service';
 
 export class FileServiceServer implements IFileService {
-    private readonly baseUrl: string;
+    private readonly _baseUrl: string;
     private statesCache: StateCSVItem[] | null = null;
     private countiesCache: Map<string, CountyCSVItem> = new Map();
 
     constructor() {
-        this.baseUrl = environment.apiUrl || 'http://localhost:5000';
+        this._baseUrl = 'http://localhost:5273/api';
     }
 
     private async fetchStates(): Promise<StateCSVItem[]> {
         if (this.statesCache) return this.statesCache;
 
-        const response = await fetch(`${this.baseUrl}/api/FileData/states`);
+        const response = await fetch(`${this._baseUrl}/FileData/states`);
         if (!response.ok) {
             throw new Error(`Failed to fetch states: ${response.statusText}`);
         }
@@ -30,7 +30,7 @@ export class FileServiceServer implements IFileService {
             return this.countiesCache.get(key)!;
         }
 
-        const response = await fetch(`${this.baseUrl}/api/FileData/counties/${stateFip}/${countyFip}`);
+        const response = await fetch(`${this._baseUrl}/FileData/counties/${stateFip}/${countyFip}`);
         if (!response.ok) {
             throw new Error(`Failed to fetch county: ${response.statusText}`);
         }

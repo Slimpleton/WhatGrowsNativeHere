@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import * as topojson from 'topojson-client';
 import * as USCountiesData from 'us-atlas/counties-10m.json';
 import { geoContains } from 'd3-geo';
@@ -5,7 +7,7 @@ import { County, CountyCSVItem, StateCSVItem, StateInfo } from '../models/gov/mo
 import { forkJoin, map, Observable, of, pipe, switchMap, UnaryFunction } from 'rxjs';
 import { FileServiceServer } from './fileService/file.service.server';
 
-export type Position = [latitude: number, longitude: number];
+export type Position = [longitude: number, latitude: number];
 
 export class StateGeometryService {
   private readonly usStates: any[];
