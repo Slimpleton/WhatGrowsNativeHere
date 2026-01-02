@@ -1,5 +1,6 @@
 <nav-bar>
-    <plant-search (filteredDataBatch)="updatePlantData($event)" (filterInProgress$)="clearData($event)" style="width:100%"></plant-search>
+    <plant-search (filteredDataBatch)="updatePlantData($event)" (filterInProgress$)="clearData($event)"
+        style="width:100%"></plant-search>
 </nav-bar>
 
 <section class="container" id="container">
@@ -9,7 +10,9 @@
             <mat-grid-list [cols]="columns" [rowHeight]="rowHeightRatio" [gutterSize]="gutterSize" class="plant-list">
                 <mat-grid-tile *cdkVirtualFor="let plant of plantData; let i = index;"
                     class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">
-                    <plant-tile class="plant-holder" [plant]="plant"></plant-tile>
+                    @defer(prefetch on idle){
+                        <plant-tile class="plant-holder" [plant]="plant"></plant-tile>
+                    }
                 </mat-grid-tile>
             </mat-grid-list>
         </cdk-virtual-scroll-viewport>

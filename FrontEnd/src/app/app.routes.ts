@@ -40,7 +40,7 @@ export type PlantOverviewRouteData = {
 export const routes: Routes = [
     {
         path: Route.searchRoute,
-        component: HomeComponent,
+        loadComponent: () => import('./home/home.component').then(x => x.HomeComponent),
         canMatch: [() => {
             const hasGeo = typeof navigator !== 'undefined' && navigator.geolocation;
             return hasGeo ? true : Route.mapRoute;
