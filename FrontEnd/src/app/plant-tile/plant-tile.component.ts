@@ -8,6 +8,7 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { PicSearchIconComponent } from "../pic-search-icon/pic-search-icon.component";
 import { MatButtonModule } from "@angular/material/button";
 import { Router } from '@angular/router';
+import { PlantOverviewRouteData } from '../app.routes';
 
 @Component({
   selector: 'plant-tile',
@@ -33,6 +34,6 @@ export class PlantTileComponent {
   }
 
   public openInfoPage(plant: PlantData) {
-    this._router.navigate(['plant/raw/' + plant.acceptedSymbol]);
+    this._router.navigate(['plant/raw/' + plant.acceptedSymbol], {state: <PlantOverviewRouteData>{ plant }});
   }
 }

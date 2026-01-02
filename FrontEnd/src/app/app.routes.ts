@@ -27,14 +27,13 @@ const plantOverviewResolver: ResolveFn<Readonly<PlantData> | RedirectCommand> = 
     return inject(GovPlantsDataService).getPlantById(acceptedSymbol);
 };
 
-type UnwrapResolveFn<T> = T extends ResolveFn<infer U> ? U : T;
 
 export interface PlantOverviewResolveData extends ResolveData {
     plant: ResolveFn<PlantData>;
 }
 
 export type PlantOverviewRouteData = {
-    [K in keyof PlantOverviewResolveData]: UnwrapResolveFn<PlantOverviewResolveData[K]>
+    plant: PlantData
 };
 
 export const routes: Routes = [

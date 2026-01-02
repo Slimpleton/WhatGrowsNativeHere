@@ -7,14 +7,15 @@
     <article class="result-container" id="gov-container">
         <cdk-virtual-scroll-viewport [itemSize]="itemSize" id="gov-container-scrollport"
             class="gov-container-scrollport">
+            @defer(prefetch on idle){
+                <!-- TODO replace mat-grid-list with a css grid for performance -->
             <mat-grid-list [cols]="columns" [rowHeight]="rowHeightRatio" [gutterSize]="gutterSize" class="plant-list">
                 <mat-grid-tile *cdkVirtualFor="let plant of plantData; let i = index;"
                     class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">
-                    @defer(prefetch on idle){
                         <plant-tile class="plant-holder" [plant]="plant"></plant-tile>
-                    }
-                </mat-grid-tile>
-            </mat-grid-list>
+                    </mat-grid-tile>
+                </mat-grid-list>
+            }
         </cdk-virtual-scroll-viewport>
     </article>
 </section>
