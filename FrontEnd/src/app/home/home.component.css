@@ -1,14 +1,10 @@
-:root {
-  --item-size: 5em;
+:host {
+  --item-height: 248px;
 }
 
 .container {
-  background-color:  var(--wood-brown);
+  background-color: var(--wood-brown);
   height: calc(100vh - var(--nav-bar--total-height));
-}
-
-.result-container {
-  height: inherit;
 }
 
 @supports (scrollbar-color: auto) {
@@ -27,12 +23,24 @@
   }
 }
 
-.gov-container-scrollport, .plant-holder {
+.plant-grid {
+  display: grid;
   width: 100%;
   height: 100%;
+  place-items: center;
 }
 
-/* .plant-holder, */
-.positional-plant-result-container {
-  height: var(--item-size);
+.gov-container-scrollport{
+  width: 100%;
+ height: calc(100vh - var(--nav-bar--total-height));
+}
+
+.plant-tile-container {
+  height: var(--item-height); /* or dynamically set via variable for smaller screens */
+}
+
+.plant-holder{
+  display: inline-block;
+  height: var(--item-height);
+  width: 100%;
 }

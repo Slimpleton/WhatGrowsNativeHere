@@ -4,18 +4,12 @@
 </nav-bar>
 
 <section class="container" id="container">
-    <article class="result-container" id="gov-container">
-        <cdk-virtual-scroll-viewport [itemSize]="itemSize" id="gov-container-scrollport"
-            class="gov-container-scrollport">
-            @defer(prefetch on idle){
-                <!-- TODO replace mat-grid-list with a css grid for performance -->
-            <mat-grid-list [cols]="columns" [rowHeight]="rowHeightRatio" [gutterSize]="gutterSize" class="plant-list">
-                <mat-grid-tile *cdkVirtualFor="let plant of plantData; let i = index;"
-                    class="positional-plant-result-container" id="positional-plant-result-container-{{i}}">
-                        <plant-tile class="plant-holder" [plant]="plant"></plant-tile>
-                    </mat-grid-tile>
-                </mat-grid-list>
-            }
-        </cdk-virtual-scroll-viewport>
-    </article>
+    @defer(prefetch on idle){
+    <cdk-virtual-scroll-viewport id="gov-container-scrollport" [itemSize]="itemSize / columns" [maxBufferPx]="itemSize * 12"
+        [minBufferPx]="itemSize * 8" class="gov-container-scrollport">
+        <div class="plant-grid" [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'" [style.gap.px]="gutterSize">
+            <plant-tile *cdkVirtualFor="let plant of plantData; trackBy: trackByPlant" class="plant-holder" [plant]="plant"></plant-tile>
+        </div>
+    </cdk-virtual-scroll-viewport>
+    }
 </section>
