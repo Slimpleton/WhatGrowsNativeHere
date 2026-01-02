@@ -20,5 +20,6 @@
         "COUNTY_SELECTED":"County Selected:"
     },
     "NATIVE_PLANTS_IN": "Native Plants In ",
-    "SEARCHBAR_PLACEHOLDER": "e.g. Lupinus agardhianus, Apache plume,...,"
+    "SEARCHBAR_PLACEHOLDER": "e.g. Lupinus agardhianus, Apache plume,...,",
+    "PLANT_OVERVIEW_HEADER": "Plant Overview of {{plantCommonName}} aka {{plantScientificName}}"
 }

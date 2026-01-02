@@ -1,5 +1,6 @@
-<article class="container">
+<section class="container">
     @if(plant() !== null){
+    <h1 class="header">{{'PLANT_OVERVIEW_HEADER' | transloco: {plantCommonName: plant().commonName | titlecase, plantScientificName: plant().scientificName | titlecase} }}</h1>
     <pre class="text">{{plant() | json}}</pre>
     }
-</article>
+</section>

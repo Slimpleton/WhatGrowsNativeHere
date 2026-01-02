@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { MatIconModule } from '@angular/material/icon';
 import { ShadyIconComponent } from '../shady-icon/shady-icon.component';
@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 import { PlantOverviewRouteData } from '../app.routes';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-tile',
   imports: [MatIconModule, ShadyIconComponent, TitleCasePipe, UpperCasePipe, TranslocoModule, PicSearchIconComponent, MatButtonModule],
   templateUrl: './plant-tile.component.html',

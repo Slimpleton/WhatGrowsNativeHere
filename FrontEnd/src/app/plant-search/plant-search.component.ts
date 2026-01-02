@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { combineCountyFIP, GrowthHabit, PlantData } from '../models/gov/models';
 import { Subject } from 'rxjs/internal/Subject';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
@@ -16,6 +16,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-search',
   imports: [AsyncPipe, MatIconModule, MatButtonModule, MatSelectModule, TranslocoPipe, UpperCasePipe],
   templateUrl: './plant-search.component.html',
