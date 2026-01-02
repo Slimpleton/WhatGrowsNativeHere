@@ -25,7 +25,12 @@
                 "glob": "**/*",
                 "input": "public"
               },
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "*.json",
+                "input": "node_modules/us-atlas",
+                "output": "assets/us-atlas"
+              }
             ],
             "styles": [
               "src/custom-theme.scss",

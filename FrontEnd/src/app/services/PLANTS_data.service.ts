@@ -5,7 +5,6 @@ import { bufferCount, catchError, map, Observable, of, shareReplay, switchMap } 
 import { fromFetch } from 'rxjs/fetch';
 import { SortOption } from "../plant-search/plant-search.component";
 
-
 @Injectable({
     providedIn: 'root'
 })
@@ -73,7 +72,6 @@ export class GovPlantsDataService {
         });
     }
 
-
     private ndJsonTransformStream<R = string>(): TransformStream<string, R> {
         let leftover = '';
 
@@ -100,7 +98,6 @@ export class GovPlantsDataService {
         });
     }
 
-
     public get loadNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {
         return this.getAllNativePlantData().pipe(
             shareReplay(1),
@@ -117,8 +114,6 @@ export class GovPlantsDataService {
     private getAllNativePlantData(): Observable<PlantData[]> {
         return this._http.get<PlantData[]>(this._dataUrl).pipe(map(rawPlants => rawPlants.map(GovPlantsDataService.parsePlantData)));
     }
-
-
 
     private static parsePlantData(raw: PlantData) {
         return Object.freeze({
