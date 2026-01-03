@@ -27,7 +27,7 @@ export class PlantSearchComponent implements OnDestroy {
   private _growthHabitEmitter$: Subject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
   private _isSortOptionAlphabeticOrderEmitter$: Subject<boolean> = new BehaviorSubject<boolean>(true);
-  private readonly _searchDebounceTime: number = 400;
+  private readonly _searchDebounceTimeMs: number = 300;
 
   private get isSortOptionAlphabeticOrderEmitter$(): Observable<boolean> {
     return this._isSortOptionAlphabeticOrderEmitter$.asObservable();
@@ -62,7 +62,7 @@ export class PlantSearchComponent implements OnDestroy {
   private _searchStarter$: Subject<string> = new Subject<string>();
   private _userSearchStarter$: Subject<string> = new Subject<string>();
   private get userSearchStarter$(): Observable<string> {
-    return this._userSearchStarter$.pipe(debounceTime(this._searchDebounceTime));
+    return this._userSearchStarter$.pipe(debounceTime(this._searchDebounceTimeMs));
   }
   private _search$: Observable<string> = merge(this.userSearchStarter$, this._searchStarter$).pipe(distinctUntilChanged());
 

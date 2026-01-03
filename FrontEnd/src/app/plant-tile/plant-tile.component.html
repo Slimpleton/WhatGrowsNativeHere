@@ -9,18 +9,9 @@
             id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
 
         @if (plant.shadeTolerance !== null) {
-        @switch (plant.shadeTolerance) {
-        @case ('Intermediate') {
-        <mat-icon svgIcon="partly_cloudy_day"></mat-icon>
+        <mat-icon class="shade-tolerance" [svgIcon]="getIconName()"></mat-icon>
         }
-        @case('Intolerant'){
-        <mat-icon svgIcon="sunny"> </mat-icon>
-        }
-        @case('Tolerant'){
-        <mat-icon svgIcon="cloud"></mat-icon>
-        }
-        }
-        }
+
     </span>
     @if(plant.growthHabit.size > 0)
     {
@@ -31,28 +22,27 @@
             </h4> }
 
             @if(plant.activeGrowthPeriod.length > 0){
-
             <h4 class="result-property" id="active-season-{{plant.acceptedSymbol}}">
-                @for (season of plant.activeGrowthPeriod; track $index) {
-                {{season}}{{ $index + 1 < plant.activeGrowthPeriod.length ? ',' : '' }} } </h4>
-                    }
+                {{ plant.activeGrowthPeriod.join(', ') }}
+            </h4>
+            }
 
-                    @if(plant.duration !== null){
-                    <h4 class="result-property" id="duration-{{plant.acceptedSymbol}}">{{getPlantDuration(plant)}}
-                    </h4>
-                    }
+            @if(plant.duration !== null){
+            <h4 class="result-property" id="duration-{{plant.acceptedSymbol}}">{{getPlantDuration()}}
+            </h4>
+            }
 
-                    @if(plant.shapeAndOrientation !== null){
-                    <h4 class="result-property" id="shape-orientation-{{plant.acceptedSymbol}}">
-                        {{plant.shapeAndOrientation}}
-                    </h4>
-                    }
+            @if(plant.shapeAndOrientation !== null){
+            <h4 class="result-property" id="shape-orientation-{{plant.acceptedSymbol}}">
+                {{plant.shapeAndOrientation}}
+            </h4>
+            }
 
-                    <div class="last-row" id="last-row-{{plant.acceptedSymbol}}">
-                        <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}" class="search-icon"
-                            (click)="openImageSearch(plant)"></pic-search-icon>
-                        <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage(plant)">
-                            <mat-icon class="info-icon">question_mark</mat-icon>
-                        </button>
-                    </div>
+            <div class="last-row" id="last-row-{{plant.acceptedSymbol}}">
+                <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}" class="search-icon"
+                    (click)="openImageSearch(plant)"></pic-search-icon>
+                <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage()">
+                    <mat-icon class="info-icon" svgIcon="question_mark"></mat-icon>
+                </button>
+            </div>
 </section>

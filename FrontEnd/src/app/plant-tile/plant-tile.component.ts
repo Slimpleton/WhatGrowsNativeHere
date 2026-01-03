@@ -29,11 +29,22 @@ export class PlantTileComponent {
     window.open(queryUrl, '_blank');
   }
 
-  public getPlantDuration(plant: PlantData): string {
-    return [...plant.duration].join(', ');
+  public getPlantDuration(): string {
+    return [...this.plant.duration].join(', ');
   }
 
-  public openInfoPage(plant: PlantData) {
-    this._router.navigate(['plant/raw/' + plant.acceptedSymbol], { state: <PlantOverviewRouteData>{ plant } });
+  public openInfoPage() {
+    this._router.navigate(['plant/raw/' + this.plant.acceptedSymbol], { state: <PlantOverviewRouteData>{ plant: this.plant } });
+  }
+
+  public getIconName(): string {
+    switch (this.plant.shadeTolerance) {
+      case 'Intermediate':
+        return 'partly_cloudy_day';
+      case 'Intolerant':
+        return 'sunny';
+      case 'Tolerant':
+        return 'cloud';
+    }
   }
 }
