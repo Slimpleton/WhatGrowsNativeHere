@@ -9,7 +9,7 @@ import { IconService } from './services/icon.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
-  title = 'seed-mapper';
+  title = 'what-grows-native-here';
 
   public constructor(private readonly _iconService: IconService) {
   }

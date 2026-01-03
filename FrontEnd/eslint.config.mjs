@@ -8,7 +8,16 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import angular from 'angular-eslint';
 
 export default defineConfig([
-  globalIgnores(['.vscode/**', 'package*.json']),
+  globalIgnores([
+    '.vscode/**',
+    'package*.json',
+    'dist/**',
+    'vite/**',
+    '.angular/**',          // Angular cache
+    '.angular/cache/**',    // specific cache subfolders
+    '**/node_modules/**',   // always ignore deps
+    '**/out-tsc/**',        // compiled TS output
+  ]),
   { files: ["**/*.{js,mjs,cjs,ts,mts,cts}"], plugins: { js }, extends: ["js/recommended"], languageOptions: { globals: globals.browser } },
   {
     files: ['**/*.ts'],

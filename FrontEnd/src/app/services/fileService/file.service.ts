@@ -37,7 +37,7 @@ export class FileService implements IFileService {
   private getSSRData<T>(key: StateKey<T>, url: string): Observable<T> {
     // Client: If SSR already transferred the data → don't re-fetch
     if (this._transferState.hasKey(key)) {
-      return of(this._transferState.get(key, null as any));
+      return of(this._transferState.get(key, null as T));
     }
 
     // Server: Fetch and store in TransferState

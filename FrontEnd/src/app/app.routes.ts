@@ -1,5 +1,4 @@
 import { ActivatedRouteSnapshot, RedirectCommand, ResolveData, ResolveFn, Router, Routes } from '@angular/router';
-import { HomeComponent } from './home/home.component';
 import { PlantData } from './models/gov/models';
 import { of } from 'rxjs';
 import { inject } from '@angular/core';

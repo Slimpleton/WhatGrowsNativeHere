@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "seed-mapper": {
+    "what-grows-native-here": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/seed-mapper",
+            "outputPath": "dist/what-grows-native-here",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [],
@@ -72,10 +72,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "seed-mapper:build:production"
+              "buildTarget": "what-grows-native-here:build:production"
             },
             "development": {
-              "buildTarget": "seed-mapper:build:development"
+              "buildTarget": "what-grows-native-here:build:development"
             }
           },
           "options": {

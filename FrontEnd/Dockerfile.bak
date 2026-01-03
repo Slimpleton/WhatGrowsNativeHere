@@ -12,7 +12,7 @@ RUN npm run build -- --configuration production
 FROM nginx:alpine
 
 # Copy built Angular app
-COPY --from=build /app/dist/seed-mapper /usr/share/nginx/html
+COPY --from=build /app/dist/what-grows-native-here /usr/share/nginx/html
 
 # Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf

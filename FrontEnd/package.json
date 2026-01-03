@@ -1,17 +1,17 @@
 {
-  "name": "seed-mapper",
+  "name": "what-grows-native-here",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "start-ssl": "ng serve --ssl",
     "lint": "npx eslint --fix",
-    "watch:ssr": "ng build --watch --configuration development && npm run serve:ssr:seed-mapper",
+    "watch:ssr": "ng build --watch --configuration development && npm run serve:ssr",
     "build": "ng build",
-    "build:ssr": "ng build && npm run serve:ssr:seed-mapper",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "serve:ssr:seed-mapper": "node dist/seed-mapper/server/server.mjs"
+    "build:ssr": "ng build && npm run serve:ssr",
+    "serve:ssr": "node dist/what-grows-native-here/server/server.mjs",
+    "test": "ng test"
   },
   "private": true,
   "dependencies": {
