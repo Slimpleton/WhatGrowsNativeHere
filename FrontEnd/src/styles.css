@@ -32,8 +32,6 @@
     --nav-bar-padding: .5vh;
     --nav-bar--total-height: calc(var(--nav-bar-height) + var(--nav-bar-padding));
 }
-body{
-    margin: 0;
-}
+
 html, body { height: 100%; }
 body { margin: 0; font-family: 'Helvetica Neue', Helvetica, Arial, 'Roboto', sans-serif; }
