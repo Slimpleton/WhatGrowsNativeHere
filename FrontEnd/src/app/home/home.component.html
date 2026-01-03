@@ -5,7 +5,7 @@
 
 <section class="container" id="container">
     <cdk-virtual-scroll-viewport id="gov-container-scrollport" [itemSize]="itemSize / columns"
-        [maxBufferPx]="itemSize * 12" [minBufferPx]="itemSize * 4" class="gov-container-scrollport">
+        [maxBufferPx]="itemSize * 6" [minBufferPx]="itemSize * 2" class="gov-container-scrollport">
         <div class="plant-grid" [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'"
             [style.gap.px]="gutterSize">
             <plant-tile *cdkVirtualFor="let plant of plantData; trackBy: trackByPlant" class="plant-holder"

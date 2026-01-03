@@ -1,4 +1,6 @@
 using Backend.Services;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.IO.Compression;
 
 namespace Backend
 {
@@ -24,11 +26,22 @@ namespace Backend
             });
 
 
+            builder.Services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+                options.Providers.Add<BrotliCompressionProvider>();
+            });
+
+            builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+            {
+                options.Level = CompressionLevel.Fastest;
+            });
+
             builder.Services.AddControllers();
 
             var app = builder.Build();
 
-
+            app.UseResponseCompression();
             // Configure the HTTP request pipeline.
 
             app.UseHttpsRedirection();
