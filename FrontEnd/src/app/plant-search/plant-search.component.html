@@ -1,15 +1,19 @@
 <section id="plant-search-container">
     <div class="search-container col">
+        <!-- TODO input label -->
         <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
             [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco" class="searchbar">
         <div class="row">
             <div class="col">
+                <!-- TODO input label -->
                 <select name="sortSelector" id="sortSelector" #sortSelector class="selector"
                     (change)="changeSortOption(sortSelector.value)">
                     @for (option of sortOptions; track $index) {
                     <option [value]="option">{{ 'SORT_OPTIONS.' + option | uppercase | transloco}}</option>
                     }
                 </select>
+                <!-- TODO input label -->
+
                 <select (change)="changeGrowthHabit(growthHabitSelector.value)" name="growthHabitSelector"
                     class="selector" id="growthHabitSelector" #growthHabitSelector
                     [disabled]="filterInProgress$ | async">
