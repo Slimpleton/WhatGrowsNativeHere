@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { MatIconModule } from '@angular/material/icon';
-import { TitleCasePipe, UpperCasePipe } from '@angular/common';
+import { TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { PicSearchIconComponent } from "../pic-search-icon/pic-search-icon.component";
 import { MatButtonModule } from "@angular/material/button";
 import { Router } from '@angular/router';
@@ -12,15 +12,21 @@ import { PlantOverviewRouteData } from '../app.routes';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-tile',
-  imports: [MatIconModule, TitleCasePipe, UpperCasePipe, TranslocoModule, PicSearchIconComponent, MatButtonModule],
+  imports: [MatIconModule, TitleCasePipe, TranslocoModule, PicSearchIconComponent, MatButtonModule],
   templateUrl: './plant-tile.component.html',
   styleUrl: './plant-tile.component.css'
 })
-export class PlantTileComponent {
+export class PlantTileComponent implements OnInit {
   public usdaGovPlantProfileUrl: string = GovPlantsDataService.usdaGovPlantProfileUrl;
   @Input({ required: true }) public plant!: PlantData;
+  private _translatedGrowthHabits?: string = undefined;
 
-  public constructor(private readonly _router: Router) {
+  public constructor(private readonly _router: Router, private readonly _translocoService: TranslocoService) {
+  }
+
+  public ngOnInit(): void {
+    if (this.plant.growthHabit != null)
+      this._translatedGrowthHabits = this._translocoService.translateObject<string>([...this.plant.growthHabit].map(x => 'GROWTH_HABITS.' + x.toUpperCase())).join(', ');
   }
 
   public openImageSearch(plant: PlantData): void {
@@ -29,7 +35,7 @@ export class PlantTileComponent {
     window.open(queryUrl, '_blank');
   }
 
-  public getPlantDuration(): string {
+  public get plantDuration(): string {
     return [...this.plant.duration].join(', ');
   }
 
@@ -37,7 +43,11 @@ export class PlantTileComponent {
     this._router.navigate(['plant/raw/' + this.plant.acceptedSymbol], { state: <PlantOverviewRouteData>{ plant: this.plant } });
   }
 
-  public getIconName(): string {
+  public get growthHabits(): string | undefined {
+    return this._translatedGrowthHabits;
+  }
+
+  public get iconName(): string {
     switch (this.plant.shadeTolerance) {
       case 'Intermediate':
         return 'partly_cloudy_day';
