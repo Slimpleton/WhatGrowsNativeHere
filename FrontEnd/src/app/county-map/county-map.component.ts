@@ -6,7 +6,7 @@ import { PositionService } from '../services/position.service';
 import { filter, map, shareReplay, Subject, takeUntil, tap } from 'rxjs';
 import { combineCountyFIP, County } from '../models/gov/models';
 import { NavBarComponent } from '../nav-bar/nav-bar.component';
-import { FileService } from '../services/file.service';
+import { FileService } from '../services/fileService/file.service';
 import { AsyncPipe, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from "@angular/forms";
 import { TranslocoModule } from '@jsverse/transloco';
@@ -20,6 +20,7 @@ import { TranslocoModule } from '@jsverse/transloco';
 export class CountyMapComponent implements AfterViewInit {
   private readonly _destroy$: Subject<void> = new Subject<void>();
   public combineCountyFIP = combineCountyFIP;
+  // TODO lazy import 
   private readonly _usa: any = us;
 
   public readonly states$ = this.fileService.states$.pipe(

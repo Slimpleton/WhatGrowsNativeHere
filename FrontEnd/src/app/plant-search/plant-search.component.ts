@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { combineCountyFIP, GrowthHabit, PlantData } from '../models/gov/models';
 import { Subject } from 'rxjs/internal/Subject';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
@@ -6,8 +6,8 @@ import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
-import { combineLatest, debounceTime, distinctUntilChanged, filter, map, switchMap, takeUntil, tap } from 'rxjs';
-import { FileService } from '../services/file.service';
+import { combineLatest, debounceTime, distinctUntilChanged, filter, map, merge, switchMap, takeUntil, tap } from 'rxjs';
+import { FileService } from '../services/fileService/file.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select'
@@ -16,6 +16,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-search',
   imports: [AsyncPipe, MatIconModule, MatButtonModule, MatSelectModule, TranslocoPipe, UpperCasePipe],
   templateUrl: './plant-search.component.html',
@@ -26,7 +27,7 @@ export class PlantSearchComponent implements OnDestroy {
   private _growthHabitEmitter$: Subject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
   private _isSortOptionAlphabeticOrderEmitter$: Subject<boolean> = new BehaviorSubject<boolean>(true);
-  private readonly _searchDebounceTime: number = 400;
+  private readonly _searchDebounceTimeMs: number = 300;
 
   private get isSortOptionAlphabeticOrderEmitter$(): Observable<boolean> {
     return this._isSortOptionAlphabeticOrderEmitter$.asObservable();
@@ -59,11 +60,11 @@ export class PlantSearchComponent implements OnDestroy {
   }
 
   private _searchStarter$: Subject<string> = new Subject<string>();
-  private _search$: Observable<string> = this._searchStarter$.pipe(
-    debounceTime(this._searchDebounceTime),
-    distinctUntilChanged(),
-    tap((value) => console.log(value)),
-  );
+  private _userSearchStarter$: Subject<string> = new Subject<string>();
+  private get userSearchStarter$(): Observable<string> {
+    return this._userSearchStarter$.pipe(debounceTime(this._searchDebounceTimeMs));
+  }
+  private _search$: Observable<string> = merge(this.userSearchStarter$, this._searchStarter$).pipe(distinctUntilChanged());
 
   // Using a combineLatest to combine multiple state changes at once for filtering easy
   private _fullyFilteredNativePlants: Observable<Readonly<PlantData>[]> = combineLatest([
@@ -125,7 +126,7 @@ export class PlantSearchComponent implements OnDestroy {
   // TODO figure out use case when the plant is native to state but has no county data? do i just include all or none for now
 
   public search(searchValue: string): void {
-    this._searchStarter$.next(searchValue);
+    this._userSearchStarter$.next(searchValue);
   }
 
   public changeSortOption(option: string) {

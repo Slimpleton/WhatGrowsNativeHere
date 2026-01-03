@@ -27,20 +27,19 @@ const plantOverviewResolver: ResolveFn<Readonly<PlantData> | RedirectCommand> = 
     return inject(GovPlantsDataService).getPlantById(acceptedSymbol);
 };
 
-type UnwrapResolveFn<T> = T extends ResolveFn<infer U> ? U : T;
 
 export interface PlantOverviewResolveData extends ResolveData {
     plant: ResolveFn<PlantData>;
 }
 
 export type PlantOverviewRouteData = {
-    [K in keyof PlantOverviewResolveData]: UnwrapResolveFn<PlantOverviewResolveData[K]>
+    plant: PlantData
 };
 
 export const routes: Routes = [
     {
         path: Route.searchRoute,
-        component: HomeComponent,
+        loadComponent: () => import('./home/home.component').then(x => x.HomeComponent),
         canMatch: [() => {
             const hasGeo = typeof navigator !== 'undefined' && navigator.geolocation;
             return hasGeo ? true : Route.mapRoute;
@@ -48,7 +47,7 @@ export const routes: Routes = [
     },
     {
         path: Route.mapRoute,
-        loadComponent: () =>import('./county-map/county-map.component').then(x => x.CountyMapComponent),
+        loadComponent: () => import('./county-map/county-map.component').then(x => x.CountyMapComponent),
     },
     {
         path: Route.plantRawRoute,

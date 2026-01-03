@@ -5,7 +5,6 @@ import { bufferCount, catchError, map, Observable, of, shareReplay, switchMap } 
 import { fromFetch } from 'rxjs/fetch';
 import { SortOption } from "../plant-search/plant-search.component";
 
-
 @Injectable({
     providedIn: 'root'
 })
@@ -25,6 +24,9 @@ export class GovPlantsDataService {
     }
 
     // TODO add batch size param
+    // TODO add batch index param 
+    // TODO store url, batch index, and batch in map for in-memory cache
+
     public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, sortOption: SortOption, isSortAlphabeticOrder: boolean): Observable<Readonly<PlantData>[]> {
         const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}&sortOption=${sortOption}&ascending=${isSortAlphabeticOrder}`;
         const batchSize: number = 100;
@@ -70,7 +72,6 @@ export class GovPlantsDataService {
         });
     }
 
-
     private ndJsonTransformStream<R = string>(): TransformStream<string, R> {
         let leftover = '';
 
@@ -97,7 +98,6 @@ export class GovPlantsDataService {
         });
     }
 
-
     public get loadNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {
         return this.getAllNativePlantData().pipe(
             shareReplay(1),
@@ -114,8 +114,6 @@ export class GovPlantsDataService {
     private getAllNativePlantData(): Observable<PlantData[]> {
         return this._http.get<PlantData[]>(this._dataUrl).pipe(map(rawPlants => rawPlants.map(GovPlantsDataService.parsePlantData)));
     }
-
-
 
     private static parsePlantData(raw: PlantData) {
         return Object.freeze({

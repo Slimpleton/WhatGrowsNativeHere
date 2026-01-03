@@ -1,19 +1,19 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, HostListener, Inject, PLATFORM_ID } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatGridListModule } from '@angular/material/grid-list';
+import { CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport, } from '@angular/cdk/scrolling';
 import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { PlantData } from '../models/gov/models';
 import { MatIconModule } from '@angular/material/icon';
 import { PlantTileComponent } from '../plant-tile/plant-tile.component';
 import { NavBarComponent } from '../nav-bar/nav-bar.component';
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, } from '@angular/common';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, ScrollingModule, MatGridListModule, PlantSearchComponent, MatIconModule, PlantTileComponent, NavBarComponent],
+  imports: [FormsModule, CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent,
+    MatIconModule, PlantTileComponent, NavBarComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -64,38 +64,52 @@ export class HomeComponent {
   // TODO inaturalist images from occurrences, look for non copyright 
   // Maps are drawn on canvas btw its not like ur unfamiliar with it
 
-  private readonly _MAGIC_MULTIPLIER = 4;
-  public readonly itemSize: string = '96px';
-  public readonly gutterSize: string = '.25em';
-  public readonly rowHeightRatio: string = '1.75:1';
+  // TODO group the plant items into column rows based on the generated column number / result size
+  public readonly itemSize: number = 248;
+  public readonly itemWidth: number = this.itemSize * 1.5;
+  public readonly gutterSize: number = 4;
 
-  public columns: number = NaN;
-  public constructor(@Inject(PLATFORM_ID) private readonly _platformId: object) {
+  public columns: number = 1;
+  public constructor(@Inject(PLATFORM_ID) private readonly _platformId: object, private readonly _cdr: ChangeDetectorRef) {
     afterNextRender({
       write: () => {
-        if (isPlatformBrowser(this._platformId)) {
-          this.columns = Math.min(window.innerWidth / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER), 6)
-        }
+        this.calculateColumns();
       }
     });
   }
 
-  @HostListener('screen.orientation.change', ['$event'])
-  @HostListener('window:resize', ['$event'])
-  onResizeOrRotate(event: Event) {
+  private calculateColumns() {
     if (isPlatformBrowser(this._platformId)) {
-      const width = (event.target as Window).innerWidth;
-      this.columns = width / (Number.parseInt(this.itemSize) * this._MAGIC_MULTIPLIER);
+      // TODO account for the gaps between columns
+      const windowWidth = window.innerWidth;
+      this.columns = Math.floor(windowWidth / (this.itemWidth));
+      this._cdr.markForCheck();
     }
   }
 
-  public clearData(searchStart: boolean): void {
-    if (searchStart)
-      this.plantData = [];
+  @HostListener('screen.orientation.change', ['$event'])
+  @HostListener('window:resize', ['$event'])
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onResizeOrRotate(_: Event) {
+    this.calculateColumns();
   }
 
-  public updatePlantData(plantData: ReadonlyArray<Readonly<PlantData>>) {
+  public clearData(searchStart: boolean): void {
+    if (searchStart) {
+      this.plantData = [];
+      this._cdr.markForCheck();
+    }
+
+  }
+
+  public updatePlantData(receivedPlantData: ReadonlyArray<Readonly<PlantData>>) {
     // TODO calculate avg number of items on screen using variables above + added buffer of items to decide batch size and load what fills the page
-    this.plantData = [...this.plantData, ...plantData];
+    this.plantData = [...this.plantData, ...receivedPlantData];
+    this._cdr.markForCheck();
+
+  }
+
+  public trackByPlant(_: number, plant: PlantData): string {
+    return plant.acceptedSymbol;
   }
 }
