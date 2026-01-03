@@ -28,6 +28,8 @@ const geomService = new StateGeometryService(fileService);
 
 app.use('/api/geolocation', apiLimiter);
 
+// TODO move the geolocation api to a c# backend, move the svg generation of maps from client-side to node ssr api here
+
 app.post('/api/geolocation/state', async (req, res) => {
   const pos: Position = req.body
   if (!pos || pos.length !== 2) {
@@ -47,7 +49,6 @@ app.post('/api/geolocation/state', async (req, res) => {
   }
 });
 
-// TODO convert to using a worker thread high priority
 app.post('/api/geolocation/county', async (req, res) => {
   const pos: Position = req.body
   if (!pos || pos.length !== 2) {
