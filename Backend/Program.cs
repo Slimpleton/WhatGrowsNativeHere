@@ -54,8 +54,6 @@ namespace Backend
                 await foreach (var item in FileService.PlantData) { }
                 await foreach (var item in FileService.States) { }
                 await foreach (var item in FileService.Counties) { }
-
-                Console.WriteLine("All FileService data preloaded.");
             });
 
             app.MapControllers();
