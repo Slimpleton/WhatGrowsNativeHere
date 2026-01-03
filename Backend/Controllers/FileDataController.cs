@@ -27,8 +27,15 @@ namespace Backend.Controllers
         [HttpGet("plantdata/search")]
         public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString,[FromQuery]SortOption sortOption, [FromQuery] bool ascending,  [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, CancellationToken cancellationToken)
         {
-            const string newLine = "\n";
-            IAsyncEnumerable<PlantData> filtered = FileService.PlantData.Where(x => x.CombinedCountyFIPs.Contains(combinedFIP));
+            // Get county plants as a HashSet for O(1) lookups
+            HashSet<PlantData>? countyPlants = FileService.GetCountyPlants(combinedFIP);
+            if (countyPlants == null)
+            {
+                return; // County not found, return empty
+            }
+
+            IAsyncEnumerable<PlantData> filtered = FileService.GetSortedPlants(sortOption, ascending);
+            filtered = filtered.Where(countyPlants.Contains);
             if (growthHabit != null && growthHabit != GrowthHabit.Any)
             {
                 filtered = filtered.Where(x => x.GrowthHabit.Contains((GrowthHabit)growthHabit));
@@ -38,16 +45,7 @@ namespace Backend.Controllers
                 filtered = filtered.Where(x => x.ScientificName.Contains(searchString, StringComparison.OrdinalIgnoreCase) || (x.CommonName != null && x.CommonName.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
 
             Response.ContentType = "application/x-ndjson";
-
-            Func<PlantData,string?> selector = sortOption switch
-            {
-                SortOption.CommonName => x => x.CommonName,
-                SortOption.ScientificName => x => x.ScientificName,
-                SortOption.Symbol => x => x.Symbol,
-                _ => x => x.ScientificName
-            };
-
-            filtered = ascending ? filtered.OrderBy(selector) : filtered.OrderByDescending(selector);
+            const string newLine = "\n";
 
             await foreach (var item in filtered.WithCancellation(cancellationToken))
             {

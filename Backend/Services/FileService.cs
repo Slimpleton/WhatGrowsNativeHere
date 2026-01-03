@@ -9,6 +9,14 @@ namespace Backend.Services
 {
     public static partial class FileService
     {
+        // Pre-sorted collections for each sort option + direction
+        public static IAsyncEnumerable<PlantData> PlantsByCommonNameAsc { get; }
+        public static IAsyncEnumerable<PlantData> PlantsByCommonNameDesc { get; }
+        public static IAsyncEnumerable<PlantData> PlantsByScientificNameAsc {get;}
+        public static IAsyncEnumerable<PlantData> PlantsByScientificNameDesc {get;}
+        public static IAsyncEnumerable<PlantData> PlantsBySymbolAsc {get;}
+        public static IAsyncEnumerable<PlantData> PlantsBySymbolDesc {get;}
+        private static Dictionary<string, HashSet<PlantData>> PlantsByCounty { get; } = [];
         public static IAsyncEnumerable<PlantData> PlantData { get; }
         public static IAsyncEnumerable<StateCSVItem> States { get; }
         public static IAsyncEnumerable<CountyCSVItem> Counties { get; }
@@ -108,38 +116,80 @@ namespace Backend.Services
             List<PlantDataRow> rows = ParsePlantDataRow(dirName);
             Dictionary<string, ExtraInfo> extraInfo = ParseExtraInfo(dirName);
 
-            PlantDataRow[] filteredRows =
-                [.. rows.Where(p =>
-                {
-                    string[]? words = p.ScientificName?
-                        .Split(' ');
+            PlantDataRow[] filteredRows =  [
+                    .. rows.Where(p =>
+                        {
+                            string[]? words = p.ScientificName?
+                                .Split(' ');
 
-                    return words?.Length >= MinimumSpeciesNameWords
-                        && !p.GrowthHabit.Contains(GrowthHabit.Lichenous)
-                        && p.NativeStateAndProvinceCodes.Count != 0;
-                })
-            //Group by base species(first 2 words)
-           .GroupBy(p => String.Join(' ', p.ScientificName.Split(' ').Take(2)))
-           // Choose subspecies or full group
-           .SelectMany(group =>
-           {
-               IEnumerable<PlantDataRow> subspecies = group
-                   .Where(p => SCIENTIFIC_NAME_SPLIT().IsMatch(p.ScientificName));
+                            return words?.Length >= MinimumSpeciesNameWords
+                                && !p.GrowthHabit.Contains(GrowthHabit.Lichenous)
+                                && p.NativeStateAndProvinceCodes.Count != 0;
+                        })
+                        //Group by base species(first 2 words)
+                       .GroupBy(p => String.Join(' ', p.ScientificName.Split(' ').Take(2)))
+                       // Choose subspecies or full group
+                       .SelectMany(group =>
+                       {
+                           IEnumerable<PlantDataRow> subspecies = group
+                               .Where(p => SCIENTIFIC_NAME_SPLIT().IsMatch(p.ScientificName));
 
-               return subspecies.Any() ? subspecies : group;
-           })];
+                           return subspecies.Any() ? subspecies : group;
+                       })
+                ];
 
-            IAsyncEnumerable<PlantData> data = filteredRows.Select(row =>
+            PlantData[] data = [.. filteredRows.Select(row =>
             {
                 extraInfo.TryGetValue(row.Symbol, out var info);
                 return info != null
                     ? new PlantData(row, info.CommonName, info.CombinedFIPs)
                     : new PlantData(row, null, []);
-            }).ToArray().ToAsyncEnumerable();
+            })];
 
-            PlantData = data;
+            PlantData = data.ToAsyncEnumerable();
+
+            // Convert arrays to IAsyncEnumerable
+            PlantsByCommonNameAsc = data.OrderBy(p => p.CommonName).ToAsyncEnumerable();
+            PlantsByCommonNameDesc = data.OrderByDescending(p => p.CommonName).ToAsyncEnumerable();
+
+            PlantsByScientificNameAsc = data.OrderBy(p => p.ScientificName).ToAsyncEnumerable();
+            PlantsByScientificNameDesc = data.OrderByDescending(p => p.ScientificName).ToAsyncEnumerable();
+
+            PlantsBySymbolAsc = data.OrderBy(p => p.Symbol).ToAsyncEnumerable();
+            PlantsBySymbolDesc = data.OrderByDescending(p => p.Symbol).ToAsyncEnumerable();
+            
+            foreach(PlantData datum in data)
+            {
+                foreach (string fip in datum.CombinedCountyFIPs)
+                {
+                    if (!PlantsByCounty.ContainsKey(fip))
+                        PlantsByCounty[fip] = [];
+                    PlantsByCounty[fip].Add(datum);
+                }
+
+            }
+
             States = ParseStateCSV(dirName).ToAsyncEnumerable();
             Counties = ParseCountyCSV(dirName).ToAsyncEnumerable();
+        }
+
+        public static IAsyncEnumerable<PlantData> GetSortedPlants(SortOption sortOption, bool ascending)
+        {
+            return (sortOption, ascending) switch
+            {
+                (SortOption.CommonName, true) => PlantsByCommonNameAsc,
+                (SortOption.CommonName, false) =>PlantsByCommonNameDesc,
+                (SortOption.ScientificName, true) => PlantsByScientificNameAsc,
+                (SortOption.ScientificName, false) => PlantsByScientificNameDesc,
+                (SortOption.Symbol, true) => PlantsBySymbolAsc,
+                (SortOption.Symbol, false) => PlantsBySymbolDesc,
+                _ => PlantsByScientificNameAsc
+            };
+        }
+
+        public static HashSet<PlantData>? GetCountyPlants(string combinedFIP)
+        {
+            return PlantsByCounty.GetValueOrDefault(combinedFIP);
         }
 
         private static List<PlantDataRow> ParsePlantDataRow(string dirName)
@@ -302,7 +352,7 @@ namespace Backend.Services
                 stateAndProvince = stateAndProvince.Replace("FRA(SB)", "").Replace("DEN(GL)", "");
                 string v = GROWTH_HABIT_USA_CAN().Replace(stateAndProvince, match => match.Groups[1].Value);
 
-                stateAndProvinceSet = [..Regex.Replace(v, @"\s", "").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => ParseEnum<LocationCode>(x)).OfType<LocationCode>()];
+                stateAndProvinceSet = [.. Regex.Replace(v, @"\s", "").Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => ParseEnum<LocationCode>(x)).OfType<LocationCode>()];
             }
 
             return stateAndProvinceSet;
@@ -343,7 +393,7 @@ namespace Backend.Services
             string fileName = Path.Combine(dirName, "PLANTS_EXTRA_DATA.csv");
             Dictionary<string, ExtraInfo> items = [];
 
-           using TextFieldParser parser = new(fileName)
+            using TextFieldParser parser = new(fileName)
             {
                 Delimiters = [","],
                 HasFieldsEnclosedInQuotes = true,
@@ -398,7 +448,7 @@ namespace Backend.Services
             string fileName = Path.Combine(dirName, "countyInfo.csv");
             List<CountyCSVItem> items = [];
 
-           using TextFieldParser parser = new(fileName)
+            using TextFieldParser parser = new(fileName)
             {
                 Delimiters = [","],
                 HasFieldsEnclosedInQuotes = true,

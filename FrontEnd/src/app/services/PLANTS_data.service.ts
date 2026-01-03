@@ -29,7 +29,7 @@ export class GovPlantsDataService {
 
     public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, sortOption: SortOption, isSortAlphabeticOrder: boolean): Observable<Readonly<PlantData>[]> {
         const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}&sortOption=${sortOption}&ascending=${isSortAlphabeticOrder}`;
-        const batchSize: number = 100;
+        const batchSize: number = 50;
 
         return fromFetch(apiUrl).pipe(
             switchMap(response => {
