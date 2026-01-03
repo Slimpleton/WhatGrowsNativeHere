@@ -6,7 +6,6 @@ namespace Backend.Services
         static GeolocationService()
         {
             
-            
         }
     }
 }
