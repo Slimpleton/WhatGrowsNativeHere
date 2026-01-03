@@ -67,7 +67,7 @@ export class HomeComponent {
   // TODO group the plant items into column rows based on the generated column number / result size
   public readonly itemSize: number = 248;
   public readonly itemWidth: number = this.itemSize * 1.5;
-  public readonly gutterSize: number = 4; 
+  public readonly gutterSize: number = 4;
 
   public columns: number = 1;
   public constructor(@Inject(PLATFORM_ID) private readonly _platformId: object, private readonly _cdr: ChangeDetectorRef) {
@@ -75,26 +75,27 @@ export class HomeComponent {
       write: () => {
         this.calculateColumns();
       }
-    }); 
+    });
   }
 
   private calculateColumns() {
     if (isPlatformBrowser(this._platformId)) {
       // TODO account for the gaps between columns
       const windowWidth = window.innerWidth;
-      this.columns = Math.floor(windowWidth / (this.itemWidth ));
+      this.columns = Math.floor(windowWidth / (this.itemWidth));
       this._cdr.markForCheck();
     }
   }
 
   @HostListener('screen.orientation.change', ['$event'])
   @HostListener('window:resize', ['$event'])
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onResizeOrRotate(_: Event) {
     this.calculateColumns();
   }
 
   public clearData(searchStart: boolean): void {
-    if (searchStart){
+    if (searchStart) {
       this.plantData = [];
       this._cdr.markForCheck();
     }

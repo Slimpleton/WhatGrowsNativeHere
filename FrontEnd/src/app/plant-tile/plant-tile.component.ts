@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { MatIconModule } from '@angular/material/icon';
-import { ShadyIconComponent } from '../shady-icon/shady-icon.component';
 import { TitleCasePipe, UpperCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { TranslocoModule } from '@jsverse/transloco';
@@ -13,7 +12,7 @@ import { PlantOverviewRouteData } from '../app.routes';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-tile',
-  imports: [MatIconModule, ShadyIconComponent, TitleCasePipe, UpperCasePipe, TranslocoModule, PicSearchIconComponent, MatButtonModule],
+  imports: [MatIconModule, TitleCasePipe, UpperCasePipe, TranslocoModule, PicSearchIconComponent, MatButtonModule],
   templateUrl: './plant-tile.component.html',
   styleUrl: './plant-tile.component.css'
 })
@@ -35,6 +34,6 @@ export class PlantTileComponent {
   }
 
   public openInfoPage(plant: PlantData) {
-    this._router.navigate(['plant/raw/' + plant.acceptedSymbol], {state: <PlantOverviewRouteData>{ plant }});
+    this._router.navigate(['plant/raw/' + plant.acceptedSymbol], { state: <PlantOverviewRouteData>{ plant } });
   }
 }

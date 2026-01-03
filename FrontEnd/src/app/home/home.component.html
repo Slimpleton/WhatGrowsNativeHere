@@ -4,12 +4,14 @@
 </nav-bar>
 
 <section class="container" id="container">
-    @defer(prefetch on idle){
-    <cdk-virtual-scroll-viewport id="gov-container-scrollport" [itemSize]="itemSize / columns" [maxBufferPx]="itemSize * 12"
-        [minBufferPx]="itemSize * 8" class="gov-container-scrollport">
-        <div class="plant-grid" [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'" [style.gap.px]="gutterSize">
-            <plant-tile *cdkVirtualFor="let plant of plantData; trackBy: trackByPlant" class="plant-holder" [plant]="plant"></plant-tile>
+    <cdk-virtual-scroll-viewport id="gov-container-scrollport" [itemSize]="itemSize / columns"
+        [maxBufferPx]="itemSize * 12" [minBufferPx]="itemSize * 4" class="gov-container-scrollport">
+        <div class="plant-grid" [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'"
+            [style.gap.px]="gutterSize">
+            <plant-tile *cdkVirtualFor="let plant of plantData; trackBy: trackByPlant" class="plant-holder"
+                [plant]="plant"></plant-tile>
         </div>
     </cdk-virtual-scroll-viewport>
-    }
 </section>
+
+<!-- TODO footer with links to like about page or about me  / donate and other info like copyrights and shit -->

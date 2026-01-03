@@ -11,17 +11,13 @@
         @if (plant.shadeTolerance !== null) {
         @switch (plant.shadeTolerance) {
         @case ('Intermediate') {
-        <shady-icon></shady-icon>
+        <mat-icon svgIcon="partly_cloudy_day"></mat-icon>
         }
         @case('Intolerant'){
-        <mat-icon class="sun">
-            sunny
-        </mat-icon>
+        <mat-icon svgIcon="sunny"> </mat-icon>
         }
         @case('Tolerant'){
-        <mat-icon class="cloud">
-            cloud
-        </mat-icon>
+        <mat-icon svgIcon="cloud"></mat-icon>
         }
         }
         }

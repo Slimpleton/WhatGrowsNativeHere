@@ -6,7 +6,7 @@ import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
-import { combineLatest, debounceTime, distinctUntilChanged, filter, map, switchMap, takeUntil, tap } from 'rxjs';
+import { combineLatest, debounceTime, distinctUntilChanged, filter, map, merge, switchMap, takeUntil, tap } from 'rxjs';
 import { FileService } from '../services/fileService/file.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -60,11 +60,11 @@ export class PlantSearchComponent implements OnDestroy {
   }
 
   private _searchStarter$: Subject<string> = new Subject<string>();
-  private _search$: Observable<string> = this._searchStarter$.pipe(
-    debounceTime(this._searchDebounceTime),
-    distinctUntilChanged(),
-    tap((value) => console.log(value)),
-  );
+  private _userSearchStarter$: Subject<string> = new Subject<string>();
+  private get userSearchStarter$(): Observable<string> {
+    return this._userSearchStarter$.pipe(debounceTime(this._searchDebounceTime));
+  }
+  private _search$: Observable<string> = merge(this.userSearchStarter$, this._searchStarter$).pipe(distinctUntilChanged());
 
   // Using a combineLatest to combine multiple state changes at once for filtering easy
   private _fullyFilteredNativePlants: Observable<Readonly<PlantData>[]> = combineLatest([
@@ -126,7 +126,7 @@ export class PlantSearchComponent implements OnDestroy {
   // TODO figure out use case when the plant is native to state but has no county data? do i just include all or none for now
 
   public search(searchValue: string): void {
-    this._searchStarter$.next(searchValue);
+    this._userSearchStarter$.next(searchValue);
   }
 
   public changeSortOption(option: string) {

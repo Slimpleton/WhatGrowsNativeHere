@@ -5,6 +5,7 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
+import compression from 'compression';
 import { join } from 'node:path';
 import { FileServiceServer } from './app/services/fileService/file.service.server';
 import { Position, StateGeometryService } from './app/services/state-geometry.service';
@@ -13,13 +14,13 @@ import { firstValueFrom, of } from 'rxjs';
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
-app.use(express.json());
+app.use(compression(), express.json());
 
 const angularApp = new AngularNodeAppEngine();
-
 const fileService = new FileServiceServer();
 const geomService = new StateGeometryService(fileService);
 
+// TODO convert to using a worker thread high priority
 app.post('/api/geolocation/state', async (req, res) => {
   const pos: Position = req.body
   if (!pos || pos.length !== 2) {
@@ -39,6 +40,7 @@ app.post('/api/geolocation/state', async (req, res) => {
   }
 });
 
+// TODO convert to using a worker thread high priority
 app.post('/api/geolocation/county', async (req, res) => {
   const pos: Position = req.body
   if (!pos || pos.length !== 2) {
