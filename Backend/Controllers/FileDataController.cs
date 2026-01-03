@@ -14,14 +14,14 @@ namespace Backend.Controllers
         [HttpGet("plantdata")]
         public async IAsyncEnumerable<PlantData> GetPlantDataAsync([EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            await foreach (var item in FileService.PlantData.WithCancellation(cancellationToken))
+            await foreach (var item in FileService.PlantData.ToAsyncEnumerable().WithCancellation(cancellationToken))
                 yield return item;
         }
 
         [HttpGet("plantdata/{id}")]
         public async Task<PlantData?> GetPlantDataAsync(string id, CancellationToken cancellationToken)
         {
-            return await FileService.PlantData.FirstOrDefaultAsync(x => x.AcceptedSymbol == id, cancellationToken: cancellationToken);
+            return await FileService.PlantData.ToAsyncEnumerable().FirstOrDefaultAsync(x => x.AcceptedSymbol == id, cancellationToken: cancellationToken);
         }
 
         [HttpGet("plantdata/search")]
@@ -34,7 +34,7 @@ namespace Backend.Controllers
                 return; // County not found, return empty
             }
 
-            IAsyncEnumerable<PlantData> filtered = FileService.GetSortedPlants(sortOption, ascending);
+            IAsyncEnumerable<PlantData> filtered = FileService.GetSortedPlants(sortOption, ascending).ToAsyncEnumerable();
             filtered = filtered.Where(countyPlants.Contains);
             if (growthHabit != null && growthHabit != GrowthHabit.Any)
             {
@@ -59,14 +59,14 @@ namespace Backend.Controllers
         [HttpGet("plantdata/id")]
         public async IAsyncEnumerable<string> GetPlantDataIdsAsync([EnumeratorCancellation] CancellationToken cancellationToken )
         {
-            await foreach (PlantData item in FileService.PlantData.WithCancellation(cancellationToken))
+            await foreach (PlantData item in FileService.PlantData.ToAsyncEnumerable().WithCancellation(cancellationToken))
                 yield return item.AcceptedSymbol;
         }
 
         [HttpGet("states")]
         public async IAsyncEnumerable<StateCSVItem> GetStatesAsync([EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            await foreach (StateCSVItem item in FileService.States.WithCancellation(cancellationToken))
+            await foreach (StateCSVItem item in FileService.States.ToAsyncEnumerable().WithCancellation(cancellationToken))
                 yield return item;
         }
 
@@ -75,14 +75,14 @@ namespace Backend.Controllers
         [HttpGet("counties")]
         public async IAsyncEnumerable<CountyCSVItem> GetCountiesAsync([EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            await foreach (CountyCSVItem item in FileService.Counties.WithCancellation(cancellationToken))
+            await foreach (CountyCSVItem item in FileService.Counties.ToAsyncEnumerable().WithCancellation(cancellationToken))
                 yield return item;
         }
 
         [HttpGet("counties/{stateFip}/{countyFip}")]
         public async Task<ActionResult<CountyCSVItem?>> GetCounty(short stateFip, string countyFip, CancellationToken cancellationToken)
         {
-            return Ok(await FileService.Counties.FirstOrDefaultAsync(x => x.CountyFip == countyFip && x.StateFip == stateFip, cancellationToken));
+            return Ok(await FileService.Counties.ToAsyncEnumerable().FirstOrDefaultAsync(x => x.CountyFip == countyFip && x.StateFip == stateFip, cancellationToken));
         }
 
 

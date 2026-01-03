@@ -10,16 +10,18 @@ namespace Backend.Services
     public static partial class FileService
     {
         // Pre-sorted collections for each sort option + direction
-        public static IAsyncEnumerable<PlantData> PlantsByCommonNameAsc { get; }
-        public static IAsyncEnumerable<PlantData> PlantsByCommonNameDesc { get; }
-        public static IAsyncEnumerable<PlantData> PlantsByScientificNameAsc {get;}
-        public static IAsyncEnumerable<PlantData> PlantsByScientificNameDesc {get;}
-        public static IAsyncEnumerable<PlantData> PlantsBySymbolAsc {get;}
-        public static IAsyncEnumerable<PlantData> PlantsBySymbolDesc {get;}
+
+        //TODO expose these with channels for parallel reads from apis
+        public static PlantData[] PlantsByCommonNameAsc { get; }
+        public static PlantData[] PlantsByCommonNameDesc { get; }
+        public static PlantData[] PlantsByScientificNameAsc {get;}
+        public static PlantData[] PlantsByScientificNameDesc {get;}
+        public static PlantData[] PlantsBySymbolAsc {get;}
+        public static PlantData[] PlantsBySymbolDesc {get;}
         private static Dictionary<string, HashSet<PlantData>> PlantsByCounty { get; } = [];
-        public static IAsyncEnumerable<PlantData> PlantData { get; }
-        public static IAsyncEnumerable<StateCSVItem> States { get; }
-        public static IAsyncEnumerable<CountyCSVItem> Counties { get; }
+        public static PlantData[] PlantData { get; }
+        public static StateCSVItem[] States { get; }
+        public static CountyCSVItem[] Counties { get; }
         private const int MinimumSpeciesNameWords = 2;
 
         private static readonly Dictionary<LocationCode, NativeLocationCode[]> _LocationToNativeRegion =
@@ -146,17 +148,17 @@ namespace Backend.Services
                     : new PlantData(row, null, []);
             })];
 
-            PlantData = data.ToAsyncEnumerable();
+            data.CopyTo(PlantData);
 
             // Convert arrays to IAsyncEnumerable
-            PlantsByCommonNameAsc = data.OrderBy(p => p.CommonName).ToAsyncEnumerable();
-            PlantsByCommonNameDesc = data.OrderByDescending(p => p.CommonName).ToAsyncEnumerable();
+            PlantsByCommonNameAsc = [.. data.OrderBy(p => p.CommonName)];
+            PlantsByCommonNameDesc = [.. data.OrderByDescending(p => p.CommonName)];
 
-            PlantsByScientificNameAsc = data.OrderBy(p => p.ScientificName).ToAsyncEnumerable();
-            PlantsByScientificNameDesc = data.OrderByDescending(p => p.ScientificName).ToAsyncEnumerable();
+            PlantsByScientificNameAsc = [.. data.OrderBy(p => p.ScientificName)];
+            PlantsByScientificNameDesc = [.. data.OrderByDescending(p => p.ScientificName)];
 
-            PlantsBySymbolAsc = data.OrderBy(p => p.Symbol).ToAsyncEnumerable();
-            PlantsBySymbolDesc = data.OrderByDescending(p => p.Symbol).ToAsyncEnumerable();
+            PlantsBySymbolAsc = [.. data.OrderBy(p => p.Symbol)];
+            PlantsBySymbolDesc = [.. data.OrderByDescending(p => p.Symbol)];
             
             foreach(PlantData datum in data)
             {
@@ -169,11 +171,11 @@ namespace Backend.Services
 
             }
 
-            States = ParseStateCSV(dirName).ToAsyncEnumerable();
-            Counties = ParseCountyCSV(dirName).ToAsyncEnumerable();
+            States = [.. ParseStateCSV(dirName)];
+            Counties = [.. ParseCountyCSV(dirName)];
         }
 
-        public static IAsyncEnumerable<PlantData> GetSortedPlants(SortOption sortOption, bool ascending)
+        public static PlantData[] GetSortedPlants(SortOption sortOption, bool ascending)
         {
             return (sortOption, ascending) switch
             {
