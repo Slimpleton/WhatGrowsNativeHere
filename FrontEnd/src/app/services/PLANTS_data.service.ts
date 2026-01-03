@@ -1,9 +1,11 @@
 import { Injectable } from "@angular/core";
 import { GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
-import { bufferCount, catchError, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { catchError, map, shareReplay, switchMap } from "rxjs/operators";
+
 import { fromFetch } from 'rxjs/fetch';
 import { SortOption } from "../plant-search/plant-search.component";
+import { Observable, of } from "rxjs";
 
 @Injectable({
     providedIn: 'root'
@@ -28,19 +30,18 @@ export class GovPlantsDataService {
     // TODO store url, batch index, and batch in map for in-memory cache
 
     public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, sortOption: SortOption, isSortAlphabeticOrder: boolean): Observable<Readonly<PlantData>[]> {
-        const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}&sortOption=${sortOption}&ascending=${isSortAlphabeticOrder}`;
         const batchSize: number = 50;
+        const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}&sortOption=${sortOption}&ascending=${isSortAlphabeticOrder}&batchSize=${batchSize}`;
 
         return fromFetch(apiUrl).pipe(
             switchMap(response => {
                 if (!response.ok)
                     throw new Error(response.status + ' | ' + response.statusText);
 
-                const stream: ReadableStream<PlantData> = response.body!.pipeThrough(new TextDecoderStream).pipeThrough(this.ndJsonTransformStream<PlantData>());
+                const stream: ReadableStream<PlantData[]> = response.body!.pipeThrough(new TextDecoderStream).pipeThrough(this.ndJsonTransformStream<PlantData[]>());
                 return this.readableStreamToObservable(stream);
             }),
-            map((val) => GovPlantsDataService.parsePlantData(val)),
-            bufferCount(batchSize),
+            map((vals: PlantData[]) => vals.map(val => GovPlantsDataService.parsePlantData(val))),
         );
     }
 

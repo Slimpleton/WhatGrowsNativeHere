@@ -5,7 +5,7 @@
         "GROWTHHABIT": "Growth Habit"
     },
     "GROWTH_HABITS": {
-        "ANY": "Any",
+        "ANY": "Select Growth Habit",
         "GRAMINOID": "Grasslike",
         "SHRUB": "Shrub",
         "SUBSHRUB": "Subshrub",
@@ -15,9 +15,9 @@
         "FORB/HERB": "Forb/Herb",
         "FORBHERB": "Forb/Herb"
     },
-    "COUNTY_MAP":{
-        "CHOOSE_COUNTY":"Choose a county!",
-        "COUNTY_SELECTED":"County Selected:"
+    "COUNTY_MAP": {
+        "CHOOSE_COUNTY": "Choose a county!",
+        "COUNTY_SELECTED": "County Selected:"
     },
     "NATIVE_PLANTS_IN": "Native Plants In ",
     "SEARCHBAR_PLACEHOLDER": "e.g. Lupinus agardhianus, Apache plume,...,",

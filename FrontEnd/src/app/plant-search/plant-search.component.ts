@@ -6,19 +6,19 @@ import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
-import { combineLatest, debounceTime, distinctUntilChanged, filter, map, merge, switchMap, takeUntil, tap } from 'rxjs';
 import { FileService } from '../services/fileService/file.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select'
 import { TranslocoPipe } from '@jsverse/transloco';
+import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter } from 'rxjs/operators';
+import { combineLatest, merge } from 'rxjs';
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-search',
-  imports: [AsyncPipe, MatIconModule, MatButtonModule, MatSelectModule, TranslocoPipe, UpperCasePipe],
+  imports: [AsyncPipe, MatIconModule, MatButtonModule, TranslocoPipe, UpperCasePipe],
   templateUrl: './plant-search.component.html',
   styleUrl: './plant-search.component.css'
 })

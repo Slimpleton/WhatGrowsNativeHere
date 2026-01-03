@@ -1,15 +1,19 @@
 import { afterNextRender, AfterViewInit, Component, ElementRef, Inject, Injector, PLATFORM_ID, runInInjectionContext, ViewChild } from '@angular/core';
-import * as d3 from 'd3';
-import * as topojson from 'topojson-client';
-import * as us from 'us-atlas/counties-albers-10m.json';
 import { PositionService } from '../services/position.service';
-import { filter, map, shareReplay, Subject, takeUntil, tap } from 'rxjs';
+import { filter, map, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { combineCountyFIP, County } from '../models/gov/models';
 import { NavBarComponent } from '../nav-bar/nav-bar.component';
 import { FileService } from '../services/fileService/file.service';
 import { AsyncPipe, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from "@angular/forms";
 import { TranslocoModule } from '@jsverse/transloco';
+import { Subject } from 'rxjs';
+
+const [d3, topojson, us] = await Promise.all([
+  import('d3'),
+  import('topojson-client'),
+  import('us-atlas/counties-albers-10m.json')
+]);
 
 @Component({
   selector: 'app-county-map',

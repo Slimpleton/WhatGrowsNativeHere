@@ -1,5 +1,6 @@
 import { Inject, Injectable, OnDestroy, PLATFORM_ID } from '@angular/core';
-import { filter, map, merge, Observable, shareReplay, Subject, switchMap, takeUntil } from 'rxjs';
+import { merge, Observable, Subject } from 'rxjs';
+import { filter, map, switchMap, takeUntil, shareReplay } from 'rxjs/operators';
 import { County, StateInfo } from '../models/gov/models';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';

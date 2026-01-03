@@ -34,7 +34,7 @@ namespace Backend
 
             builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
             {
-                options.Level = CompressionLevel.Optimal;
+                options.Level = CompressionLevel.Fastest;
             });
 
             builder.Services.AddControllers();
@@ -49,12 +49,11 @@ namespace Backend
             app.UseAuthorization();
 
             // HACK ignore data, load into memory for the first time
-            _ = Task.Run(async () =>
-            {
-                await foreach (var item in FileService.PlantData) { }
-                await foreach (var item in FileService.States) { }
-                await foreach (var item in FileService.Counties) { }
-            });
+
+            foreach (var item in FileService.PlantData) { }
+            foreach (var item in FileService.States) { }
+            foreach (var item in FileService.Counties) { }
+ 
 
             app.MapControllers();
 

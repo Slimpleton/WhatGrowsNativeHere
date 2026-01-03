@@ -148,6 +148,7 @@ namespace Backend.Services
                     : new PlantData(row, null, []);
             })];
 
+            PlantData = new PlantData[data.Length];
             data.CopyTo(PlantData);
 
             // Convert arrays to IAsyncEnumerable

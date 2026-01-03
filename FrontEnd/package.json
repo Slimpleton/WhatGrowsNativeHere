@@ -15,12 +15,10 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^20.1.2",
     "@angular/cdk": "^20.1.2",
     "@angular/common": "^20.1.2",
     "@angular/compiler": "^20.1.2",
     "@angular/core": "^20.1.2",
-    "@angular/forms": "^20.1.2",
     "@angular/material": "^20.1.2",
     "@angular/platform-browser": "^20.1.2",
     "@angular/platform-browser-dynamic": "^20.1.2",
@@ -33,7 +31,6 @@
     "express": "^5.1.0",
     "rxjs": "~7.8.0",
     "topojson-client": "^3.1.0",
-    "tslib": "^2.3.0",
     "us-atlas": "^3.0.1"
   },
   "devDependencies": {
