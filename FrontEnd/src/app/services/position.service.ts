@@ -5,6 +5,8 @@ import { County, StateInfo } from '../models/gov/models';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 
+export type Position = [longitude: number, latitude: number];
+
 @Injectable({
     providedIn: 'root'
 })
@@ -27,7 +29,7 @@ export class PositionService implements OnDestroy {
 
     private readonly _stateEmitter$: Observable<StateInfo> = this.positionEmitter$.pipe(
         switchMap((position: GeolocationPosition) =>
-            this._http.post<{ state: StateInfo | null }>('/api/geolocation/state', [position.coords.longitude, position.coords.latitude]).pipe(map(response => response.state))),
+            this._http.post<{ stateCsvItem: StateInfo | null }>('/api/geolocation/state', [position.coords.longitude, position.coords.latitude]).pipe(map(response => response.stateCsvItem))),
         filter((state: StateInfo | null): state is StateInfo => state != null),
         takeUntil(this._ngDestroy$));
 
@@ -37,7 +39,7 @@ export class PositionService implements OnDestroy {
 
     private readonly _countyEmitter$: Observable<County> = this.positionEmitter$.pipe(
         switchMap((position: GeolocationPosition) =>
-            this._http.post<{ county: County | null }>('/api/geolocation/county', [position.coords.longitude, position.coords.latitude]).pipe(map(response => response.county))),
+            this._http.post<{ countyCsvItem: County | null }>('/api/geolocation/county', [position.coords.longitude, position.coords.latitude]).pipe(map(response => response.countyCsvItem))),
         filter((county: County | null): county is County => county != null),
         takeUntil(this._ngDestroy$));
 

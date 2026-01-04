@@ -44,10 +44,10 @@ export const routes: Routes = [
             return hasGeo ? true : Route.mapRoute;
         }]
     },
-    {
-        path: Route.mapRoute,
-        loadComponent: () => import('./county-map/county-map.component').then(x => x.CountyMapComponent),
-    },
+    // {
+    //     path: Route.mapRoute,
+    //     loadComponent: () => import('./county-map/county-map.component').then(x => x.CountyMapComponent),
+    // },
     {
         path: Route.plantRawRoute,
         loadComponent: () => import('./plant-overview/plant-overview.component').then(x => x.PlantOverviewComponent),

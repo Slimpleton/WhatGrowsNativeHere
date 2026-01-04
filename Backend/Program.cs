@@ -51,8 +51,6 @@ namespace Backend
             // HACK ignore data, load into memory for the first time
 
             foreach (var item in FileService.PlantData) { }
-            foreach (var item in FileService.States) { }
-            foreach (var item in FileService.Counties) { }
  
 
             app.MapControllers();

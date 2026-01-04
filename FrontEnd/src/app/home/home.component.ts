@@ -1,5 +1,4 @@
 import { afterNextRender, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Inject, PLATFORM_ID } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport, } from '@angular/cdk/scrolling';
 import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { PlantData } from '../models/gov/models';
@@ -12,7 +11,7 @@ import { isPlatformBrowser, } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent,
+  imports: [CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent,
     MatIconModule, PlantTileComponent, NavBarComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'

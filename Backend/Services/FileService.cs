@@ -20,8 +20,7 @@ namespace Backend.Services
         public static PlantData[] PlantsBySymbolDesc {get;}
         private static Dictionary<string, HashSet<PlantData>> PlantsByCounty { get; } = [];
         public static PlantData[] PlantData { get; }
-        public static StateCSVItem[] States { get; }
-        public static CountyCSVItem[] Counties { get; }
+
         private const int MinimumSpeciesNameWords = 2;
 
         private static readonly Dictionary<LocationCode, NativeLocationCode[]> _LocationToNativeRegion =
@@ -171,9 +170,6 @@ namespace Backend.Services
                 }
 
             }
-
-            States = [.. ParseStateCSV(dirName)];
-            Counties = [.. ParseCountyCSV(dirName)];
         }
 
         public static PlantData[] GetSortedPlants(SortOption sortOption, bool ascending)
@@ -416,65 +412,6 @@ namespace Backend.Services
             return items;
         }
 
-        private static List<StateCSVItem> ParseStateCSV(string dirName)
-        {
-            string fileName = Path.Combine(dirName, "statesFipsInfo.csv");
-            List<StateCSVItem> items = [];
-            using TextFieldParser parser = new(fileName)
-            {
-                Delimiters = [","],
-                HasFieldsEnclosedInQuotes = true,
-            };
-
-            // Skip Header
-            parser.ReadLine();
-            while (!parser.EndOfData)
-            {
-                string[] fields = parser.ReadFields()!;
-
-                StateCSVItem item = new()
-                {
-                    Fip = short.Parse(fields[0]),
-                    Abbrev = fields[1],
-                    Name = fields[2],
-                    GnisID = fields[3],
-                };
-                items.Add(item);
-            }
-
-            return items;
-
-        }
-
-        private static List<CountyCSVItem> ParseCountyCSV(string dirName)
-        {
-            string fileName = Path.Combine(dirName, "countyInfo.csv");
-            List<CountyCSVItem> items = [];
-
-            using TextFieldParser parser = new(fileName)
-            {
-                Delimiters = [","],
-                HasFieldsEnclosedInQuotes = true,
-            };
-
-            // Skip Header
-            parser.ReadLine();
-            while (!parser.EndOfData)
-            {
-                string[] fields = parser.ReadFields()!;
-
-                CountyCSVItem item = new()
-                {
-                    StateAbbrev = fields[0],
-                    StateFip = short.Parse(fields[1]),
-                    CountyFip = fields[2],
-                    CountyName = fields[4],
-                };
-                items.Add(item);
-            }
-
-            return items;
-        }
 
         [GeneratedRegex(@"(?:USA|CAN)\+?\s?\(([^)]+)\)")]
         private static partial Regex GROWTH_HABIT_USA_CAN();

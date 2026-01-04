@@ -23,12 +23,7 @@
                 "glob": "**/*",
                 "input": "public"
               },
-              "src/assets",
-              {
-                "glob": "*.json",
-                "input": "node_modules/us-atlas",
-                "output": "assets/us-atlas"
-              }
+              "src/assets"
             ],
             "styles": [
               "src/custom-theme.scss",

@@ -71,29 +71,5 @@ namespace Backend.Controllers
             await foreach (PlantData item in FileService.PlantData.ToAsyncEnumerable().WithCancellation(cancellationToken))
                 yield return item.AcceptedSymbol;
         }
-
-        [HttpGet("states")]
-        public async IAsyncEnumerable<StateCSVItem> GetStatesAsync([EnumeratorCancellation] CancellationToken cancellationToken)
-        {
-            await foreach (StateCSVItem item in FileService.States.ToAsyncEnumerable().WithCancellation(cancellationToken))
-                yield return item;
-        }
-
-        // TODO use geoip-lite with angular ssr to convert to using ip address to get fip and then ssr can be done for indexing / super fast loads 
-
-        [HttpGet("counties")]
-        public async IAsyncEnumerable<CountyCSVItem> GetCountiesAsync([EnumeratorCancellation] CancellationToken cancellationToken)
-        {
-            await foreach (CountyCSVItem item in FileService.Counties.ToAsyncEnumerable().WithCancellation(cancellationToken))
-                yield return item;
-        }
-
-        [HttpGet("counties/{stateFip}/{countyFip}")]
-        public async Task<ActionResult<CountyCSVItem?>> GetCounty(short stateFip, string countyFip, CancellationToken cancellationToken)
-        {
-            return Ok(await FileService.Counties.ToAsyncEnumerable().FirstOrDefaultAsync(x => x.CountyFip == countyFip && x.StateFip == stateFip, cancellationToken));
-        }
-
-
     }
 }

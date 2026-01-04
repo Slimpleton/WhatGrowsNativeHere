@@ -1,17 +1,17 @@
 import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
-import { combineCountyFIP, GrowthHabit, PlantData } from '../models/gov/models';
+import { combineCountyFIP, CountyCSVItem, GrowthHabit, PlantData } from '../models/gov/models';
 import { Subject } from 'rxjs/internal/Subject';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
-import { FileService } from '../services/fileService/file.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter } from 'rxjs/operators';
 import { combineLatest, merge } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
 
@@ -95,12 +95,11 @@ export class PlantSearchComponent implements OnDestroy {
 
   public constructor(private readonly _plantService: GovPlantsDataService,
     private readonly _positionService: PositionService,
-    private readonly _fileService: FileService) {
+    private readonly _http: HttpClient) {
     // HACK starts the plant retrieval, sets start value for search bar
     this._positionService.countyEmitter$.pipe(
       filter((x) => x != null && x != undefined),
-      map((x) => combineCountyFIP(x)),
-      this._fileService.getCountyCSVItemAsync(),
+      switchMap((x) => this._http.get<CountyCSVItem>(`/api/counties/${x.stateFip}/${x.countyFip}`)),
       takeUntil(this._ngDestroy$)
     ).subscribe({
       next: (value) => {
