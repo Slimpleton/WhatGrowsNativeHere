@@ -6,7 +6,7 @@ h2 {
     gap: .5em;
     display: flex;
     width: 100%;
-    align-items: center;
+    align-items: flex-start;
     text-align: center;
 }
 
@@ -48,8 +48,23 @@ h2 {
     background-color: var(--grass-light-green);
     color: var(--wood-dark-brown);
     width: 6ch;
+    height: 5ch;
+    padding: .5ch;
+    margin: 0;
 }
 
 .selector {
     width: 100%;
+}
+
+.label {
+    font-weight: bold;
+}
+
+.sort-label {
+    flex-grow: 1;
+}
+
+.sort-label-row {
+    display: inline-flex;
 }

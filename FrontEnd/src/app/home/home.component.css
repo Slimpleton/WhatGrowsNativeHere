@@ -1,10 +1,11 @@
 :host {
   --item-height: 248px;
+  --container-height: 6em;
 }
 
 .gov-container-scrollport {
   width: 100%;
-  height: calc(100vh - 40px - 5em);
+  height: calc(100vh - 40px - var(--container-height));
 }
 
 @supports (scrollbar-color: auto) {
@@ -34,7 +35,7 @@
   position: sticky;
   width: calc(100% - (2 * var(--nav-bar--width-padding)));
   background-color: var(--wood-brown);
-  height: 5em;
+  height: var(--container-height);
   padding-left: var(--nav-bar--width-padding);
   padding-right: var(--nav-bar--width-padding);
 }

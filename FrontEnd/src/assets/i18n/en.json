@@ -2,6 +2,8 @@
     "TITLE": "What Grows Native Here",
     "ABOUT": "About",
     "SEARCH": "Search",
+    "FILTERS": "Filters",
+    "SORT": "Sort",
     "SORT_OPTIONS": {
         "COMMONNAME": "Common Name",
         "SCIENTIFICNAME": "Scientific Name",

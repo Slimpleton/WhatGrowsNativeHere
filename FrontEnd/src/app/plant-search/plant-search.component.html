@@ -1,26 +1,33 @@
 <section id="plant-search-container">
-    <div class="search-container col">
-        <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
-            [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco" class="searchbar">
-        <div class="search-container row">
-            <select (change)="changeGrowthHabit(growthHabitSelector.value)" name="growthHabitSelector" class="selector"
-                id="growthHabitSelector" #growthHabitSelector>
-                @for (growthHabit of growthHabits; track $index) {
-                <option [value]="growthHabit">{{'GROWTH_HABITS.' + growthHabit| uppercase | transloco}}</option>
-                }
-            </select>
+    <div class="col">
+        <label class="label" for="search-container">{{'FILTERS' | transloco}}</label>
+        <div id="search-container" name="search-container" class="search-container col">
+            <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
+                [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco" class="searchbar">
+            <div class="search-container row">
+                <select (change)="changeGrowthHabit(growthHabitSelector.value)" name="growthHabitSelector"
+                    class="selector" id="growthHabitSelector" #growthHabitSelector>
+                    @for (growthHabit of growthHabits; track $index) {
+                    <option [value]="growthHabit">{{'GROWTH_HABITS.' + growthHabit| uppercase | transloco}}</option>
+                    }
+                </select>
+            </div>
         </div>
-        <div class="sort-container row">
-            <!-- TODO input label, separate sort / filter sections -->
+    </div>
+    <div class="col">
+        <div name="sort-container" id="sort-container" class="sort-container col">
+            <div class="row sort-label-row">
+                <label class="label sort-label" for="sort-container">{{'SORT' | transloco}}</label>
+                <button class="sortOrderButton" id="sortOrderButton" (click)="toggleSortOptionDirection()">
+                    {{sortOptionDirection}}
+                </button>
+            </div>
             <select name="sortSelector" id="sortSelector" #sortSelector class="selector"
                 (change)="changeSortOption(sortSelector.value)">
                 @for (option of sortOptions; track $index) {
                 <option [value]="option">{{ 'SORT_OPTIONS.' + option | uppercase | transloco}}</option>
                 }
             </select>
-            <button class="sortOrderButton" id="sortOrderButton" (click)="toggleSortOptionDirection()">
-                {{sortOptionDirection}}
-            </button>
         </div>
     </div>
     <h2 class="filter-title" id="title">{{'NATIVE_PLANTS_IN' | transloco}} {{countyName}}</h2>
