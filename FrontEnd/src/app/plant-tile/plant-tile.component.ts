@@ -3,7 +3,6 @@ import { PlantData } from '../models/gov/models';
 import { TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { PicSearchIconComponent } from "../pic-search-icon/pic-search-icon.component";
 import { Router } from '@angular/router';
 import { PlantOverviewRouteData } from '../app.routes';
 import { IconComponent, IconName } from '../icon/icon.component';
@@ -11,7 +10,7 @@ import { IconComponent, IconName } from '../icon/icon.component';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-tile',
-  imports: [TitleCasePipe, TranslocoModule, PicSearchIconComponent, IconComponent],
+  imports: [TitleCasePipe, TranslocoModule, IconComponent],
   templateUrl: './plant-tile.component.html',
   styleUrl: './plant-tile.component.css'
 })

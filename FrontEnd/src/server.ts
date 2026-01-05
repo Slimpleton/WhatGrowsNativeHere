@@ -11,8 +11,8 @@ import rateLimit from 'express-rate-limit';
 import { readFile } from 'node:fs/promises';
 import { County, CountyCSVItem, StateCSVItem, StateInfo } from './app/models/gov/models';
 import { geoContains } from 'd3-geo';
+import { quadtree } from 'd3-quadtree';
 import { feature } from 'topojson-client';
-import { Position } from './app/services/position.service';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
@@ -48,6 +48,7 @@ async function preloadCSV() {
 }
 
 let usStatesGeometries: any[] = [];
+let usCountyQuadtree: any;
 let usCountiesGeometries: any[] = [];
 
 async function preloadGeometry() {
@@ -59,7 +60,50 @@ async function preloadGeometry() {
   usCountiesGeometries = (feature(topo, topo.objects.counties) as any).features;
   // TODO quadtree for the usCounties lookups to speedUp
 
+  // Compute bounding box for each county
+  usCountiesGeometries.forEach(county => {
+    const coords = county.geometry.coordinates.flat(2); // flatten multipolygon/polygon
+    const lons = coords.map((p: any[]) => p[0]);
+    const lats = coords.map((p: any[]) => p[1]);
+    county.bbox = {
+      minX: Math.min(...lons),
+      minY: Math.min(...lats),
+      maxX: Math.max(...lons),
+      maxY: Math.max(...lats),
+    };
+
+    // Compute centroid for quadtree insertion
+    county.centroid = [
+      lons.reduce((a: any, b: any) => a + b, 0) / lons.length,
+      lats.reduce((a: any, b: any) => a + b, 0) / lats.length,
+    ];
+  });
+
+  // Build quadtree using centroids
+  usCountyQuadtree = quadtree()
+    .x((d: any) => d.centroid[0])
+    .y((d: any) => d.centroid[1])
+    .addAll(usCountiesGeometries);
+
+
   console.log('US geometry preloaded');
+}
+
+function getCandidateCounties(pos: GeolocationCoordinates): any[] {
+  const radiusLat: number = pos.accuracy / 111_000; // meters → degrees latitude
+  const radiusLon: number = pos.accuracy / (111_000 * Math.cos(pos.latitude * Math.PI / 180)); // meters → degrees longitude
+
+  const candidates: any[] = [];
+  usCountyQuadtree.visit((node: { length: any; data: any; }, x0: number, y0: number, x1: number, y1: number) => {
+    if (x1 < pos.longitude - radiusLon || x0 > pos.longitude + radiusLon ||
+      y1 < pos.latitude - radiusLat || y0 > pos.latitude + radiusLat) {
+      return true; // skip node
+    }
+    if (!node.length && node.data) candidates.push(node.data);
+    return false;
+  });
+
+  return candidates;
 }
 
 /**
@@ -68,13 +112,13 @@ async function preloadGeometry() {
  * @param feature GeoJSON feature
  * @returns boolean
  */
-function isPointInFeature(point: Position, feature: any): boolean {
+function isPointInFeature(point: GeolocationCoordinates, feature: any): boolean {
   try {
     // Handle different geometry types
     if (feature.geometry.type === 'Polygon') {
-      return geoContains(feature, point);
+      return geoContains(feature, [point.longitude, point.latitude]);
     } else if (feature.geometry.type === 'MultiPolygon') {
-      return geoContains(feature, point);
+      return geoContains(feature, [point.longitude, point.latitude]);
     }
 
     throw new Error('Invalid feature geometry type ' + feature.geometry.type);
@@ -124,8 +168,8 @@ app.get('/api/counties/:stateFip/:countyFip', (req, res) => {
 app.use('/api/geolocation', apiLimiter);
 
 app.post('/api/geolocation/state', async (req, res) => {
-  const pos: Position = req.body
-  if (!pos || pos.length !== 2) {
+  const pos: GeolocationCoordinates = req.body
+  if (!pos || isNaN(pos.latitude) || isNaN(pos.longitude)) {
     return res.status(400).json({ error: 'Invalid coords' });
   }
 
@@ -152,13 +196,24 @@ app.post('/api/geolocation/state', async (req, res) => {
 });
 
 app.post('/api/geolocation/county', async (req, res) => {
-  const pos: Position = req.body
-  if (!pos || pos.length !== 2) {
-    return res.status(400).json({ error: 'Invalid coords', pos });
+  const pos: GeolocationCoordinates = req.body
+  if (!pos || isNaN(pos.latitude) || isNaN(pos.longitude)) {
+    return res.status(400).json({ error: 'Invalid coords' });
   }
 
   try {
-    const county = usCountiesGeometries.find(x => isPointInFeature(pos, x));
+
+    // Step 1: get candidate counties using quadtree
+    const candidates: any[] = getCandidateCounties(pos);
+
+    // Step 2: filter by bounding box
+    const bboxCandidates = candidates.filter(c => {
+      const { minX, minY, maxX, maxY } = c.bbox;
+      return pos.longitude >= minX && pos.longitude <= maxX &&
+        pos.latitude >= minY && pos.latitude <= maxY;
+    });
+
+    const county = bboxCandidates.find(x => isPointInFeature(pos, x));
     if (county == undefined || county == null)
       return res.json(null);
 
