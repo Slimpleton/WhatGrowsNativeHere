@@ -6,15 +6,17 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import compression from 'compression';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import rateLimit from 'express-rate-limit';
 import { readFile } from 'node:fs/promises';
 import { County, CountyCSVItem, StateCSVItem, StateInfo } from './app/models/gov/models';
 import { geoContains } from 'd3-geo';
 import { quadtree } from 'd3-quadtree';
 import { feature } from 'topojson-client';
+import { fileURLToPath } from 'node:url';
 
-const browserDistFolder = join(import.meta.dirname, '../browser');
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const browserDistFolder = join(__dirname, '../browser');
 
 // Serve preloaded CSVs as JSON
 let statesCSVCache: StateCSVItem[] = [];
