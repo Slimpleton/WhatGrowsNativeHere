@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { IconService } from './services/icon.service';
 
 @Component({
   selector: 'app-root',
@@ -8,13 +7,10 @@ import { IconService } from './services/icon.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'what-grows-native-here';
 
-  public constructor(private readonly _iconService: IconService) {
+  public constructor() {
   }
 
-  public ngOnInit(): void {
-    this._iconService.registerIcons();
-  }
 }

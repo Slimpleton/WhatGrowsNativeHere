@@ -151,8 +151,6 @@ app.post('/api/geolocation/state', async (req, res) => {
   }
 });
 
-// TODO these geomService calls need to be functions in here so they can be their own endpoint and be called from other endpoints
-
 app.post('/api/geolocation/county', async (req, res) => {
   const pos: Position = req.body
   if (!pos || pos.length !== 2) {

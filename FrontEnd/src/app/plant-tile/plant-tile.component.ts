@@ -1,18 +1,17 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { PlantData } from '../models/gov/models';
-import { MatIconModule } from '@angular/material/icon';
 import { TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { PicSearchIconComponent } from "../pic-search-icon/pic-search-icon.component";
-import { MatButtonModule } from "@angular/material/button";
 import { Router } from '@angular/router';
 import { PlantOverviewRouteData } from '../app.routes';
+import { IconComponent, IconName } from '../icon/icon.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-tile',
-  imports: [MatIconModule, TitleCasePipe, TranslocoModule, PicSearchIconComponent, MatButtonModule],
+  imports: [TitleCasePipe, TranslocoModule, PicSearchIconComponent, IconComponent],
   templateUrl: './plant-tile.component.html',
   styleUrl: './plant-tile.component.css'
 })
@@ -47,10 +46,10 @@ export class PlantTileComponent implements OnInit {
     return this._translatedGrowthHabits;
   }
 
-  public get iconName(): string {
+  public get iconName(): IconName {
     switch (this.plant.shadeTolerance) {
       case 'Intermediate':
-        return 'partly_cloudy_day';
+        return 'partly-cloudy';
       case 'Intolerant':
         return 'sunny';
       case 'Tolerant':

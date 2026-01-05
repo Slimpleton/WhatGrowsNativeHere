@@ -6,19 +6,18 @@ import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter } from 'rxjs/operators';
 import { combineLatest, merge } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { IconComponent } from '../icon/icon.component';
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-search',
-  imports: [AsyncPipe, MatIconModule, MatButtonModule, TranslocoPipe, UpperCasePipe],
+  imports: [AsyncPipe, TranslocoPipe, UpperCasePipe, IconComponent],
   templateUrl: './plant-search.component.html',
   styleUrl: './plant-search.component.css'
 })
@@ -111,8 +110,8 @@ export class PlantSearchComponent implements OnDestroy {
     });
 
     this._fullyFilteredNativePlants.subscribe();
-    this._searchStarter$.next('');
     this._sortOptionsEmitter$.next('commonName');
+    this._searchStarter$.next('');
 
   }
 
