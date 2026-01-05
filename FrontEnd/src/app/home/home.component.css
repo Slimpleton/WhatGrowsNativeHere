@@ -4,7 +4,11 @@
 
 .container {
   background-color: var(--wood-brown);
-  height: calc(100vh - var(--nav-bar--total-height));
+}
+
+.gov-container-scrollport {
+  width: 100%;
+  height: calc(100vh - 40px - 7em);
 }
 
 @supports (scrollbar-color: auto) {
@@ -30,16 +34,20 @@
   place-items: center;
 }
 
-.gov-container-scrollport{
-  width: 100%;
- height: calc(100vh - var(--nav-bar--total-height));
+.plant-search-container {
+  position: sticky;
+  width: calc(100% - (2 * var(--nav-bar--width-padding)));
+  background-color: var(--wood-brown);
+  height: 7em;
+  padding-left: var(--nav-bar--width-padding);
+  padding-right: var(--nav-bar--width-padding);
 }
 
 .plant-tile-container {
-  height: var(--item-height); /* or dynamically set via variable for smaller screens */
+  height: var(--item-height);
 }
 
-.plant-holder{
+.plant-holder {
   display: inline-block;
   height: var(--item-height);
   width: 100%;

@@ -3,14 +3,13 @@ import { CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport, }
 import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { PlantData } from '../models/gov/models';
 import { PlantTileComponent } from '../plant-tile/plant-tile.component';
-import { NavBarComponent } from '../nav-bar/nav-bar.component';
 import { isPlatformBrowser, } from '@angular/common';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, NavBarComponent],
+  imports: [CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

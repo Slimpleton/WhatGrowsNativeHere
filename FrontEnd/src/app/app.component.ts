@@ -1,17 +1,12 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { AppShellComponent } from './app-shell/app-shell.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
-  standalone: true
+  standalone: true,
+  imports: [AppShellComponent],
+  template: '<app-shell></app-shell>'
 })
 export class AppComponent {
   title = 'what-grows-native-here';
-
-  public constructor() {
-  }
-
 }

@@ -1,0 +1,28 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    /* make shell take full viewport height */
+}
+
+h2 {
+    margin: 0;
+    padding: 0;
+}
+
+
+.nav-bar {
+    position: static;
+    top: 0;
+    padding-left: var(--nav-bar--width-padding);
+    padding-right: var(--nav-bar--width-padding);
+    display: flex;
+    align-items: center;
+    text-align: center;
+    height: 40px;
+    width: calc(100% - 2 * var(--nav-bar--width-padding));
+    background-color: var(--wood-brown);
+    font-size: 1.2em;
+    align-items: center;
+    text-align: center;
+}
