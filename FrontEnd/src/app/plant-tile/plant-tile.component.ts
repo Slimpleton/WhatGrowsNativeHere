@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, OnInit } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
@@ -12,14 +12,16 @@ import { IconComponent, IconName } from '../icon/icon.component';
   selector: 'plant-tile',
   imports: [TitleCasePipe, TranslocoModule, IconComponent],
   templateUrl: './plant-tile.component.html',
-  styleUrl: './plant-tile.component.css'
+  styleUrl: './plant-tile.component.css',
+  standalone: true
 })
 export class PlantTileComponent implements OnInit {
   public usdaGovPlantProfileUrl: string = GovPlantsDataService.usdaGovPlantProfileUrl;
   @Input({ required: true }) public plant!: PlantData;
   private _translatedGrowthHabits?: string = undefined;
+  private readonly _router = inject(Router);
 
-  public constructor(private readonly _router: Router, private readonly _translocoService: TranslocoService) {
+  public constructor(private readonly _translocoService: TranslocoService) {
   }
 
   public ngOnInit(): void {
