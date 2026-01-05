@@ -7,7 +7,8 @@ import { GovPlantsDataService } from './services/PLANTS_data.service';
 export enum Route {
     mapRoute = 'map',
     searchRoute = '',
-    plantRawRoute = 'plant/raw/:id'
+    plantRawRoute = 'plant/raw/:id',
+    aboutRoute = 'about',
 };
 
 const plantOverviewResolver: ResolveFn<Readonly<PlantData> | RedirectCommand> = (route: ActivatedRouteSnapshot) => {
@@ -54,5 +55,9 @@ export const routes: Routes = [
         resolve: <PlantOverviewResolveData>{
             plant: plantOverviewResolver
         },
-    }
+    },
+    {
+        path: Route.aboutRoute,
+        loadComponent: () => import('./about/about.component').then(x => x.AboutComponent)
+    },
 ];

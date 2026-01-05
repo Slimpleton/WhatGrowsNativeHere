@@ -2,13 +2,9 @@
   --item-height: 248px;
 }
 
-.container {
-  background-color: var(--wood-brown);
-}
-
 .gov-container-scrollport {
   width: 100%;
-  height: calc(100vh - 40px - 7em);
+  height: calc(100vh - 40px - 5em);
 }
 
 @supports (scrollbar-color: auto) {
@@ -38,7 +34,7 @@
   position: sticky;
   width: calc(100% - (2 * var(--nav-bar--width-padding)));
   background-color: var(--wood-brown);
-  height: 7em;
+  height: 5em;
   padding-left: var(--nav-bar--width-padding);
   padding-right: var(--nav-bar--width-padding);
 }

@@ -15,7 +15,7 @@ export class IconComponent {
     'image': 'rgb(68, 51, 29)',
     'help': 'rgb(68, 51, 29)',
     'search': 'red',
-    'sort-alpha': '#e3e3e3',
+    'sort-alpha': 'rgb(68, 51, 29)',
     'sunny': 'rgb(68, 51, 29)',
     'location_marker': 'rgb(68, 51, 29)'
   };

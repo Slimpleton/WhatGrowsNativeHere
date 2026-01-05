@@ -1,0 +1,16 @@
+.about {
+    padding-left: 1em;
+    padding-right: 1em;
+    text-align: center;
+}
+
+.title {
+    font-size: 3em;
+}
+
+.word-vomit {
+    justify-self: center;
+    font-size: 1.55em;
+    width: min(75ch, 100%);
+    padding: 12px
+}

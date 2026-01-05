@@ -1,5 +1,7 @@
 {
     "TITLE": "What Grows Native Here",
+    "ABOUT": "About",
+    "SEARCH": "Search",
     "SORT_OPTIONS": {
         "COMMONNAME": "Common Name",
         "SCIENTIFICNAME": "Scientific Name",
@@ -22,5 +24,9 @@
     },
     "NATIVE_PLANTS_IN": "Native Plants In ",
     "SEARCHBAR_PLACEHOLDER": "e.g. Lupinus agardhianus, Apache plume,...,",
-    "PLANT_OVERVIEW_HEADER": "Plant Overview of {{plantCommonName}} aka {{plantScientificName}}"
+    "PLANT_OVERVIEW_HEADER": "Plant Overview of {{plantCommonName}} aka {{plantScientificName}}",
+    "ABOUT_COMPONENT": {
+        "HEADER": "Why \"What Grows Native Here\"",
+        "CONTENT": "What started as a passion project to deliver native plant info quickly evolved into an over-engineered mess built on delivering the fastest query results possible for native plants using the native geolocation api and SSR. Inspired by the design of McMasterCarr, I was hoping to deliver public plant info to people with lower internet speeds. Please enjoy the fruits of my labor."
+    }
 }
