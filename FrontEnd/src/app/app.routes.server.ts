@@ -17,5 +17,9 @@ export const serverRoutes: ServerRoute[] = [
   {
     path: Route.plantRawRoute,
     renderMode: RenderMode.Server
+  },
+  {
+    path: Route.aboutRoute,
+    renderMode: RenderMode.Prerender
   }
 ];

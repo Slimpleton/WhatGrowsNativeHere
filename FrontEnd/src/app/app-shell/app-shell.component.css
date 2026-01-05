@@ -1,0 +1,28 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--wood-brown);
+}
+
+h2 {
+    margin: 0;
+    padding: 0;
+}
+
+.nav-bar {
+    position: static;
+    padding-left: var(--nav-bar--width-padding);
+    padding-right: var(--nav-bar--width-padding);
+    display: inline-flex;
+    justify-content: space-between;
+    height: 40px;
+    width: calc(100% - 2 * var(--nav-bar--width-padding));
+    font-size: 1.2em;
+    align-items: center;
+}
+
+.link-container {
+    display: inline-flex;
+    gap: .5em
+}

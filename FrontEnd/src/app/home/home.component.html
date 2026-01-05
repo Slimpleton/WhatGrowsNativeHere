@@ -1,7 +1,7 @@
-<nav-bar>
-    <plant-search (filteredDataBatch)="updatePlantData($event)" (filterInProgress$)="clearData($event)"
-        style="width:100%"></plant-search>
-</nav-bar>
+<div class="plant-search-container">
+    <plant-search class="plant-search" (filteredDataBatch)="updatePlantData($event)"
+        (filterInProgress$)="clearData($event)" style="width:100%"></plant-search>
+</div>
 
 <section class="container" id="container">
     <cdk-virtual-scroll-viewport id="gov-container-scrollport" [itemSize]="itemSize / columns"

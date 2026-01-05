@@ -1,14 +1,13 @@
 import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { combineCountyFIP, CountyCSVItem, GrowthHabit, PlantData } from '../models/gov/models';
-import { Subject } from 'rxjs/internal/Subject';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { AsyncPipe, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter } from 'rxjs/operators';
-import { combineLatest, merge } from 'rxjs';
+import { combineLatest, merge, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { IconComponent } from '../icon/icon.component';
 
@@ -17,15 +16,15 @@ export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' |
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-search',
-  imports: [AsyncPipe, TranslocoPipe, UpperCasePipe, IconComponent],
+  imports: [TranslocoPipe, UpperCasePipe, IconComponent],
   templateUrl: './plant-search.component.html',
   styleUrl: './plant-search.component.css'
 })
 export class PlantSearchComponent implements OnDestroy {
   public growthHabits: GrowthHabit[] = ['Any', 'Forb/herb', 'Graminoid', 'Nonvascular', 'Shrub', 'Subshrub', 'Tree', 'Vine'];
-  private _growthHabitEmitter$: Subject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
+  private _growthHabitEmitter$: BehaviorSubject<GrowthHabit> = new BehaviorSubject<GrowthHabit>('Any');
 
-  private _isSortOptionAlphabeticOrderEmitter$: Subject<boolean> = new BehaviorSubject<boolean>(true);
+  private _isSortOptionAlphabeticOrderEmitter$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private readonly _searchDebounceTimeMs: number = 300;
 
   private get isSortOptionAlphabeticOrderEmitter$(): Observable<boolean> {
@@ -42,13 +41,13 @@ export class PlantSearchComponent implements OnDestroy {
   }
 
   public sortOptions: SortOption[] = ['commonName', 'scientificName'];
-  private _sortOptionsEmitter$: Subject<SortOption> = new BehaviorSubject<SortOption>('commonName');
+  private _sortOptionsEmitter$: BehaviorSubject<SortOption> = new BehaviorSubject<SortOption>('commonName');
   private get sortOptionsEmitter$(): Observable<SortOption> {
     return this._sortOptionsEmitter$.asObservable();
   }
 
   private _ngDestroy$: Subject<void> = new Subject<void>();
-  @Output() public filterInProgress$: Subject<boolean> = new BehaviorSubject<boolean>(false);
+  @Output() public filterInProgress$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   public _countyName: string = '';
   public get countyName(): string {
@@ -58,7 +57,7 @@ export class PlantSearchComponent implements OnDestroy {
     this._countyName = value;
   }
 
-  private _searchStarter$: Subject<string> = new Subject<string>();
+  private _searchStarter$: Subject<string> = new BehaviorSubject<string>('');
   private _userSearchStarter$: Subject<string> = new Subject<string>();
   private get userSearchStarter$(): Observable<string> {
     return this._userSearchStarter$.pipe(debounceTime(this._searchDebounceTimeMs));
@@ -85,11 +84,6 @@ export class PlantSearchComponent implements OnDestroy {
     takeUntil(this._ngDestroy$)
   );
 
-  public get filteredNativePlants$(): Observable<ReadonlyArray<PlantData>> {
-    return this._fullyFilteredNativePlants;
-  }
-
-
   @Output() public filteredDataBatch: EventEmitter<ReadonlyArray<Readonly<PlantData>>> = new EventEmitter();
 
   public constructor(private readonly _plantService: GovPlantsDataService,
@@ -110,9 +104,6 @@ export class PlantSearchComponent implements OnDestroy {
     });
 
     this._fullyFilteredNativePlants.subscribe();
-    this._sortOptionsEmitter$.next('commonName');
-    this._searchStarter$.next('');
-
   }
 
   ngOnDestroy(): void {

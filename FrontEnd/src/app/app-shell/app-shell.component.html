@@ -1,0 +1,10 @@
+<header id="nav-bar" class="nav-bar">
+    <h2 class="title">{{'TITLE' | transloco}}</h2>
+    <div class="link-container">
+        <a [routerLink]="Route.searchRoute"> {{'SEARCH' | transloco}}</a>
+        <a [routerLink]="Route.aboutRoute">{{'ABOUT' | transloco}}</a>
+    </div>
+</header>
+<main>
+    <router-outlet></router-outlet>
+</main>
