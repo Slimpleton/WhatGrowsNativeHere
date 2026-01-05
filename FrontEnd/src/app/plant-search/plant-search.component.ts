@@ -9,14 +9,13 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter } from 'rxjs/operators';
 import { combineLatest, merge, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { IconComponent } from '../icon/icon.component';
 
 export type SortOption = keyof Pick<PlantData, 'commonName' | 'scientificName' | 'symbol'>;
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-search',
-  imports: [TranslocoPipe, UpperCasePipe, IconComponent],
+  imports: [TranslocoPipe, UpperCasePipe],
   templateUrl: './plant-search.component.html',
   styleUrl: './plant-search.component.css'
 })

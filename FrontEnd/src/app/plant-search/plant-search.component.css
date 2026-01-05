@@ -46,7 +46,8 @@ h2 {
 
 .sortOrderButton {
     background-color: var(--grass-light-green);
-    color: var(--wood-dark-brown)
+    color: var(--wood-dark-brown);
+    width: 6ch;
 }
 
 .selector {
