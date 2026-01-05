@@ -2,21 +2,23 @@
     <div class="nav-bar__container">
         <h1>
             @if(countyName !== null){
-                {{'COUNTY_MAP.COUNTY_SELECTED' | transloco}} {{countyName}}
+            {{'COUNTY_MAP.COUNTY_SELECTED' | transloco}} {{countyName}}
             }
             @else if(countyName === null){
-                {{'COUNTY_MAP.CHOOSE_COUNTY' | transloco}}
+            {{'COUNTY_MAP.CHOOSE_COUNTY' | transloco}}
             }
         </h1>
         <div style="display: flex; align-items: center;">
-            <select [(ngModel)]="selectedStateFIP" #stateSelector name="states" id="states">
-                @for (state of states$ | async; track $index) {
+            <select [value]="selectedStateFIP" (change)="onStateChange($event)" #stateSelector name="states"
+                id="states">
+                @for (state of states; track $index) {
                 <option [value]="state.fip">{{state.name}}</option>
                 }
             </select>
             @if(selectedStateFIP !== undefined){
-            <select [ngModel]="selectedCountyFIP" #countySelector name="counties" id="counties">
-                @for(county of counties$ | async; track $index){
+            <select [value]="selectedCountyFIP" (change)="onCountyChange($event)" #countySelector name="counties"
+                id="counties">
+                @for(county of counties; track $index){
                 <option [value]="combineCountyFIP(county)">{{county.countyName}} - {{county.stateAbbrev}}</option>
                 }
             </select>

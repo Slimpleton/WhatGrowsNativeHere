@@ -9,7 +9,7 @@
             id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
 
         @if (plant.shadeTolerance !== null) {
-        <mat-icon class="shade-tolerance" [svgIcon]="getIconName()"></mat-icon>
+        <app-icon class="shade-tolerance" [name]="iconName"></app-icon>
         }
 
     </span>
@@ -17,32 +17,32 @@
     {
 
     <h4 class="result-property" id="plant-growth-habit-{{plant.acceptedSymbol}}">
-        @for (growthHabit of plant.growthHabit; track $index) {
-        {{'GROWTH_HABITS.' + growthHabit | uppercase | transloco}}{{ $index + 1 < plant.growthHabit.size ? ',' : '' }}}
-            </h4> }
+        {{growthHabits}}
+    </h4> }
 
-            @if(plant.activeGrowthPeriod.length > 0){
-            <h4 class="result-property" id="active-season-{{plant.acceptedSymbol}}">
-                {{ plant.activeGrowthPeriod.join(', ') }}
-            </h4>
-            }
+    @if(plant.activeGrowthPeriod.length > 0){
+    <h4 class="result-property" id="active-season-{{plant.acceptedSymbol}}">
+        {{ plant.activeGrowthPeriod.join(', ') }}
+    </h4>
+    }
 
-            @if(plant.duration !== null){
-            <h4 class="result-property" id="duration-{{plant.acceptedSymbol}}">{{getPlantDuration()}}
-            </h4>
-            }
+    @if(plant.duration !== null){
+    <h4 class="result-property" id="duration-{{plant.acceptedSymbol}}">{{plantDuration}}
+    </h4>
+    }
 
-            @if(plant.shapeAndOrientation !== null){
-            <h4 class="result-property" id="shape-orientation-{{plant.acceptedSymbol}}">
-                {{plant.shapeAndOrientation}}
-            </h4>
-            }
+    @if(plant.shapeAndOrientation !== null){
+    <h4 class="result-property" id="shape-orientation-{{plant.acceptedSymbol}}">
+        {{plant.shapeAndOrientation}}
+    </h4>
+    }
 
-            <div class="last-row" id="last-row-{{plant.acceptedSymbol}}">
-                <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}" class="search-icon"
-                    (click)="openImageSearch(plant)"></pic-search-icon>
-                <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage()">
-                    <mat-icon class="info-icon" svgIcon="question_mark"></mat-icon>
-                </button>
-            </div>
+    <div class="last-row" id="last-row-{{plant.acceptedSymbol}}">
+        <!-- <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}" class="search-icon"
+            (click)="openImageSearch(plant)"></pic-search-icon> -->
+        <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage()">
+            <app-icon class="info-icon" name="help"></app-icon>
+        </button>
+    </div>
 </section>
+<!-- TODO each tile could have a flip side aka a toggle to show the native map region in the tile for this plant?   could lazy load this-->

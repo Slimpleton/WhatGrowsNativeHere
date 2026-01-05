@@ -1,5 +1,6 @@
 import { Inject, Injectable, OnDestroy, PLATFORM_ID } from '@angular/core';
-import { filter, map, merge, Observable, shareReplay, Subject, switchMap, takeUntil } from 'rxjs';
+import { merge, Observable, Subject } from 'rxjs';
+import { filter, map, switchMap, takeUntil, shareReplay } from 'rxjs/operators';
 import { County, StateInfo } from '../models/gov/models';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
@@ -26,7 +27,7 @@ export class PositionService implements OnDestroy {
 
     private readonly _stateEmitter$: Observable<StateInfo> = this.positionEmitter$.pipe(
         switchMap((position: GeolocationPosition) =>
-            this._http.post<{ state: StateInfo | null }>('/api/geolocation/state', [position.coords.longitude, position.coords.latitude]).pipe(map(response => response.state))),
+            this._http.post<{ stateCsvItem: StateInfo | null }>('/api/geolocation/state', position.coords).pipe(map(response => response.stateCsvItem))),
         filter((state: StateInfo | null): state is StateInfo => state != null),
         takeUntil(this._ngDestroy$));
 
@@ -36,7 +37,7 @@ export class PositionService implements OnDestroy {
 
     private readonly _countyEmitter$: Observable<County> = this.positionEmitter$.pipe(
         switchMap((position: GeolocationPosition) =>
-            this._http.post<{ county: County | null }>('/api/geolocation/county', [position.coords.longitude, position.coords.latitude]).pipe(map(response => response.county))),
+            this._http.post<{ countyCsvItem: County | null }>('/api/geolocation/county', position.coords).pipe(map(response => response.countyCsvItem))),
         filter((county: County | null): county is County => county != null),
         takeUntil(this._ngDestroy$));
 

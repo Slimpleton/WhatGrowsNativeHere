@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'pic-search-icon',
-  imports: [MatIconModule],
+  imports: [IconComponent],
   templateUrl: './pic-search-icon.component.html',
   styleUrl: './pic-search-icon.component.css'
 })

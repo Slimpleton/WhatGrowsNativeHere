@@ -1,9 +1,7 @@
 import { afterNextRender, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Inject, PLATFORM_ID } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { CdkFixedSizeVirtualScroll, CdkVirtualForOf, CdkVirtualScrollViewport, } from '@angular/cdk/scrolling';
 import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { PlantData } from '../models/gov/models';
-import { MatIconModule } from '@angular/material/icon';
 import { PlantTileComponent } from '../plant-tile/plant-tile.component';
 import { NavBarComponent } from '../nav-bar/nav-bar.component';
 import { isPlatformBrowser, } from '@angular/common';
@@ -12,8 +10,7 @@ import { isPlatformBrowser, } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [FormsModule, CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent,
-    MatIconModule, PlantTileComponent, NavBarComponent],
+  imports: [CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, NavBarComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

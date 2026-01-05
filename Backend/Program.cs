@@ -49,14 +49,9 @@ namespace Backend
             app.UseAuthorization();
 
             // HACK ignore data, load into memory for the first time
-            _ = Task.Run(async () =>
-            {
-                await foreach (var item in FileService.PlantData) { }
-                await foreach (var item in FileService.States) { }
-                await foreach (var item in FileService.Counties) { }
 
-                Console.WriteLine("All FileService data preloaded.");
-            });
+            foreach (var item in FileService.PlantData) { }
+ 
 
             app.MapControllers();
 

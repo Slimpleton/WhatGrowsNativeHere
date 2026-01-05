@@ -40,24 +40,6 @@ h4 {
     place-items: center;
 }
 
-.overlapped-icon {
-    grid-area: 1/1/2/2;
-}
-
-.overlapped-sun {
-    padding-left: 12px;
-}
-
-.sun,
-.overlapped-sun {
-    color: rgb(255, 208, 0);
-}
-
-.overlapped-cloud,
-.cloud {
-    color: grey;
-}
-
 .info-btn {
     background-color: transparent;
     border-radius: 50%;
