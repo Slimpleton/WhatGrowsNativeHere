@@ -14,6 +14,7 @@ import { geoContains } from 'd3-geo';
 import { quadtree } from 'd3-quadtree';
 import { feature } from 'topojson-client';
 import { fileURLToPath } from 'node:url';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = join(__dirname, '../browser');
@@ -148,6 +149,9 @@ app.use(compression(), express.json());
 
 const angularApp = new AngularNodeAppEngine();
 
+
+
+
 // API endpoints
 app.get('/api/states', (_, res) => {
   res.json(statesCSVCache);
@@ -253,6 +257,14 @@ app.use(
   }),
 );
 
+app.use(
+  '/api/FileData/',
+  createProxyMiddleware({
+    target: 'http://api:8080',
+    changeOrigin: true
+  })
+);
+
 /**
  * Handle all other requests by rendering the Angular application.
  */
@@ -270,12 +282,12 @@ app.use((req, res, next) => {
  * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
  */
 if (isMainModule(import.meta.url) || process.env['pm_id']) {
-  const port = process.env['PORT'] || 4000;
+  const port : number = Number.parseInt(process.env['PORT'] ?? '') || 4000;
 
   await preloadCSV();
   await preloadGeometry();
 
-  app.listen(port, (error) => {
+  app.listen(port, '0.0.0.0', (error) => {
     if (error) {
       throw error;
     }

@@ -9,24 +9,23 @@ services:
     ports:
       - "5000:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:8080
-      # Add your connection strings, API keys, etc.
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
     networks:
-      - seedmapper-network
+      - what-grows-native-here-network
 
-  # Angular Frontend
+  # Angular Frontend (SSR / Node)
   web:
     build:
       context: ./FrontEnd
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "80:4000"   # 👈 Node SSR listens on 4000
     depends_on:
       - api
     networks:
-      - seedmapper-network
+      - what-grows-native-here-network
 
 networks:
-  seedmapper-network:
+  what-grows-native-here-network:
     driver: bridge

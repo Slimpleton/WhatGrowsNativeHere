@@ -6,11 +6,11 @@
     "start": "ng serve",
     "start-ssl": "ng serve --ssl",
     "lint": "npx eslint --fix",
-    "watch:ssr": "ng build --watch --configuration development && npm run serve:ssr",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "build:ssr": "ng build && npm run serve:ssr",
+    "build:ssr": "ng build --configuration production",
     "serve:ssr": "node dist/what-grows-native-here/server/server.mjs",
+    "watch:ssr": "ng run what-grows-native-here:server:development --watch",
     "test": "ng test"
   },
   "private": true,
@@ -28,6 +28,7 @@
     "compression": "^1.8.1",
     "d3": "^7.9.0",
     "express": "^5.1.0",
+    "http-proxy-middleware": "^3.0.5",
     "rxjs": "^7.8.0",
     "topojson-client": "^3.1.0"
   },

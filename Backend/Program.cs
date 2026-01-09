@@ -14,16 +14,12 @@ namespace Backend
             // TODO add transient / singleton services here?
 
             // Add CORS policy
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("Dev",
-                    policy =>
-                    {
-                        policy.WithOrigins("http://localhost:4200") // Angular dev server
-                              .AllowAnyHeader()
-                              .AllowAnyMethod();
-                    });
-            });
+            // FUck cors me and my homies hate it attack my shit dawg theres no userdata
+            //builder.Services.AddCors(options =>
+            //{
+            //    options.AddPolicy("Dev",
+            //        policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+            //});
 
 
             builder.Services.AddResponseCompression(options =>
@@ -43,15 +39,16 @@ namespace Backend
 
             app.UseResponseCompression();
             // Configure the HTTP request pipeline.
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
 
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
+            //app.UseAuthorization();
 
             // HACK ignore data, load into memory for the first time
 
             foreach (var item in FileService.PlantData) { }
- 
 
             app.MapControllers();
 
