@@ -5,13 +5,14 @@ import { catchError, map, shareReplay, switchMap } from "rxjs/operators";
 import { fromFetch } from 'rxjs/fetch';
 import { SortOption } from "../plant-search/plant-search.component";
 import { Observable, of } from "rxjs";
+import { environment } from "../../environments/environment.prod";
 
 @Injectable({
     providedIn: 'root'
 })
 export class GovPlantsDataService {
     public static readonly usdaGovPlantProfileUrl: string = 'https://plants.usda.gov/plant-profile/';
-    private readonly _dataUrl = 'api/FileData/plantdata';
+    private readonly _dataUrl =`${environment.apiUrl}/FileData/plantdata`;
 
     public constructor(private readonly _http: HttpClient) {
     }

@@ -13,14 +13,15 @@ namespace Backend
             // Add services to the container.
             // TODO add transient / singleton services here?
 
-            // Add CORS policy
-            // FUck cors me and my homies hate it attack my shit dawg theres no userdata
-            //builder.Services.AddCors(options =>
-            //{
-            //    options.AddPolicy("Dev",
-            //        policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-            //});
-
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
 
             builder.Services.AddResponseCompression(options =>
             {
@@ -36,6 +37,8 @@ namespace Backend
             builder.Services.AddControllers();
 
             var app = builder.Build();
+            // Use CORS - THIS MUST BE BEFORE other middleware like UseAuthorization
+            app.UseCors("AllowAll");
 
             app.UseResponseCompression();
             // Configure the HTTP request pipeline.
@@ -44,13 +47,16 @@ namespace Backend
                 app.UseHttpsRedirection();
             }
 
-            //app.UseAuthorization();
+            app.UseAuthorization();
 
             // HACK ignore data, load into memory for the first time
 
             foreach (var item in FileService.PlantData) { }
 
             app.MapControllers();
+
+            // Add health check endpoint
+            app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
             app.Run();
 

@@ -260,8 +260,16 @@ app.use(
 app.use(
   '/api/FileData/',
   createProxyMiddleware({
-    target: 'http://api:8080',
-    changeOrigin: true
+    target: process.env['API_URL'] || 'http://api:8080',
+    changeOrigin: true,
+    // logLevel: 'debug', // Add logging to see what's happening
+    // onError: (err: any, req: any, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { error: string; }): void; new(): any; }; }; }) => {
+    //   console.error('Proxy error:', err);
+    //   res.status(500).json({ error: 'Backend API unavailable' });
+    // },
+    // onProxyReq: (proxyReq: { path: any; }, req: { method: any; url: any; }, res: any) => {
+    //   console.log(`Proxying ${req.method} ${req.url} to ${proxyReq.path}`);
+    // }
   })
 );
 

@@ -1,7 +1,4 @@
-version: '3.8'
-
 services:
-  # .NET API Backend
   api:
     build:
       context: ./Backend
@@ -13,16 +10,26 @@ services:
       ASPNETCORE_URLS: http://+:8080
     networks:
       - what-grows-native-here-network
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/localhost/8080' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
-  # Angular Frontend (SSR / Node)
   web:
     build:
       context: ./FrontEnd
       dockerfile: Dockerfile
     ports:
-      - "80:4000"   # 👈 Node SSR listens on 4000
+      - "80:4000"
+    environment:
+      API_URL: http://api:8080
+      NODE_ENV: production
+      PORT: 4000
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     networks:
       - what-grows-native-here-network
 
