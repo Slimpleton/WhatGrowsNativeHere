@@ -2,7 +2,6 @@
     <div class="col">
         <label class="label" for="search-container">{{'FILTERS' | transloco}}</label>
         <div id="search-container" name="search-container" class="search-container col">
-            <!-- TODO consider making the search bar a filter instead of a query param -->
             <input type="text" name="searchbar" id="searchbar" #searchBar (input)="search(searchBar.value)"
                 [placeholder]="'SEARCHBAR_PLACEHOLDER' | transloco" class="searchbar">
             <div class="search-container row">
