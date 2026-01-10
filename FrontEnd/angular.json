@@ -24,9 +24,9 @@
                 "glob": "**/*",
                 "input": "public"
               },
-{
+              {
                 "glob": "**/*.json",
-                "input": "src/assets/il8n",
+                "input": "src/assets/i18n",
                 "output": "assets/i18n"
               }
             ],
@@ -97,7 +97,7 @@
               },
               {
                 "glob": "**/*.json",
-                "input": "src/assets/il8n",
+                "input": "src/assets/i18n",
                 "output": "assets/i18n"
               }
             ],

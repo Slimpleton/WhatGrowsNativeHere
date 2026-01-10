@@ -16,7 +16,7 @@ export const appConfig: ApplicationConfig = {
         reRenderOnLangChange: true,
         prodMode: !isDevMode(),
       },
-      loader: TranslocoHttpLoader
+      loader: TranslocoHttpLoader,
     }),
     provideClientHydration(withIncrementalHydration()),
     provideZonelessChangeDetection()]

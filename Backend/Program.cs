@@ -1,6 +1,7 @@
 using Backend.Services;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
+using System.Text.Json.Serialization;
 
 namespace Backend
 {
@@ -34,7 +35,10 @@ namespace Backend
                 options.Level = CompressionLevel.Fastest;
             });
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions( options =>
+            {
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            });
 
             var app = builder.Build();
             // Use CORS - THIS MUST BE BEFORE other middleware like UseAuthorization

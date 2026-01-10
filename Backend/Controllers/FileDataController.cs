@@ -26,6 +26,7 @@ namespace Backend.Controllers
             return await FileService.PlantData.ToAsyncEnumerable().FirstOrDefaultAsync(x => x.AcceptedSymbol == id, cancellationToken: cancellationToken);
         }
 
+        // TODO we could return less data by somehow not including properties with null values in the json and binding them to null on instantiation in typescript. this makes the data returned even smaller
         [HttpGet("plantdata/search")]
         public async Task SearchForPlantDataAsync([FromQuery] string combinedFIP, [FromQuery] string? searchString,[FromQuery]SortOption sortOption, [FromQuery] bool ascending, [FromQuery]int batchSize, [FromQuery, ModelBinder(BinderType = typeof(GrowthHabitModelBinder))] GrowthHabit? growthHabit, CancellationToken cancellationToken)
         {

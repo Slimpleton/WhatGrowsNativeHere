@@ -149,8 +149,25 @@ app.use(compression(), express.json());
 
 const angularApp = new AngularNodeAppEngine();
 
+// Add i18n - serve directly from browser folder
+app.use('/assets', express.static(join(browserDistFolder, 'assets')));
 
+// DEBUG 
+app.use('/api/FileData', (req, _, next) => {
+  console.log(`[PROXY MIDDLEWARE] Hit! ${req.method} ${req.url}`);
+  next();
+});
 
+app.use(
+  '/api/FileData',
+  createProxyMiddleware({
+    target: process.env['API_URL'] || 'http://api:8080',
+    changeOrigin: true,
+    pathRewrite: {
+      '^/api/FileData': '/api/FileData',
+    },
+  })
+);
 
 // API endpoints
 app.get('/api/states', (_, res) => {
@@ -234,6 +251,10 @@ app.post('/api/geolocation/county', async (req, res) => {
   }
 });
 
+
+// DEBUG PROXY
+console.log('Setting up proxy with target:', process.env['API_URL'] || 'http://api:8080');
+
 /**
  * Example Express Rest API endpoints can be defined here.
  * Uncomment and define endpoints as necessary.
@@ -249,6 +270,8 @@ app.post('/api/geolocation/county', async (req, res) => {
 /**
  * Serve static files from /browser
  */
+
+
 app.use(
   express.static(browserDistFolder, {
     maxAge: '1y',
@@ -257,21 +280,6 @@ app.use(
   }),
 );
 
-app.use(
-  '/api/FileData/',
-  createProxyMiddleware({
-    target: process.env['API_URL'] || 'http://api:8080',
-    changeOrigin: true,
-    // logLevel: 'debug', // Add logging to see what's happening
-    // onError: (err: any, req: any, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { error: string; }): void; new(): any; }; }; }) => {
-    //   console.error('Proxy error:', err);
-    //   res.status(500).json({ error: 'Backend API unavailable' });
-    // },
-    // onProxyReq: (proxyReq: { path: any; }, req: { method: any; url: any; }, res: any) => {
-    //   console.log(`Proxying ${req.method} ${req.url} to ${proxyReq.path}`);
-    // }
-  })
-);
 
 /**
  * Handle all other requests by rendering the Angular application.
@@ -290,7 +298,7 @@ app.use((req, res, next) => {
  * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
  */
 if (isMainModule(import.meta.url) || process.env['pm_id']) {
-  const port : number = Number.parseInt(process.env['PORT'] ?? '') || 4000;
+  const port: number = Number.parseInt(process.env['PORT'] ?? '') || 4000;
 
   await preloadCSV();
   await preloadGeometry();

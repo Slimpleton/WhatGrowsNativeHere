@@ -28,7 +28,8 @@ COPY --from=build /app/package*.json ./
 RUN npm ci --omit=dev
 
 # Copy i18n assets into the server folder explicitly
-COPY --from=build /app/src/assets/i18n ./dist/what-grows-native-here/server/assets/i18n
+COPY --from=build /app/dist/what-grows-native-here/browser/assets/i18n ./dist/what-grows-native-here/browser/assets/i18n
+COPY --from=build /app/dist/what-grows-native-here/browser/assets/i18n ./dist/what-grows-native-here/server/assets/i18n
 
 EXPOSE 4000
 
