@@ -1,5 +1,5 @@
 :host {
-  --item-height: min(248px, 100vw);
+  --item-height: 248px;
   --container-height: 6em;
 }
 
