@@ -77,7 +77,7 @@ export class HomeComponent {
   private calculateColumns() {
     if (isPlatformBrowser(this._platformId)) {
       const windowWidth = window.innerWidth;
-      this.columns = Math.min(1, Math.floor(windowWidth / (this.itemWidth)));
+      this.columns = Math.max(1, Math.floor(windowWidth / (this.itemWidth)));
       this._cdr.markForCheck();
     }
   }
