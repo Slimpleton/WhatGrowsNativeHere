@@ -6,6 +6,7 @@
     "start": "ng serve",
     "start-ssl": "ng serve --ssl",
     "lint": "npx eslint --fix",
+    "dev": "next dev -H 0.0.0.0 -p 4000",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "dev:ssr": "ng run what-grows-native-here:server:development",
