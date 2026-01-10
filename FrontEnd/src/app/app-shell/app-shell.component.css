@@ -9,7 +9,7 @@
     /* font-size: 40cqi; */
     /* Example value - 10% of the container's inline size */
     /* Add a max-size for accessibility and design control */
-    font-size: clamp(1rem, 5cqi, 4rem)
+    font-size: clamp(1rem, 2cqi, 3rem)
 }
 
 h2 {
