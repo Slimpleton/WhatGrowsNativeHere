@@ -1,0 +1,81 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Fly.io
+fly.toml
+.fly
+
+# Node.js / Angular Frontend
+FrontEnd/node_modules
+FrontEnd/dist
+FrontEnd/.angular
+FrontEnd/npm-debug.log*
+FrontEnd/yarn-debug.log*
+FrontEnd/yarn-error.log*
+FrontEnd/.npm
+FrontEnd/.yarn
+FrontEnd/.pnp.*
+
+# .NET Backend
+Backend/bin
+Backend/obj
+Backend/**/*.user
+Backend/**/*.suo
+Backend/.vs
+Backend/.vscode
+Backend/*.dbmdl
+Backend/*.jfm
+Backend/*.pfx
+Backend/*.publishsettings
+
+# IDE and Editor
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+coverage
+*.coverage
+*.coveragexml
+.nyc_output
+
+# Build artifacts
+*.dll
+*.exe
+*.pdb
+*.cache
+
+# Documentation
+README.md
+*.md
+docs/
+
+# CI/CD
+.github
+.gitlab-ci.yml
+azure-pipelines.yml
