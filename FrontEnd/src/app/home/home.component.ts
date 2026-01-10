@@ -76,9 +76,8 @@ export class HomeComponent {
 
   private calculateColumns() {
     if (isPlatformBrowser(this._platformId)) {
-      // TODO account for the gaps between columns
       const windowWidth = window.innerWidth;
-      this.columns = Math.floor(windowWidth / (this.itemWidth));
+      this.columns = Math.min(1, Math.floor(windowWidth / (this.itemWidth)));
       this._cdr.markForCheck();
     }
   }
