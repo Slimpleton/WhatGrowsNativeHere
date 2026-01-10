@@ -8,6 +8,7 @@
     "lint": "npx eslint --fix",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "dev:ssr": "ng run what-grows-native-here:server:development",
     "build:ssr": "ng build --configuration production",
     "serve:ssr": "node dist/what-grows-native-here/server/server.mjs",
     "watch:ssr": "ng run what-grows-native-here:server:development --watch",

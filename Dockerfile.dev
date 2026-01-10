@@ -1,0 +1,30 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0
+
+# Install Node + Supervisor
+RUN apt-get update && apt-get install -y \
+    curl \
+    supervisor \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Frontend deps (cached)
+COPY FrontEnd/package*.json ./FrontEnd/
+WORKDIR /app/FrontEnd
+RUN npm ci
+
+# Backend deps (cached)
+WORKDIR /app
+COPY Backend/Backend.csproj ./Backend/
+RUN dotnet restore ./Backend/Backend.csproj
+
+# Supervisor config
+COPY supervisord.dev.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Ports
+EXPOSE 8080 4000
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

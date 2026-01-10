@@ -5,6 +5,13 @@
     background-color: var(--wood-brown);
 }
 
+.title {
+    /* font-size: 40cqi; */
+    /* Example value - 10% of the container's inline size */
+    /* Add a max-size for accessibility and design control */
+    font-size: clamp(1rem, 20cqi, 4rem)
+}
+
 h2 {
     margin: 0;
     padding: 0;
@@ -15,6 +22,8 @@ h2 {
     padding-left: var(--nav-bar--width-padding);
     padding-right: var(--nav-bar--width-padding);
     display: inline-flex;
+    container-type: inline-size;
+    white-space: nowrap;
     justify-content: space-between;
     height: 40px;
     width: calc(100% - 2 * var(--nav-bar--width-padding));
