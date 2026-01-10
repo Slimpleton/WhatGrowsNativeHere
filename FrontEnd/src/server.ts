@@ -152,20 +152,11 @@ const angularApp = new AngularNodeAppEngine();
 // Add i18n - serve directly from browser folder
 app.use('/assets', express.static(join(browserDistFolder, 'assets')));
 
-// DEBUG 
-app.use('/api/FileData', (req, _, next) => {
-  console.log(`[PROXY MIDDLEWARE] Hit! ${req.method} ${req.url}`);
-  next();
-});
-
 app.use(
-  '/api/FileData',
   createProxyMiddleware({
     target: process.env['API_URL'] || 'http://api:8080',
     changeOrigin: true,
-    pathRewrite: {
-      '^/api/FileData': '/api/FileData',
-    },
+    pathFilter: '/api/FileData',
   })
 );
 
