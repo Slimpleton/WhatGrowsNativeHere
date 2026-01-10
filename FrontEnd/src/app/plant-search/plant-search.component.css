@@ -8,13 +8,14 @@ h2 {
     width: 100%;
     align-items: flex-start;
     text-align: center;
+    container-type: inline-size;
 }
 
 .filter-title {
-    flex: 1;
+    flex-grow: 1;
     font-weight: 600;
-    font-size: clamp(1.75vw, 1.25em, 3em);
-    line-height: clamp(1.75vw, 1em, 3em);
+    font-size: clamp(1rem, 2cqi, 3rem);
+    line-height: clamp(1rem, 2cqi, 3rem);
 }
 
 .search-container {
@@ -42,6 +43,7 @@ h2 {
 
 .col {
     flex-direction: column;
+    max-width: 450px;
 }
 
 .sortOrderButton {
