@@ -48,7 +48,7 @@ export class HomeComponent {
   // PRIORITIES 
   // MEDIUM 
   // TODO make a calflora service cuz their db is extensive possibly with many records
-  // TODO use d3-geo / us-atlas maps to display gbif occurence data and other occurence data??? 
+  // TODO  display gbif occurence data and other occurence data??? 
   // TODO use inaturalist api for occurrences as well, research grade only, use for occurrences because its community driven
   // https://explorer.natureserve.org/api-docs/#_species_search OnlyNatives for locationCriteria will get only the native species we search !! might have some info on occurrences here too not sure could also get a combined accurate record of native plants 
   // TODO trefle api has open source botanical indexed plants and stuff too, probably use for occurrences because native declaration is weak
@@ -56,7 +56,6 @@ export class HomeComponent {
 
   // HIGH 
   // TODO make a reader for the gbif occurrence download records
-  // TODO use d3-geo and us-atlas to display maps of the geo locatoins
   // TODO inaturalist images from occurrences, look for non copyright 
   // Maps are drawn on canvas btw its not like ur unfamiliar with it
 

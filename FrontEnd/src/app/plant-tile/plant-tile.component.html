@@ -1,9 +1,12 @@
 <section class="plant-holder" id="plant-holder-{{plant.acceptedSymbol}}">
+
     <h1 class="result-common-name" id="plant-common-name-{{plant.acceptedSymbol}}">{{plant.commonName | titlecase}}
     </h1>
     <h2 class="result-scientific-name" id="plant-scientific-name-{{plant.acceptedSymbol}}">{{plant.scientificName |
         titlecase}}
     </h2>
+
+    @if(!showMap){
     <span class="symbolAndShadeRow">
         <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol" class=""
             id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
@@ -38,6 +41,11 @@
         {{plant.shapeAndOrientation}}
     </h4>
     }
+    }
+    @else {
+    <!-- TODO map view here  -->
+    <svg #map [attr.viewBox]="viewBox"></svg>
+    }
 
     <!-- <div class="plant-guide-container" id="plant-guide-container-{{plant.acceptedSymbol}}"> -->
     <!-- TODO figure out how to ensure the guides actually exist -->
@@ -50,7 +58,9 @@
         <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage()">
             <app-icon class="info-icon" name="help"></app-icon>
         </button>
+
+        <button class="info-btn" id="map-btn-{{plant.acceptedSymbol}}" (click)="showMap = !showMap">
+            <app-icon class="map-icon" name="location_marker"></app-icon>
+        </button>
     </div>
 </section>
-<!-- TODO each tile could have a flip side aka a toggle to show the native map region in the tile for this plant?   could lazy load this-->
-<!-- TODO use location svg and back arrow svg  -->

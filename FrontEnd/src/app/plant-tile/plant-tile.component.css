@@ -52,17 +52,17 @@ h4 {
     border: 2px solid var(--wood-dark-brown);
 }
 
-.info-icon{
+.info-icon {
     color: var(--wood-dark-brown);
 }
 
-.last-row{
-    display:inline-flex;
-    gap:1.5em;
+.last-row {
+    display: inline-flex;
     margin-top: auto;
     align-content: center;
+    justify-content: space-between;
 }
 
-.search-icon{
+.search-icon {
     transform: translateY(.5em);
 }

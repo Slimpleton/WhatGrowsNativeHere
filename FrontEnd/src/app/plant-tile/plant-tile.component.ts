@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
@@ -18,8 +18,18 @@ import { IconComponent, IconName } from '../icon/icon.component';
 export class PlantTileComponent {
   public usdaGovPlantProfileUrl: string = GovPlantsDataService.usdaGovPlantProfileUrl;
   @Input({ required: true }) public plant!: PlantData;
-  private _translatedGrowthHabits?: string = undefined;
+  @ViewChild('map') public mapRef?: ElementRef<SVGSVGElement>;
+
+  public static readonly WIDTH: number = 400;
+  public static readonly HEIGHT: number = 140;
+
+  public get viewBox(): string {
+    return `0 0 ${PlantTileComponent.WIDTH} ${PlantTileComponent.HEIGHT}`
+  }
+
+  public showMap: boolean = false;
   private readonly _router = inject(Router);
+
 
   public constructor() {
   }
@@ -43,10 +53,6 @@ export class PlantTileComponent {
 
   public openInfoPage() {
     this._router.navigate(['plant/raw/' + this.plant.acceptedSymbol], { state: <PlantOverviewRouteData>{ plant: this.plant } });
-  }
-
-  public get growthHabits(): string | undefined {
-    return this._translatedGrowthHabits;
   }
 
   public get iconName(): IconName {
