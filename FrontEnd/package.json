@@ -9,8 +9,8 @@
     "dev": "next dev -H 0.0.0.0 -p 4000",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "dev:ssr": "ng run what-grows-native-here:server:development",
-    "build:ssr": "ng build --configuration production",
+    "dev:ssr": "ng build && node dist/what-grows-native-here/server/server.mjs",
+    "build:ssr": "ng build && ng run what-grows-native-here:server:production",
     "serve:ssr": "node dist/what-grows-native-here/server/server.mjs",
     "watch:ssr": "ng run what-grows-native-here:server:development --watch",
     "test": "ng test"
@@ -52,9 +52,11 @@
     "@types/node": "^20.17.19",
     "@types/topojson-client": "^3.1.5",
     "angular-eslint": "20.5.1",
+    "concurrently": "^9.2.1",
     "eslint": "^9.39.1",
     "globals": "^16.5.0",
     "jiti": "^2.6.1",
+    "nodemon": "^3.1.11",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.3"
   },

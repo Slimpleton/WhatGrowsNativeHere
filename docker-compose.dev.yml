@@ -1,0 +1,19 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"    # Backend API
+      - "4200:4200"    # Angular SSR Server
+    volumes:
+      - ./Backend:/app/Backend
+      - ./FrontEnd:/app/FrontEnd
+      - /app/Backend/bin
+      - /app/Backend/obj
+      - /app/FrontEnd/node_modules
+      - /app/FrontEnd/.angular
+      - /app/FrontEnd/dist
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - API_URL=http://localhost:8080

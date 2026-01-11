@@ -1,9 +1,9 @@
 # =========================
-# Base Image
+# Development Dockerfile
 # =========================
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:10.0
 
-# Install Node + Supervisor
+# Install Node.js and supervisor
 RUN apt-get update && apt-get install -y \
     curl \
     supervisor \
@@ -12,32 +12,60 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Create app directory
 WORKDIR /app
 
-# =========================
-# Frontend dependencies
-# =========================
+# Copy backend project files
+COPY Backend/Backend.csproj ./Backend/
+RUN dotnet restore "./Backend/Backend.csproj"
+
+# Copy frontend package files
+COPY FrontEnd/package*.json ./FrontEnd/
 WORKDIR /app/FrontEnd
-# Copy only package.json / package-lock.json to cache npm install
-COPY FrontEnd/package*.json ./
-RUN npm ci
+RUN npm install
 
-# =========================
-# Backend dependencies
-# =========================
-WORKDIR /app/Backend
-COPY Backend/Backend.csproj ./
-RUN dotnet restore
-
-# =========================
-# Supervisor config
-# =========================
+# Copy all source files
 WORKDIR /app
-COPY supervisord.dev.conf /etc/supervisor/conf.d/supervisord.conf
+COPY Backend/ ./Backend/
+COPY FrontEnd/ ./FrontEnd/
 
 # Expose ports
-EXPOSE 8080 4000
+# Backend API (only for /api/FileData)
+EXPOSE 8080
+# Angular SSR server (handles most APIs + SSR + client)
+EXPOSE 4200
 
-# Start Supervisor
+# Set environment variables for development
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_URLS=http://+:8080
+ENV NODE_ENV=development
+ENV API_URL=http://localhost:8080
+
+# Configure supervisord for dev
+COPY <<EOF /etc/supervisor/conf.d/supervisord.conf
+[supervisord]
+nodaemon=true
+user=root
+
+[program:backend]
+command=dotnet watch --project /app/Backend/Backend.csproj run --urls http://0.0.0.0:8080
+directory=/app/Backend
+autostart=true
+autorestart=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+
+[program:frontend-dev]
+command=bash -c "npm run dev:ssr"
+directory=/app/FrontEnd
+autostart=true
+autorestart=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+environment=API_URL="http://localhost:8080",PORT="4200"
+EOF
+
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
