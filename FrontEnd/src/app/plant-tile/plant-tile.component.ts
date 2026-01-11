@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
@@ -33,6 +33,15 @@ export class PlantTileComponent {
 
 
   public constructor(private readonly _mapService: MapService) {
+    afterNextRender({
+      write: () => {
+        // TODO create path and projection that fits the svg element here
+        const path = null;
+        const projection = null;
+        // TODO add occurrences in the overview of the plant maybe with the same base native map
+        // todo load occurrences in reverse chronological order and stream the new svgs onto the map idk man animated? 
+      }
+    });    
   }
 
   public get growthHabitKeys(): string[] {
