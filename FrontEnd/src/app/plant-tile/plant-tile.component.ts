@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
 import { PlantData } from '../models/gov/models';
 import { TitleCasePipe } from '@angular/common';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
@@ -6,6 +6,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { Router } from '@angular/router';
 import { PlantOverviewRouteData } from '../app.routes';
 import { IconComponent, IconName } from '../icon/icon.component';
+import { MapService } from '../services/map.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,10 +19,27 @@ import { IconComponent, IconName } from '../icon/icon.component';
 export class PlantTileComponent {
   public usdaGovPlantProfileUrl: string = GovPlantsDataService.usdaGovPlantProfileUrl;
   @Input({ required: true }) public plant!: PlantData;
-  private _translatedGrowthHabits?: string = undefined;
+  @ViewChild('map') public mapRef?: ElementRef<SVGSVGElement>;
+
+
+  public get viewBox(): string {
+    return `0 0 ${MapService.PLANT_TILE_MAP_WIDTH} ${MapService.PLANT_TILE_MAP_HEIGHT}`
+  }
+
+  public showMap: boolean = false;
   private readonly _router = inject(Router);
 
-  public constructor() {
+
+  public constructor(private readonly _mapService: MapService) {
+    afterNextRender({
+      write: () => {
+
+        // TODO create path and projection that fits the svg element here
+
+        // TODO add occurrences in the overview of the plant maybe with the same base native map
+        // todo load occurrences in reverse chronological order and stream the new svgs onto the map idk man animated? 
+      }
+    });
   }
 
   public get growthHabitKeys(): string[] {
@@ -31,22 +49,12 @@ export class PlantTileComponent {
     return [...this.plant.growthHabit].map(x => 'GROWTH_HABITS.' + x.toUpperCase());
   }
 
-  public openImageSearch(plant: PlantData): void {
-    const query: string = plant.commonName?.length > 0 ? plant.commonName : plant.scientificName;
-    const queryUrl: string = `https://www.google.com/search?q=${query}&tbm=isch`;
-    window.open(queryUrl, '_blank');
-  }
-
   public get plantDuration(): string {
     return [...this.plant.duration].join(', ');
   }
 
   public openInfoPage() {
     this._router.navigate(['plant/raw/' + this.plant.acceptedSymbol], { state: <PlantOverviewRouteData>{ plant: this.plant } });
-  }
-
-  public get growthHabits(): string | undefined {
-    return this._translatedGrowthHabits;
   }
 
   public get iconName(): IconName {
@@ -58,5 +66,9 @@ export class PlantTileComponent {
       case 'Tolerant':
         return 'cloud';
     }
+  }
+
+  public get combinedCountyFips(): string[] {
+    return this.plant.combinedCountyFIPs;
   }
 }

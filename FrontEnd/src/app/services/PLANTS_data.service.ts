@@ -25,7 +25,6 @@ export class GovPlantsDataService {
         return this._http.get<string[]>(this._dataUrl + '/id');
     }
 
-    // TODO add batch size param
     // TODO add batch index param 
     // TODO store url, batch index, and batch in map for in-memory cache
 

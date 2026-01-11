@@ -1,3 +1,21 @@
+<!-- HACK Base County Plant tile map ref -->
+<svg width="0" height="0" style="position:absolute; pointer-events:none;">
+    <defs>
+        <!-- base county mesh -->
+        <path id="county-mesh"
+            [attr.d]="mapService.countyMeshPath$(PLANT_TILE_MAP_WIDTH, PLANT_TILE_MAP_HEIGHT) | async" />
+
+        <!-- nation border -->
+        <path id="nation-border"
+            [attr.d]="(mapService.nationBorderPath$(PLANT_TILE_MAP_WIDTH, PLANT_TILE_MAP_HEIGHT) | async) ?? ''" />
+
+        <!-- individual counties -->
+        @for(c of countiesPaths$ | async; track c){
+        <path [attr.id]="'county-' + c.id" [attr.d]="c.d" />
+        }
+    </defs>
+</svg>
+
 <div class="plant-search-container">
     <plant-search class="plant-search" (filteredDataBatch)="updatePlantData($event)"
         (filterInProgress$)="clearData($event)" style="width:100%"></plant-search>
