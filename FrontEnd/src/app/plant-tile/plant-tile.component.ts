@@ -6,6 +6,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { Router } from '@angular/router';
 import { PlantOverviewRouteData } from '../app.routes';
 import { IconComponent, IconName } from '../icon/icon.component';
+import { MapService } from '../map.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,7 +32,7 @@ export class PlantTileComponent {
   private readonly _router = inject(Router);
 
 
-  public constructor() {
+  public constructor(private readonly _mapService: MapService) {
   }
 
   public get growthHabitKeys(): string[] {
@@ -39,12 +40,6 @@ export class PlantTileComponent {
       return [];
     }
     return [...this.plant.growthHabit].map(x => 'GROWTH_HABITS.' + x.toUpperCase());
-  }
-
-  public openImageSearch(plant: PlantData): void {
-    const query: string = plant.commonName?.length > 0 ? plant.commonName : plant.scientificName;
-    const queryUrl: string = `https://www.google.com/search?q=${query}&tbm=isch`;
-    window.open(queryUrl, '_blank');
   }
 
   public get plantDuration(): string {
