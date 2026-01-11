@@ -66,3 +66,19 @@ h4 {
 .search-icon {
     transform: translateY(.5em);
 }
+
+.mini-map .county.present {
+    fill: #4caf50;
+}
+
+.mini-map .mesh {
+    fill: none;
+    stroke: #444;
+    stroke-width: 0.2;
+}
+
+.mini-map .nation-border {
+    fill: none;
+    stroke: #000;
+    stroke-width: .6;
+}

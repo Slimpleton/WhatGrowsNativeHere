@@ -6,7 +6,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { Router } from '@angular/router';
 import { PlantOverviewRouteData } from '../app.routes';
 import { IconComponent, IconName } from '../icon/icon.component';
-import { MapService } from '../map.service';
+import { MapService } from '../services/map.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,11 +21,9 @@ export class PlantTileComponent {
   @Input({ required: true }) public plant!: PlantData;
   @ViewChild('map') public mapRef?: ElementRef<SVGSVGElement>;
 
-  public static readonly WIDTH: number = 400;
-  public static readonly HEIGHT: number = 140;
 
   public get viewBox(): string {
-    return `0 0 ${PlantTileComponent.WIDTH} ${PlantTileComponent.HEIGHT}`
+    return `0 0 ${MapService.PLANT_TILE_MAP_WIDTH} ${MapService.PLANT_TILE_MAP_HEIGHT}`
   }
 
   public showMap: boolean = false;
@@ -35,13 +33,13 @@ export class PlantTileComponent {
   public constructor(private readonly _mapService: MapService) {
     afterNextRender({
       write: () => {
+
         // TODO create path and projection that fits the svg element here
-        const path = null;
-        const projection = null;
+
         // TODO add occurrences in the overview of the plant maybe with the same base native map
         // todo load occurrences in reverse chronological order and stream the new svgs onto the map idk man animated? 
       }
-    });    
+    });
   }
 
   public get growthHabitKeys(): string[] {
@@ -68,5 +66,9 @@ export class PlantTileComponent {
       case 'Tolerant':
         return 'cloud';
     }
+  }
+
+  public get combinedCountyFips(): string[] {
+    return this.plant.combinedCountyFIPs;
   }
 }

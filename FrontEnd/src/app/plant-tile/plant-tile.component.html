@@ -44,7 +44,18 @@
     }
     @else {
     <!-- TODO map view here  -->
-    <svg #map [attr.viewBox]="viewBox"></svg>
+    <svg #map [attr.viewBox]="viewBox" class="mini-map">
+        <!-- nation border (render first, below everything) -->
+        <use href="#nation-border" class="nation-border" />
+        <!-- base mesh -->
+        <use href="#county-mesh" class="mesh" />
+
+        <!-- highlight counties for this plant -->
+        @for(countyFip of combinedCountyFips; track countyFip){
+        <use [attr.href]="'#county-' + countyFip" class="county present" />
+        }
+    </svg>
+
     }
 
     <!-- <div class="plant-guide-container" id="plant-guide-container-{{plant.acceptedSymbol}}"> -->
