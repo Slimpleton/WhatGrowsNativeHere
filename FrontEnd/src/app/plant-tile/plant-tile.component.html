@@ -17,7 +17,9 @@
     {
 
     <h4 class="result-property" id="plant-growth-habit-{{plant.acceptedSymbol}}">
-        {{growthHabits}}
+        @for (key of growthHabitKeys; track key; let last = $last) {
+        {{ key | transloco }}@if (!last) {, }
+        }
     </h4> }
 
     @if(plant.activeGrowthPeriod.length > 0){
