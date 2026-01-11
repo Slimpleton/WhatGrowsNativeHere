@@ -10,7 +10,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "dev:ssr": "ng build && node dist/what-grows-native-here/server/server.mjs",
-    "build:ssr": "ng build && node dist/what-grows-native-here/server/server.mjs",
+    "build:ssr": "ng build --configuration production --output-hashing=all",
     "serve:ssr": "node dist/what-grows-native-here/server/server.mjs",
     "watch:ssr": "ng run what-grows-native-here:server:development --watch",
     "test": "ng test"
