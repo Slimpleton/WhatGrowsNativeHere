@@ -1,6 +1,6 @@
 .container {
   background-color: var(--grass-light-green);
-  margin-bottom: 2em;
+  padding-bottom: 2em;
 }
 
 .text {
