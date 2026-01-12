@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-export type IconName = 'cloud' | 'partly-cloudy' | 'image' | 'help' | 'search' | 'sort-alpha' | 'sunny' | 'location_marker';
+export type IconName = 'cloud' | 'partly-cloudy' | 'image' | 'help' | 'search' | 'sort-alpha' | 'sunny' | 'location_marker' | 'undo';
 
 @Component({
   selector: 'app-icon',
@@ -17,7 +17,8 @@ export class IconComponent {
     'search': 'red',
     'sort-alpha': 'rgb(68, 51, 29)',
     'sunny': 'rgb(68, 51, 29)',
-    'location_marker': 'rgb(68, 51, 29)'
+    'location_marker': 'rgb(68, 51, 29)',
+    'undo': 'rgb(68, 51, 29)'
   };
 
   @Input() name!: IconName;

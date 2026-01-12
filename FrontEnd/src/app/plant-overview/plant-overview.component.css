@@ -1,32 +1,42 @@
-.container{
-    background-color: var(--grass-light-green);
+.container {
+  background-color: var(--grass-light-green);
+  margin-bottom: 2em;
 }
 
-.text{
-    margin: 0;
-}
-
-h1{
+.text {
   margin: 0;
 }
 
-.header{
+h1 {
+  margin: 0;
+}
+
+.header {
   padding: 1em 0 1em 0;
   text-align: center;
 }
 
 @supports (scrollbar-color: auto) {
-  .container, .text {
+
+  .container,
+  .text {
     scrollbar-color: var(--wood-dark-brown) var(--wood-brown);
   }
 }
 
 @supports selector(::-webkit-scrollbar) {
-  .container::-webkit-scrollbar, .text::-webkit-scrollbar {
+
+  .container::-webkit-scrollbar,
+  .text::-webkit-scrollbar {
     background: var(--wood-dark-brown);
   }
 
-  .container:-webkit-scrollbar-thumb, .text:-webkit-scrollbar-thumb {
+  .container:-webkit-scrollbar-thumb,
+  .text:-webkit-scrollbar-thumb {
     background: var(--wood-brown);
   }
+}
+
+.key-value-list {
+  list-style: none;
 }

@@ -1,6 +1,18 @@
 <section class="container">
     @if(plant() !== null){
-    <h1 class="header">{{'PLANT_OVERVIEW_HEADER' | transloco: {plantCommonName: plant().commonName | titlecase, plantScientificName: plant().scientificName | titlecase} }}</h1>
-    <pre class="text">{{plant() | json}}</pre>
+    <h1 class="header">{{'PLANT_OVERVIEW_HEADER' | transloco: {plantCommonName: plant().commonName | titlecase,
+        plantScientificName: plant().scientificName | titlecase} }} (
+        <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant().acceptedSymbol"
+            id="plant-abbreviation">{{plant().acceptedSymbol}}</a>
+        )
+    </h1>
+
+    <ul class="key-value-list">
+        @for(item of plant() | keyvalue; track item.key){
+        <li class="text"><b>{{item.key | camelSplit | titlecase}}</b>:
+            {{isIterable(item.value) ? getIterableString(item.value) : item.value}}
+        </li>
+        }
+    </ul>
     }
 </section>
