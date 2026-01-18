@@ -78,7 +78,8 @@ h2 {
 
 .input-counties {
     background-color: var(--grass-light-green);
-    width: min(34ch, fit-content);
+    width: min(100%, 32ch);
+    max-width: 40ch;
     font-weight: 600;
     text-overflow: ellipsis;
     margin-left: .3em;

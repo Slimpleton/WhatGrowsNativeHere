@@ -16,7 +16,11 @@
 }
 
 .title {
-    font-size: clamp(1rem, 2cqi, 2.5rem)
+    font-size: clamp(1rem, 2cqi, 2.5rem);
+}
+
+.text {
+    font-size: clamp(.75rem, 1cqi, 1.5rem);
 }
 
 h2 {
