@@ -43,10 +43,7 @@
             "outputMode": "server",
             "ssr": {
               "entry": "src/server.ts"
-            },
-            "allowedCommonJsDependencies": [
-              "us-atlas"
-            ]
+            }
           },
           "configurations": {
             "production": {

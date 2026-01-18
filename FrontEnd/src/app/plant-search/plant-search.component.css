@@ -24,9 +24,6 @@ h2 {
     font-size: clamp(1rem, 2cqi, 3rem);
 }
 
-.search-container {
-    text-align: left;
-}
 
 .searchbar {
     align-self: flex-start;
@@ -45,6 +42,10 @@ h2 {
 .search-container {
     display: flex;
     gap: 2px;
+}
+
+.search-container {
+    text-align: left;
 }
 
 .col {
@@ -74,6 +75,10 @@ h2 {
 
 .sort-label-row {
     display: inline-flex;
+}
+
+.sort-container {
+    align-items: center;
 }
 
 .input-counties {

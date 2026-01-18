@@ -5,6 +5,11 @@ import { map, Observable, shareReplay } from 'rxjs';
 import { feature, mesh } from 'topojson-client';
 import { GeometryCollection, Topology } from 'topojson-specification';
 
+export type MapPath = {
+  id: string;
+  d: string;
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -12,13 +17,12 @@ export class MapService {
   public static readonly PLANT_TILE_MAP_WIDTH: number = 400;
   public static readonly PLANT_TILE_MAP_HEIGHT: number = 140;
 
-
   private _topo$: Observable<Topology> = this._http
     .get<Topology>('/assets/counties-10m.json')
     .pipe(shareReplay(1));
 
   private readonly projectionCache = new Map<string, GeoProjection>();
-  private readonly pathCache = new Map<string, GeoPath<any, GeoPermissibleObjects>>();
+  private readonly pathCache = new Map<string, GeoPath<unknown, GeoPermissibleObjects>>();
 
   private projectionKey(w: number, h: number): string {
     return `${w}x${h}`;
@@ -65,7 +69,7 @@ export class MapService {
     );
   }
 
-  public countiesPaths$(w: number, h: number): Observable<{ id: string; d: string; }[]> {
+  public countiesPaths$(w: number, h: number): Observable<MapPath[]> {
     return this._topo$.pipe(
       map(topo =>
         feature(

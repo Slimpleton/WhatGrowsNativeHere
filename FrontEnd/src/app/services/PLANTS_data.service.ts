@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 import { GrowthHabit, PlantData } from "../models/gov/models";
 import { HttpClient } from "@angular/common/http";
-import { catchError, map, shareReplay, switchMap } from "rxjs/operators";
+import { map, switchMap } from "rxjs/operators";
 import { fromFetch } from 'rxjs/fetch';
 import { SortOption } from "../plant-search/plant-search.component";
-import { Observable, of } from "rxjs";
+import { Observable } from "rxjs";
 import { environment } from "../../environments/environment.prod";
 
 @Injectable({
@@ -12,7 +12,7 @@ import { environment } from "../../environments/environment.prod";
 })
 export class GovPlantsDataService {
     public static readonly usdaGovPlantProfileUrl: string = 'https://plants.usda.gov/plant-profile/';
-    private readonly _dataUrl =`${environment.apiUrl}/FileData/plantdata`;
+    private readonly _dataUrl = `${environment.apiUrl}/FileData/plantdata`;
 
     public constructor(private readonly _http: HttpClient) {
     }
@@ -98,9 +98,9 @@ export class GovPlantsDataService {
 
     public getAllNativePlantDataBatched(): Observable<PlantData[]> {
         const batchSize: number = 50;
-        const apiUrl : string =  this._dataUrl + 'batchSize=' + batchSize;
+        const apiUrl: string = this._dataUrl + 'batchSize=' + batchSize;
         return fromFetch(apiUrl).pipe(
-             switchMap(response => {
+            switchMap(response => {
                 if (!response.ok)
                     throw new Error(response.status + ' | ' + response.statusText);
 

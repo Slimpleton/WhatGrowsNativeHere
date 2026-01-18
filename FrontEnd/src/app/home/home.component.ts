@@ -4,7 +4,7 @@ import { PlantSearchComponent } from '../plant-search/plant-search.component';
 import { PlantData } from '../models/gov/models';
 import { PlantTileComponent } from '../plant-tile/plant-tile.component';
 import { AsyncPipe, isPlatformBrowser, } from '@angular/common';
-import { MapService } from '../services/map.service';
+import { MapPath, MapService } from '../services/map.service';
 import { Observable, of } from 'rxjs';
 
 @Component({
@@ -19,7 +19,7 @@ export class HomeComponent {
   public plantData: Readonly<PlantData>[] = [];
   public get PLANT_TILE_MAP_WIDTH(): number { return MapService.PLANT_TILE_MAP_WIDTH; }
   public get PLANT_TILE_MAP_HEIGHT(): number { return MapService.PLANT_TILE_MAP_HEIGHT; }
-  public readonly countiesPaths$: Observable<any> = this.isBrowser ? this.mapService.countiesPaths$(this.PLANT_TILE_MAP_WIDTH, this.PLANT_TILE_MAP_HEIGHT) : of([]);
+  public readonly countiesPaths$: Observable<MapPath[]> = this.isBrowser ? this.mapService.countiesPaths$(this.PLANT_TILE_MAP_WIDTH, this.PLANT_TILE_MAP_HEIGHT) : of([]);
 
   // private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
   // private _lastSearch$: Observable<GbifOccurrence[]> = this._lastUnfilteredSearch$.pipe(
@@ -72,11 +72,7 @@ export class HomeComponent {
 
   public columns: number = 1;
   public constructor(@Inject(PLATFORM_ID) private readonly _platformId: object, private readonly _cdr: ChangeDetectorRef, public readonly mapService: MapService) {
-    afterNextRender({
-      write: () => {
-        this.calculateColumns();
-      }
-    });
+    afterNextRender({ write: () => this.calculateColumns() });
   }
 
   public get isBrowser(): boolean {
@@ -84,7 +80,7 @@ export class HomeComponent {
   }
 
   private calculateColumns() {
-    if (isPlatformBrowser(this._platformId)) {
+    if (this.isBrowser) {
       const windowWidth = window.innerWidth;
       this.columns = Math.max(1, Math.floor(windowWidth / (this.itemWidth)));
       this._cdr.markForCheck();

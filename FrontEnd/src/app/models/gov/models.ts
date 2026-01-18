@@ -323,7 +323,7 @@ export interface StateInfo {
     fip: number | string,
     abbreviation: string;
     name: string;
-    properties?: any;
+    properties?: unknown;
     country?: string;
     gnisid?: string;
 }

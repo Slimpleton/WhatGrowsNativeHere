@@ -16,18 +16,16 @@
     </div>
     <div class="col">
         <div name="sort-container" id="sort-container" class="sort-container col">
-            <div class="row sort-label-row">
-                <label class="label sort-label" for="sort-container">{{'SORT' | transloco}}</label>
-                <button class="sortOrderButton" id="sortOrderButton" (click)="toggleSortOptionDirection()">
-                    {{sortOptionDirection}}
-                </button>
-            </div>
+            <label class="label sort-label" for="sort-container">{{'SORT' | transloco}}</label>
             <select name="sortSelector" id="sortSelector" #sortSelector class="selector"
                 (change)="changeSortOption(sortSelector.value)">
                 @for (option of sortOptions; track $index) {
                 <option [value]="option">{{ 'SORT_OPTIONS.' + option | uppercase | transloco}}</option>
                 }
             </select>
+            <button class="sortOrderButton" id="sortOrderButton" (click)="toggleSortOptionDirection()">
+                {{sortOptionDirection}}
+            </button>
         </div>
     </div>
     <div class="filter-title-container">
