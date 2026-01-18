@@ -270,7 +270,7 @@ console.log('Setting up proxy with target:', process.env['API_URL'] || 'http://a
 app.use(
   express.static(browserDistFolder, {
     maxAge: '1y',
-    index: false,
+    index: 'index.html',
     redirect: false,
   }),
 );
