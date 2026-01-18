@@ -30,7 +30,11 @@
             </select>
         </div>
     </div>
-    <h2 class="filter-title" id="title">{{'NATIVE_PLANTS_IN' | transloco}} <input (input)="handleNameInput(countyNameInput.value)" [value]="geolocationCountyName" #countyNameInput type="text" id="county-choice" class="input-counties" list="counties" /> </h2>
+    <div class="filter-title-container">
+        <h2 class="filter-title" id="title">{{'NATIVE_PLANTS_IN' | transloco}} </h2>
+        <input (input)="handleNameInput(countyNameInput.value)" [value]="geolocationCountyName" #countyNameInput
+            type="text" id="county-choice" class="input-counties" list="counties" />
+    </div>
     <datalist id="counties" #countiesDataList>
         @for(county of counties$ | async; track trackCountyByCombinedFIP(county)){
         <option [value]="getCountyAndStateAbbrev(county)"></option>

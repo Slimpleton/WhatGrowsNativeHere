@@ -11,14 +11,17 @@ h2 {
     container-type: inline-size;
 }
 
-.filter-title {
-    display: inline-flex;
+.filter-title-container {
+    display: flex;
     flex-grow: 1;
-    font-weight: 600;
-    font-size: clamp(1rem, 2cqi, 3rem);
-    line-height: clamp(1rem, 2cqi, 3rem);
     justify-content: center;
     gap: .3em;
+    flex-wrap: wrap;
+}
+
+.filter-title {
+    font-weight: 600;
+    font-size: clamp(1rem, 2cqi, 3rem);
 }
 
 .search-container {
@@ -73,9 +76,11 @@ h2 {
     display: inline-flex;
 }
 
-.input-counties{
+.input-counties {
     background-color: var(--grass-light-green);
-    max-width: 36ch;
-    width: 30ch;
+    width: min(34ch, 100%);
     font-weight: 600;
+    text-overflow: ellipsis;
+    margin-left: .3em;
+    font-size: clamp(1rem, 2cqi, 3rem);
 }
