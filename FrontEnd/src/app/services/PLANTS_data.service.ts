@@ -96,21 +96,19 @@ export class GovPlantsDataService {
         });
     }
 
-    public get loadNativePlantData(): Observable<ReadonlyArray<Readonly<PlantData>>> {
-        return this.getAllNativePlantData().pipe(
-            shareReplay(1),
-            catchError(error => {
-                console.error('Error loading definite native plant data:', error);
-                return of([] as ReadonlyArray<PlantData>);
-            }));
-    }
+    public getAllNativePlantDataBatched(): Observable<PlantData[]> {
+        const batchSize: number = 50;
+        const apiUrl : string =  this._dataUrl + 'batchSize=' + batchSize;
+        return fromFetch(apiUrl).pipe(
+             switchMap(response => {
+                if (!response.ok)
+                    throw new Error(response.status + ' | ' + response.statusText);
 
-    /**
-     * HACK use this for testing to see if the native ranges are correct without parsing into plant data / aka native plant range conversion
-     * @returns 
-     */
-    private getAllNativePlantData(): Observable<PlantData[]> {
-        return this._http.get<PlantData[]>(this._dataUrl).pipe(map(rawPlants => rawPlants.map(GovPlantsDataService.parsePlantData)));
+                const stream: ReadableStream<PlantData[]> = response.body!.pipeThrough(new TextDecoderStream).pipeThrough(GovPlantsDataService.ndJsonTransformStream<PlantData[]>());
+                return GovPlantsDataService.readableStreamToObservable(stream);
+            }),
+            map((vals: PlantData[]) => vals.map(val => GovPlantsDataService.parsePlantData(val))),
+        );
     }
 
     private static parsePlantData(raw: PlantData) {

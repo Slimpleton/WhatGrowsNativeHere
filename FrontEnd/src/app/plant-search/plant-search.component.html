@@ -30,5 +30,14 @@
             </select>
         </div>
     </div>
-    <h2 class="filter-title" id="title">{{'NATIVE_PLANTS_IN' | transloco}} {{countyName}}</h2>
+    <!-- TODO turn the county name into some sort of typeable select  -->
+    <h2 class="filter-title" id="title">{{'NATIVE_PLANTS_IN' | transloco}} {{countyName}} </h2>
+    <input (input)="handleNameInput(countyNameInput.value)" #countyNameInput type="text" id="county-choice" class="input-counties" list="counties" />
+    <datalist id="counties" #countiesDataList>
+        @for(county of counties$ | async; track trackCountyByCombinedFIP(county)){
+        <option [value]="getCountyAndStateAbbrev(county)"></option>
+        }
+    </datalist>
+    <input #countyFipInput type="hidden" name="county-fip-choice" id="county-fip-choice">
+    <!-- TODO use data-value attribute and a hidden input to submit the countyFip as value and use name as label -->
 </section>

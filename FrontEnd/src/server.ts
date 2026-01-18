@@ -171,6 +171,10 @@ app.get('/api/states/:stateFip', (req, res) => {
   res.json(stateCsvItem);
 });
 
+app.get('/api/counties', (_, res) => {
+  return res.json(countiesCSVCache);
+});
+
 app.get('/api/counties/:stateFip/:countyFip', (req, res) => {
   const requestedStateFip = Number(req.params.stateFip);
   const requestedCountyFip = req.params.countyFip;

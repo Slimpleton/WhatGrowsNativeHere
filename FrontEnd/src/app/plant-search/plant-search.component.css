@@ -69,3 +69,8 @@ h2 {
 .sort-label-row {
     display: inline-flex;
 }
+
+.input-counties{
+    background-color: var(--grass-light-green);
+    max-width: 32ch;
+}
