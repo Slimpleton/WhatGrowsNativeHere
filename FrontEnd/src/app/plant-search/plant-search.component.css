@@ -12,10 +12,13 @@ h2 {
 }
 
 .filter-title {
+    display: inline-flex;
     flex-grow: 1;
     font-weight: 600;
     font-size: clamp(1rem, 2cqi, 3rem);
     line-height: clamp(1rem, 2cqi, 3rem);
+    justify-content: center;
+    gap: .3em;
 }
 
 .search-container {
@@ -72,5 +75,7 @@ h2 {
 
 .input-counties{
     background-color: var(--grass-light-green);
-    max-width: 32ch;
+    max-width: 36ch;
+    width: 30ch;
+    font-weight: 600;
 }

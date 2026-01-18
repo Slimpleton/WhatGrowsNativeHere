@@ -1,12 +1,12 @@
-import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, HostListener, ViewChild, ElementRef } from '@angular/core';
-import { combineCountyFIP, County, CountyCSVItem, GrowthHabit, PlantData } from '../models/gov/models';
+import { Component, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
+import { combineCountyFIP, CountyCSVItem, GrowthHabit, PlantData } from '../models/gov/models';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { Observable } from 'rxjs/internal/Observable';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { PositionService } from '../services/position.service';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter, bufferCount, shareReplay, take } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, tap, switchMap, takeUntil, filter, shareReplay, take, combineLatestWith } from 'rxjs/operators';
 import { combineLatest, merge, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
@@ -48,21 +48,16 @@ export class PlantSearchComponent implements OnDestroy {
   private readonly _destroy$: Subject<void> = new Subject<void>();
   @Output() public filterInProgress$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  public _countyName: string = '';
-  public get countyName(): string {
-    return this._countyName;
-  }
-  private set countyName(value: string) {
-    this._countyName = value;
-  }
-
   @ViewChild('countiesDataList') public readonly countiesDataList!: ElementRef<HTMLDataListElement>;
   public readonly counties$: Observable<CountyCSVItem[]> = this._http.get<CountyCSVItem[]>('/api/counties').pipe(shareReplay({ bufferSize: 1, refCount: true }), takeUntil(this._destroy$));
   public trackCountyByCombinedFIP(county: CountyCSVItem): string {
     return combineCountyFIP(county);
   }
 
-  private readonly _countyLookup$ = this.counties$.pipe(
+  public geolocationCountyName : string = '';
+
+  private readonly _countyLookup$: Observable<Map<string, CountyCSVItem>> = this.counties$.pipe(
+    take(1),
     map(counties => {
       const map = new Map<string, CountyCSVItem>();
       for (const c of counties) {
@@ -100,31 +95,28 @@ export class PlantSearchComponent implements OnDestroy {
       this.filteredDataBatch.emit(plants);
       this.filterInProgress$.next(false);
     }),
+    // shareReplay({bufferSize: 1, refCount: true}),
     takeUntil(this._destroy$)
   );
 
   @Output() public filteredDataBatch: EventEmitter<ReadonlyArray<Readonly<PlantData>>> = new EventEmitter();
 
-  public constructor(private readonly _plantService: GovPlantsDataService,
+  public constructor(
+    private readonly _plantService: GovPlantsDataService,
     private readonly _positionService: PositionService,
     private readonly _http: HttpClient) {
-    // HACK starts the plant retrieval, sets start value for search bar
-    // TODO change this maybe
-    this._positionService.countyEmitter$.pipe(
-      filter((x) => x != null && x != undefined),
-      switchMap((x) => this._http.get<CountyCSVItem>(`/api/counties/${x.stateFip}/${x.countyFip}`)),
-      takeUntil(this._destroy$)
-    ).subscribe({
-      next: (value) => {
-        // TODO fill input dynamically
-        // TODO remove countyName thing
-        if (value)
-          this.countyName = value.countyName;
-      },
-      error: err => console.error(err),
-    });
-
     this._fullyFilteredNativePlants.subscribe();
+
+    this._positionService.countyEmitter$
+      .pipe(
+        filter(Boolean),
+        switchMap((x) => this._http.get<CountyCSVItem>(`/api/counties/${x.stateFip}/${x.countyFip}`)),
+        combineLatestWith(this.counties$),
+        takeUntil(this._destroy$)
+      )
+      .subscribe(([county]) => {
+        this.geolocationCountyName = this.getCountyAndStateAbbrev(county);
+      });
   }
 
   ngOnDestroy(): void {
@@ -132,7 +124,6 @@ export class PlantSearchComponent implements OnDestroy {
     this._destroy$.complete();
   }
 
-  // TODO swap between user location and specific location // county and state
   // TODO figure out use case when the plant is native to state but has no county data? do i just include all or none for now
 
   public search(searchValue: string): void {
@@ -147,18 +138,20 @@ export class PlantSearchComponent implements OnDestroy {
     this._growthHabitEmitter$.next(habit as GrowthHabit);
   }
 
- public handleNameInput(name: string | null): void {
-  if (!name) return;
+  public handleNameInput(name: string | null): void {
+    if (!name) return;
 
-  this._countyLookup$
-    .pipe(take(1),takeUntil(this._destroy$))
-    .subscribe(map => {
-      const county = map.get(name);
-      if (!county) return; // TODO get all
+    this._countyLookup$
+      .pipe(
+        take(1),
+        takeUntil(this._destroy$))
+      .subscribe(map => {
+        const county = map.get(name);
+        if (!county) return; // TODO get all
 
-      this._positionService.manualCounty = county;
-    });
-}
+        this._positionService.manualCounty = county;
+      });
+  }
 
   public getCountyAndStateAbbrev(c: CountyCSVItem): string {
     return `${c.countyName} - ${c.stateAbbrev}`;
