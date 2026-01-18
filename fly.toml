@@ -20,6 +20,10 @@ primary_region = 'iad'
   min_machines_running = 2
   processes = ['app']
 
+[[http_service.checks]]
+  interval = "10s"
+  timeout = "2s"
+
 [[vm]]
   memory = '1gb'
   cpu_kind = 'shared'
