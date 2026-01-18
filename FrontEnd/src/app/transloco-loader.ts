@@ -1,19 +1,13 @@
-import { inject, Injectable, PLATFORM_ID } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { Translation, TranslocoLoader } from "@jsverse/transloco";
 import { HttpClient } from "@angular/common/http";
-import { isPlatformBrowser } from "@angular/common";
-import { iif, Observable, of } from "rxjs";
+import { environment } from "../environments/environment.prod";
 
 @Injectable({ providedIn: 'root' })
 export class TranslocoHttpLoader implements TranslocoLoader {
-    private readonly _http = inject(HttpClient);
-    private readonly _platformId = inject(PLATFORM_ID);
+    private http = inject(HttpClient);
 
-    public getTranslation(lang: string): Observable<Translation> {
-        return iif(
-            () => isPlatformBrowser(this._platformId),
-            this._http.get<Translation>(`/assets/i18n/${lang}.json`),
-            of<Translation>({})
-        );
+    getTranslation(lang: string) {
+        return this.http.get<Translation>(`${environment.baseUrl}/assets/i18n/${lang}.json`);
     }
 }

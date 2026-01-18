@@ -19,5 +19,14 @@ export const appConfig: ApplicationConfig = {
       loader: TranslocoHttpLoader,
     }),
     provideClientHydration(withIncrementalHydration()),
-    provideZonelessChangeDetection()]
+    provideZonelessChangeDetection(), provideHttpClient(), provideTransloco({
+        config: { 
+          availableLangs: ['en'],
+          defaultLang: 'en',
+          // Remove this option if your application doesn't support changing language in runtime.
+          reRenderOnLangChange: true,
+          prodMode: !isDevMode(),
+        },
+        loader: TranslocoHttpLoader
+      })]
 };
