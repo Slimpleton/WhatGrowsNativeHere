@@ -5,6 +5,16 @@
     background-color: var(--wood-brown);
 }
 
+.title-container,
+.link-container {
+    display: inline-flex;
+    gap: .5em
+}
+
+.title-container {
+    place-items: center;
+}
+
 .title {
     font-size: clamp(1rem, 2cqi, 2.5rem)
 }
@@ -26,9 +36,4 @@ h2 {
     width: calc(100% - 2 * var(--nav-bar--width-padding));
     font-size: 1.2em;
     align-items: center;
-}
-
-.link-container {
-    display: inline-flex;
-    gap: .5em
 }

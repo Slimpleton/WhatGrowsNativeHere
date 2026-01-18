@@ -1,5 +1,10 @@
 <header id="nav-bar" class="nav-bar">
-    <h2 class="title">{{'TITLE' | transloco}}</h2>
+    <div class="title-container">
+        <svg class="app-icon" [attr.width]="38" [attr.height]="38">
+            <use [attr.href]="'/assets/sprout.svg'"></use>
+        </svg>
+        <h2 class="title">{{'TITLE' | transloco}}</h2>
+    </div>
     <div class="link-container">
         <a [routerLink]="Route.searchRoute"> {{'SEARCH' | transloco}}</a>
         <a [routerLink]="Route.aboutRoute">{{'ABOUT' | transloco}}</a>
