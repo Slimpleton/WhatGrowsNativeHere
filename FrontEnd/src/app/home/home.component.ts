@@ -5,7 +5,7 @@ import { PlantData } from '../models/gov/models';
 import { PlantTileComponent } from '../plant-tile/plant-tile.component';
 import { AsyncPipe, isPlatformBrowser, } from '@angular/common';
 import { MapService } from '../services/map.service';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,7 +19,8 @@ export class HomeComponent {
   public plantData: Readonly<PlantData>[] = [];
   public get PLANT_TILE_MAP_WIDTH(): number { return MapService.PLANT_TILE_MAP_WIDTH; }
   public get PLANT_TILE_MAP_HEIGHT(): number { return MapService.PLANT_TILE_MAP_HEIGHT; }
-  public readonly countiesPaths$: Observable<any> = this.mapService.countiesPaths$(this.PLANT_TILE_MAP_WIDTH, this.PLANT_TILE_MAP_HEIGHT);
+  public readonly countiesPaths$: Observable<any> = this.isBrowser ? this.mapService.countiesPaths$(this.PLANT_TILE_MAP_WIDTH, this.PLANT_TILE_MAP_HEIGHT) : of([]);
+
   // private _lastUnfilteredSearch$: Subject<GbifOccurrence[]> = new Subject<GbifOccurrence[]>();
   // private _lastSearch$: Observable<GbifOccurrence[]> = this._lastUnfilteredSearch$.pipe(
   //   //HACK gets all the non copies of plants
@@ -76,6 +77,10 @@ export class HomeComponent {
         this.calculateColumns();
       }
     });
+  }
+
+  public get isBrowser(): boolean {
+    return isPlatformBrowser(this._platformId);
   }
 
   private calculateColumns() {
