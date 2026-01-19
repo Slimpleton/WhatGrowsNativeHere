@@ -1,13 +1,30 @@
-<section class="about">
+<article class="about">
     <h1 class="title">{{'ABOUT_COMPONENT.HEADER' | transloco}}</h1>
     <p class="word-vomit">
         {{'ABOUT_COMPONENT.CONTENT' | transloco}}
     </p>
 
-    <!-- <h4 class="donate">Thank Me Here</h4> -->
-</section>
+    <a href="https://buymeacoffee.com/slimpleton" class="subheader">Thank Me Here @ BuyMeACoffee</a>
 
-<footer>
+
+    <h2 class="title">{{'ABOUT_COMPONENT.ME' | transloco}}</h2>
+    <h4 class="subheader">Daniel Gione - Software Developer</h4>
+    <p class="word-vomit">
+        {{'ABOUT_COMPONENT.ME_CONTENT' | transloco}}
+    </p>
+
+    <h4 class="subheader">{{'ABOUT_COMPONENT.GARDEN_HEADER' | transloco}}</h4>
+    <div class="pictures" id="pictures">
+        <img class="pic" src="/assets/my-pictures/maturepoppy.jpg" [alt]="'ABOUT_COMPONENT.MATUREPOPPY_ALT' | transloco"
+            loading="lazy">
+        <img class="pic" src="/assets/my-pictures/guerrillagardenparkpoppy.jpg"
+            [alt]="'ABOUT_COMPONENT.GUERRILAGARDENPARKPOPPY_ALT' | transloco" loading="lazy">
+        <img class="pic" src="/assets/my-pictures/poppybedwithbumper.jpg"
+            [alt]="'ABOUT_COMPONENT.POPPYWITHBUMPER_ALT' | transloco" loading="lazy">
+    </div>
+</article>
+
+<footer class="footer">
     Natural Resources Conservation Service. PLANTS Database. United States Department of Agriculture. Accessed May 19,
     2025, from <a href="https://plants.usda.gov">https://plants.usda.gov</a>.
 </footer>

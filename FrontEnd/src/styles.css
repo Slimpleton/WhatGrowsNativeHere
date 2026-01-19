@@ -23,15 +23,39 @@
 }
 
 /* You can add global styles to this file, and also import other style files */
-:root{
-    --wood-brown: rgb(131, 100, 60);
-    --wood-dark-brown: rgb(68, 51, 29);
-    --grass-light-green: rgb(162, 192, 162);
-    --nav-bar-height:6em;
-    --nav-bar--width-padding: .75vw;
-    --nav-bar-padding: .5vh;
-    --nav-bar--total-height: calc(var(--nav-bar-height) + var(--nav-bar-padding));
+:root {
+  --wood-brown: rgb(131, 100, 60);
+  --wood-dark-brown: rgb(68, 51, 29);
+  --grass-light-green: rgb(162, 192, 162);
+  --nav-bar-height: 6em;
+  --nav-bar--width-padding: .75vw;
+  --nav-bar-padding: .5vh;
+  --nav-bar--total-height: calc(var(--nav-bar-height) + var(--nav-bar-padding));
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: 'Helvetica Neue', Helvetica, Arial, 'Roboto', sans-serif; }
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Helvetica Neue', Helvetica, Arial, 'Roboto', sans-serif;
+}
+
+
+@supports (scrollbar-color: auto) {
+  * {
+    scrollbar-color: var(--wood-dark-brown) var(--wood-brown);
+  }
+}
+
+@supports selector(::-webkit-scrollbar) {
+  *::-webkit-scrollbar {
+    background: var(--wood-dark-brown);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: var(--wood-brown);
+  }
+}

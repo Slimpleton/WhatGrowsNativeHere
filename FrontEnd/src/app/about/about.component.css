@@ -14,3 +14,23 @@
     width: min(75ch, 100%);
     padding: 12px
 }
+
+.subheader {
+    font-size: 2em;
+}
+
+.footer {
+    margin-top: 1em;
+}
+
+.pictures {
+    display: flex;
+    justify-content: center;
+    gap: 1%;
+}
+
+.pic {
+    max-width: 100%;
+    width: 30vw;
+    aspect-ratio: initial;
+}

@@ -8,22 +8,6 @@
   height: calc(100vh - 40px - var(--container-height));
 }
 
-@supports (scrollbar-color: auto) {
-  .gov-container-scrollport {
-    scrollbar-color: var(--wood-dark-brown) var(--wood-brown);
-  }
-}
-
-@supports selector(::-webkit-scrollbar) {
-  .gov-container-scrollport::-webkit-scrollbar {
-    background: var(--wood-dark-brown);
-  }
-
-  .gov-container-scrollport:-webkit-scrollbar-thumb {
-    background: var(--wood-brown);
-  }
-}
-
 .plant-grid {
   display: grid;
   width: 100%;
