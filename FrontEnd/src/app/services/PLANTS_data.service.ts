@@ -13,6 +13,7 @@ import { environment } from "../../environments/environment.prod";
 export class GovPlantsDataService {
     public static readonly usdaGovPlantProfileUrl: string = 'https://plants.usda.gov/plant-profile/';
     private readonly _dataUrl = `${environment.apiUrl}/FileData/plantdata`;
+    private static MIN_BATCH_SIZE: number = 100;
 
     public constructor(private readonly _http: HttpClient) {
     }
@@ -28,7 +29,8 @@ export class GovPlantsDataService {
     // TODO add batch index param 
     // TODO store url, batch index, and batch in map for in-memory cache
 
-    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, sortOption: SortOption, isSortAlphabeticOrder: boolean, batchSize: number = 30): Observable<Readonly<PlantData>[]> {
+    public searchNativePlantsBatched(searchString: string, combinedFIP: string, growthHabit: GrowthHabit, sortOption: SortOption, isSortAlphabeticOrder: boolean, batchSize: number = GovPlantsDataService.MIN_BATCH_SIZE): Observable<Readonly<PlantData>[]> {
+        if (batchSize < GovPlantsDataService.MIN_BATCH_SIZE) batchSize = GovPlantsDataService.MIN_BATCH_SIZE;
         const apiUrl = `${this._dataUrl}/search?searchString=${searchString}&combinedFIP=${combinedFIP}&growthHabit=${growthHabit}&sortOption=${sortOption}&ascending=${isSortAlphabeticOrder}&batchSize=${batchSize}`;
         return fromFetch(apiUrl).pipe(
             switchMap(response => {
