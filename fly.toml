@@ -4,7 +4,6 @@
 #
 
 app = 'whatgrowsnativehere'
-primary_region = 'iad'
 
 [build]
 
