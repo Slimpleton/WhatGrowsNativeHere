@@ -6,12 +6,13 @@ import { PlantTileComponent } from '../plant-tile/plant-tile.component';
 import { AsyncPipe, isPlatformBrowser, } from '@angular/common';
 import { MapPath, MapService } from '../services/map.service';
 import { Observable, of } from 'rxjs';
+import { TooltipDirective } from "../tooltip.directive";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, AsyncPipe],
+  imports: [CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, AsyncPipe, TooltipDirective],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -104,7 +105,7 @@ export class HomeComponent {
 
   public updatePlantData(receivedPlantData: ReadonlyArray<Readonly<PlantData>>) {
     // TODO calculate avg number of items on screen using variables above + added buffer of items to decide batch size and load what fills the page with a min
-    this.plantData = [...this.plantData, ...receivedPlantData];
+    this.plantData.push(...receivedPlantData);
     this._cdr.markForCheck();
   }
 

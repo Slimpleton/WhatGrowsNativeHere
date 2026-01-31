@@ -12,7 +12,7 @@
 
         <!-- individual counties -->
         @for(c of countiesPaths$ | async; track c){
-        <path [attr.id]="'county-' + c.id" [attr.d]="c.d" />
+        <path [tooltip]="c.name" [attr.id]="'county-' + c.id" [attr.d]="c.d" />
         }
     </defs>
 </svg>

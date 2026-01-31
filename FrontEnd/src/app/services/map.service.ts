@@ -3,11 +3,12 @@ import { Injectable } from '@angular/core';
 import { geoAlbersUsa, GeoPath, geoPath, GeoPermissibleObjects, GeoProjection } from 'd3-geo';
 import { map, Observable, shareReplay } from 'rxjs';
 import { feature, mesh } from 'topojson-client';
-import { GeometryCollection, Topology } from 'topojson-specification';
+import { GeometryCollection, Properties, Topology } from 'topojson-specification';
 
 export type MapPath = {
-  id: string;
+  id: string | number | undefined;
   d: string;
+  name: string;
 };
 
 @Injectable({
@@ -74,12 +75,13 @@ export class MapService {
       map(topo =>
         feature(
           topo,
-          topo.objects['counties'] as GeometryCollection
+          topo.objects['counties'] as GeometryCollection<Properties>
         )),
       map(fc =>
         fc.features.map(f => ({
-          id: f.id as string,
+          id: f.id,
           d: this.getPath(w, h)(f)!,
+          name: f.properties!['name'],
         }))),
       shareReplay(1)
     );
