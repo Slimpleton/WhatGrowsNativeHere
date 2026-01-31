@@ -6,7 +6,8 @@
 
     @if(!showMap){
     <span class="symbolAndShadeRow">
-        <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol" [tooltip]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
+        <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
+            [tooltip]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
             id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
 
         @if (plant.shadeTolerance !== null) {
@@ -58,18 +59,18 @@
         <use [attr.href]="'#county-' + countyFip" class="county present" />
         }
     </svg>
-
     }
-
 
     <div class="last-row" id="last-row-{{plant.acceptedSymbol}}">
         <!-- <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}" class="search-icon"
             (click)="openImageSearch(plant)"></pic-search-icon> -->
-        <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage()" [tooltip]="'PLANT_OVERVIEW' | transloco">
+        <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage()"
+            [tooltip]="'PLANT_OVERVIEW' | transloco">
             <app-icon class="info-icon" name="help"></app-icon>
         </button>
 
-        <button class="info-btn" id="map-btn-{{plant.acceptedSymbol}}" (click)="showMap = !showMap" [tooltip]="'NATIVE_REGION_MAP' | transloco">
+        <button class="info-btn" id="map-btn-{{plant.acceptedSymbol}}" (click)="showMap = !showMap"
+            [tooltip]="(showMap ? 'BACK' : 'NATIVE_REGION_MAP') | transloco">
             <app-icon class="map-icon" [name]="showMap ? 'undo' : 'location_marker'"></app-icon>
         </button>
     </div>

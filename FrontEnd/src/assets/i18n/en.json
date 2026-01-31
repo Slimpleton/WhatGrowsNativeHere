@@ -27,8 +27,9 @@
     },
     "NATIVE_PLANTS_IN": "Native Plants In ",
     "SEARCHBAR_PLACEHOLDER": "e.g. Lupinus agardhianus, Apache plume,...,",
-    "PLANT_OVERVIEW":"Plant Overview",
-    "NATIVE_REGION_MAP":"Native Region Map",
+    "PLANT_OVERVIEW": "Plant Overview",
+    "BACK": "Back",
+    "NATIVE_REGION_MAP": "Native Region Map",
     "PLANT_OVERVIEW_HEADER": "{{plantCommonName}} aka {{plantScientificName}}",
     "ABOUT_COMPONENT": {
         "HEADER": "Why \"What Grows Native Here\"",
