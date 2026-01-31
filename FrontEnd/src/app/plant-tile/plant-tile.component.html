@@ -55,7 +55,7 @@
 
         <!-- highlight counties for this plant -->
         @for(countyFip of combinedCountyFips; track countyFip){
-        <use [attr.href]="'#county-' + countyFip" class="county present" />
+        <use [attr.href]="'#county-' + countyFip" [tooltip]="countyFip" class="county present" />
         }
     </svg>
 

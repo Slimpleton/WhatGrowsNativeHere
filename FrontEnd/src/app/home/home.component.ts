@@ -6,13 +6,12 @@ import { PlantTileComponent } from '../plant-tile/plant-tile.component';
 import { AsyncPipe, isPlatformBrowser, } from '@angular/common';
 import { MapPath, MapService } from '../services/map.service';
 import { Observable, of } from 'rxjs';
-import { TooltipDirective } from "../tooltip.directive";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, AsyncPipe, TooltipDirective],
+  imports: [CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport, CdkVirtualForOf, PlantSearchComponent, PlantTileComponent, AsyncPipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

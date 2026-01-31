@@ -2,6 +2,11 @@
 @if(isBrowser){
 <svg width="0" height="0" style="position:absolute; pointer-events:none;">
     <defs>
+        <!-- individual counties -->
+        @for(c of countiesPaths$ | async; track c){
+        <path [attr.id]="'county-' + c.id" [attr.d]="c.d" />
+        }
+
         <!-- base county mesh -->
         <path id="county-mesh"
             [attr.d]="mapService.countyMeshPath$(PLANT_TILE_MAP_WIDTH, PLANT_TILE_MAP_HEIGHT) | async" />
@@ -10,10 +15,6 @@
         <path id="nation-border"
             [attr.d]="(mapService.nationBorderPath$(PLANT_TILE_MAP_WIDTH, PLANT_TILE_MAP_HEIGHT) | async) ?? ''" />
 
-        <!-- individual counties -->
-        @for(c of countiesPaths$ | async; track c){
-        <path [tooltip]="c.name" [attr.id]="'county-' + c.id" [attr.d]="c.d" />
-        }
     </defs>
 </svg>
 }

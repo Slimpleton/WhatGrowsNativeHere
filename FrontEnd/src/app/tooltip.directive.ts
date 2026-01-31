@@ -1,52 +1,149 @@
 import {
   Directive,
   ElementRef,
-  HostListener,
   Input,
   OnDestroy,
+  OnInit,
   ComponentRef,
   ViewContainerRef,
   EnvironmentInjector,
-  Injector
+  Injector,
+  inject
 } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { Subject, timer, merge } from 'rxjs';
 import { takeUntil, switchMap } from 'rxjs/operators';
 import { TOOLTIP_DATA, TooltipComponent, TooltipData } from './tooltip/tooltip.component';
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
 
-// TODO turn this into extending the eventPluginManager so you can add all the event listeners codewise without hostlisteners and then add actual options to the creation
+export interface TooltipOptions {
+  position?: TooltipPosition;
+  delay?: number;
+  showOnHover?: boolean;
+  showOnLongPress?: boolean;
+  pressDuration?: number;
+  mobileDisplayDuration?: number;
+}
 
 @Directive({
   selector: '[tooltip]',
   standalone: true
 })
-export class TooltipDirective implements OnDestroy {
+export class TooltipDirective implements OnInit, OnDestroy {
   private readonly _destroy$ = new Subject<void>();
   private readonly _mouseEnter$ = new Subject<void>();
   private readonly _mouseLeave$ = new Subject<void>();
   private readonly _touchStart$ = new Subject<void>();
   private readonly _touchEnd$ = new Subject<void>();
   private readonly _touchMove$ = new Subject<void>();
-  private static readonly _PRESS_DURATION: number = 1_000;
-  private static readonly _MOBILE_DISPLAY_DURATION: number = 2_500;
+  
   private _tooltipComponent: ComponentRef<TooltipComponent> | null = null;
   private _isTooltipVisible: boolean = false;
+  private _eventCleanupFunctions: Array<() => void> = [];
+
+  // Configuration options
+  private _pressDuration: number = 1_000;
+  private _mobileDisplayDuration: number = 2_500;
+  private _showOnHover: boolean = true;
+  private _showOnLongPress: boolean = true;
 
   @Input() public tooltip: string = '';
   @Input() public tooltipPosition: TooltipPosition = 'top';
   @Input() public tooltipDelay: number = 0;
+  
+  @Input() 
+  public set tooltipOptions(options: TooltipOptions) {
+    if (options.position !== undefined) {
+      this.tooltipPosition = options.position;
+    }
+    if (options.delay !== undefined) {
+      this.tooltipDelay = options.delay;
+    }
+    if (options.showOnHover !== undefined) {
+      this._showOnHover = options.showOnHover;
+    }
+    if (options.showOnLongPress !== undefined) {
+      this._showOnLongPress = options.showOnLongPress;
+    }
+    if (options.pressDuration !== undefined) {
+      this._pressDuration = options.pressDuration;
+    }
+    if (options.mobileDisplayDuration !== undefined) {
+      this._mobileDisplayDuration = options.mobileDisplayDuration;
+    }
+  }
 
   constructor(
     private readonly _el: ElementRef,
     private readonly _viewContainerRef: ViewContainerRef,
     private readonly _injector: EnvironmentInjector
-  ) {
+  ) {}
+
+  public ngOnInit(): void {
+    this._setupEventListeners();
     this._setupHoverTooltip();
     this._setupLongPressTooltip();
   }
 
+  private _setupEventListeners(): void {
+    const element = this._el.nativeElement;
+
+    if (this._showOnHover) {
+      // Mouse events
+      const mouseEnterCleanup = this._addEventListener(element, 'mouseenter', () => {
+        this._mouseEnter$.next();
+      });
+      
+      const mouseLeaveCleanup = this._addEventListener(element, 'mouseleave', () => {
+        this._mouseLeave$.next();
+      });
+
+      this._eventCleanupFunctions.push(mouseEnterCleanup, mouseLeaveCleanup);
+    }
+
+    if (this._showOnLongPress) {
+      // Touch events
+      const touchStartCleanup = this._addEventListener(element, 'touchstart', () => {
+        this._touchStart$.next();
+      }, { passive: true });
+      
+      const touchEndCleanup = this._addEventListener(element, 'touchend', () => {
+        this._touchEnd$.next();
+      }, { passive: true });
+      
+      const touchCancelCleanup = this._addEventListener(element, 'touchcancel', () => {
+        this._touchEnd$.next();
+      }, { passive: true });
+      
+      const touchMoveCleanup = this._addEventListener(element, 'touchmove', () => {
+        this._touchMove$.next();
+      }, { passive: true });
+
+      this._eventCleanupFunctions.push(
+        touchStartCleanup,
+        touchEndCleanup,
+        touchCancelCleanup,
+        touchMoveCleanup
+      );
+    }
+  }
+
+  private _addEventListener(
+    element: HTMLElement,
+    eventName: string,
+    handler: EventListener,
+    options?: AddEventListenerOptions
+  ): () => void {
+    element.addEventListener(eventName, handler, options);
+    return () => element.removeEventListener(eventName, handler, options);
+  }
+
   private _setupHoverTooltip(): void {
+    if (!this._showOnHover) {
+      return;
+    }
+
     this._mouseEnter$
       .pipe(
         switchMap(() => timer(this.tooltipDelay)),
@@ -60,46 +157,24 @@ export class TooltipDirective implements OnDestroy {
   }
 
   private _setupLongPressTooltip(): void {
+    if (!this._showOnLongPress) {
+      return;
+    }
+
     const cancelTouch$ = merge(this._touchEnd$, this._touchMove$);
 
     this._touchStart$
       .pipe(
-        switchMap(() => timer(TooltipDirective._PRESS_DURATION).pipe(
+        switchMap(() => timer(this._pressDuration).pipe(
           takeUntil(cancelTouch$)
         )),
         switchMap(() => {
           this._showTooltip();
-          return timer(TooltipDirective._MOBILE_DISPLAY_DURATION);
+          return timer(this._mobileDisplayDuration);
         }),
         takeUntil(this._destroy$)
       )
       .subscribe(() => this._hideTooltip());
-  }
-
-  @HostListener('mouseenter')
-  public onMouseEnter(): void {
-    this._mouseEnter$.next();
-  }
-
-  @HostListener('mouseleave')
-  public onMouseLeave(): void {
-    this._mouseLeave$.next();
-  }
-
-  @HostListener('touchstart')
-  public onTouchStart(): void {
-    this._touchStart$.next();
-  }
-
-  @HostListener('touchend')
-  @HostListener('touchcancel')
-  public onTouchEnd(): void {
-    this._touchEnd$.next();
-  }
-
-  @HostListener('touchmove')
-  public onTouchMove(): void {
-    this._touchMove$.next();
   }
 
   private _showTooltip(): void {
@@ -178,11 +253,12 @@ export class TooltipDirective implements OnDestroy {
         break;
     }
 
-    const maxLeft = window.innerWidth - tooltipRect.width - 10;
-    const maxTop = window.innerHeight + scrollY - tooltipRect.height - 10;
+    const padding = 10;
+    const maxLeft = window.innerWidth - tooltipRect.width - padding;
+    const maxTop = window.innerHeight + scrollY - tooltipRect.height - padding;
 
-    left = Math.max(10, Math.min(left, maxLeft));
-    top = Math.max(scrollY + 10, Math.min(top, maxTop));
+    left = Math.max(padding, Math.min(left, maxLeft));
+    top = Math.max(scrollY + padding, Math.min(top, maxTop));
 
     tooltipElement.style.position = 'fixed';
     tooltipElement.style.top = `${top}px`;
@@ -190,6 +266,10 @@ export class TooltipDirective implements OnDestroy {
   }
 
   public ngOnDestroy(): void {
+    // Clean up all event listeners
+    this._eventCleanupFunctions.forEach(cleanup => cleanup());
+    this._eventCleanupFunctions = [];
+
     this._destroy$.next();
     this._destroy$.complete();
     this._hideTooltip();

@@ -7,11 +7,12 @@ import { Router } from '@angular/router';
 import { PlantOverviewRouteData } from '../app.routes';
 import { IconComponent, IconName } from '../icon/icon.component';
 import { MapService } from '../services/map.service';
+import { TooltipDirective } from "../tooltip.directive";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'plant-tile',
-  imports: [TitleCasePipe, TranslocoPipe, IconComponent],
+  imports: [TitleCasePipe, TranslocoPipe, IconComponent, TooltipDirective],
   templateUrl: './plant-tile.component.html',
   styleUrl: './plant-tile.component.css',
   standalone: true
