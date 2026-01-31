@@ -104,7 +104,7 @@ export class HomeComponent {
 
   public updatePlantData(receivedPlantData: ReadonlyArray<Readonly<PlantData>>) {
     // TODO calculate avg number of items on screen using variables above + added buffer of items to decide batch size and load what fills the page with a min
-    this.plantData.push(...receivedPlantData);
+    this.plantData = [...this.plantData, ...receivedPlantData];
     this._cdr.markForCheck();
   }
 
