@@ -1,9 +1,7 @@
 import { Component, inject, InjectionToken } from '@angular/core';
 
-export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
 export interface TooltipData {
   tooltip: string;
-  position: TooltipPosition;
 }
 export const TOOLTIP_DATA = new InjectionToken<TooltipData>('TOOLTIP_DATA');
 
@@ -11,7 +9,7 @@ export const TOOLTIP_DATA = new InjectionToken<TooltipData>('TOOLTIP_DATA');
   selector: 'app-tooltip',
   imports: [],
   template: `
-    <div class="tooltip" [attr.data-position]="data.position">
+    <div class="tooltip">
       {{ data.tooltip }}
     </div>
     `,

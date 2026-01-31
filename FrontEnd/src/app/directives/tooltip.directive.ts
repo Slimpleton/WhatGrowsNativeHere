@@ -10,15 +10,11 @@ import {
   createComponent,
   ApplicationRef
 } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
 import { Subject, timer, merge } from 'rxjs';
 import { takeUntil, switchMap } from 'rxjs/operators';
 import { TOOLTIP_DATA, TooltipComponent, TooltipData } from '../tooltip/tooltip.component';
 
-export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
-
 export interface TooltipOptions {
-  position?: TooltipPosition;
   delay?: number;
   showOnHover?: boolean;
   showOnLongPress?: boolean;
@@ -49,14 +45,10 @@ export class TooltipDirective implements OnInit, OnDestroy {
   private _showOnLongPress: boolean = true;
 
   @Input() public tooltip: string = '';
-  @Input() public tooltipPosition: TooltipPosition = 'top';
   @Input() public tooltipDelay: number = 0;
 
   @Input()
   public set tooltipOptions(options: TooltipOptions) {
-    if (options.position !== undefined) {
-      this.tooltipPosition = options.position;
-    }
     if (options.delay !== undefined) {
       this.tooltipDelay = options.delay;
     }
@@ -186,7 +178,6 @@ export class TooltipDirective implements OnInit, OnDestroy {
 
     const tooltipData: TooltipData = {
       tooltip: this.tooltip,
-      position: this.tooltipPosition
     };
 
     const injector = Injector.create({
@@ -246,27 +237,8 @@ export class TooltipDirective implements OnInit, OnDestroy {
     const tooltipRect = tooltipElement.getBoundingClientRect();
     const spacing = 8;
 
-    let top = 0;
-    let left = 0;
-
-    switch (this.tooltipPosition) {
-      case 'top':
-        top = hostRect.top - tooltipRect.height - spacing;
-        left = hostRect.left + (hostRect.width - tooltipRect.width) / 2;
-        break;
-      case 'bottom':
-        top = hostRect.bottom + spacing;
-        left = hostRect.left + (hostRect.width - tooltipRect.width) / 2;
-        break;
-      case 'left':
-        top = hostRect.top + (hostRect.height - tooltipRect.height) / 2;
-        left = hostRect.left - tooltipRect.width - spacing;
-        break;
-      case 'right':
-        top = hostRect.top + (hostRect.height - tooltipRect.height) / 2;
-        left = hostRect.right + spacing;
-        break;
-    }
+    let top = hostRect.top - tooltipRect.height - spacing;
+    let left = hostRect.left + (hostRect.width - tooltipRect.width) / 2;
 
     // Keep tooltip within viewport bounds
     const padding = 10;
