@@ -4,7 +4,7 @@
     <defs>
         <!-- individual counties -->
         @for(c of countiesPaths$ | async; track c){
-        <path [attr.id]="'county-' + c.id" [attr.d]="c.d" />
+        <path [attr.id]="'county-' + c.id" [attr.name]="c.name" [attr.d]="c.d" />
         }
 
         <!-- base county mesh -->

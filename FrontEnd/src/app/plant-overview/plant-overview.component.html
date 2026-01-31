@@ -2,6 +2,7 @@
     @if(plant() !== null){
     <h1 class="header">{{'PLANT_OVERVIEW_HEADER' | transloco: {plantCommonName: plant().commonName | titlecase,
         plantScientificName: plant().scientificName | titlecase} }} (<a target="_blank" rel="noopener noreferrer"
+            [tooltip]="usdaGovPlantProfileUrl + plant().acceptedSymbol"
             [href]="usdaGovPlantProfileUrl + plant().acceptedSymbol"
             id="plant-abbreviation">{{plant().acceptedSymbol}}</a>)
     </h1>

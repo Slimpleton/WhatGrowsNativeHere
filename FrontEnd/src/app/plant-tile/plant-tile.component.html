@@ -6,7 +6,7 @@
 
     @if(!showMap){
     <span class="symbolAndShadeRow">
-        <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol" class=""
+        <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol" [tooltip]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
             id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
 
         @if (plant.shadeTolerance !== null) {
@@ -65,11 +65,11 @@
     <div class="last-row" id="last-row-{{plant.acceptedSymbol}}">
         <!-- <pic-search-icon id="photo-icon-{{plant.acceptedSymbol}}" class="search-icon"
             (click)="openImageSearch(plant)"></pic-search-icon> -->
-        <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage()">
+        <button class="info-btn" id="info-btn-{{plant.acceptedSymbol}}" (click)="openInfoPage()" [tooltip]="'PLANT_OVERVIEW' | transloco">
             <app-icon class="info-icon" name="help"></app-icon>
         </button>
 
-        <button class="info-btn" id="map-btn-{{plant.acceptedSymbol}}" (click)="showMap = !showMap">
+        <button class="info-btn" id="map-btn-{{plant.acceptedSymbol}}" (click)="showMap = !showMap" [tooltip]="'NATIVE_REGION_MAP' | transloco">
             <app-icon class="map-icon" [name]="showMap ? 'undo' : 'location_marker'"></app-icon>
         </button>
     </div>

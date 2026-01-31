@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { PlantOverviewRouteData } from '../app.routes';
 import { IconComponent, IconName } from '../icon/icon.component';
 import { MapService } from '../services/map.service';
-import { TooltipDirective } from "../tooltip.directive";
+import { TooltipDirective } from "../directives/tooltip.directive";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

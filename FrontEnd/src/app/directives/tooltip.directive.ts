@@ -5,15 +5,15 @@ import {
   OnDestroy,
   OnInit,
   ComponentRef,
-  ViewContainerRef,
   EnvironmentInjector,
   Injector,
-  inject
+  createComponent,
+  ApplicationRef
 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { Subject, timer, merge } from 'rxjs';
 import { takeUntil, switchMap } from 'rxjs/operators';
-import { TOOLTIP_DATA, TooltipComponent, TooltipData } from './tooltip/tooltip.component';
+import { TOOLTIP_DATA, TooltipComponent, TooltipData } from '../tooltip/tooltip.component';
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
 
@@ -37,7 +37,7 @@ export class TooltipDirective implements OnInit, OnDestroy {
   private readonly _touchStart$ = new Subject<void>();
   private readonly _touchEnd$ = new Subject<void>();
   private readonly _touchMove$ = new Subject<void>();
-  
+
   private _tooltipComponent: ComponentRef<TooltipComponent> | null = null;
   private _isTooltipVisible: boolean = false;
   private _eventCleanupFunctions: Array<() => void> = [];
@@ -51,8 +51,8 @@ export class TooltipDirective implements OnInit, OnDestroy {
   @Input() public tooltip: string = '';
   @Input() public tooltipPosition: TooltipPosition = 'top';
   @Input() public tooltipDelay: number = 0;
-  
-  @Input() 
+
+  @Input()
   public set tooltipOptions(options: TooltipOptions) {
     if (options.position !== undefined) {
       this.tooltipPosition = options.position;
@@ -76,9 +76,9 @@ export class TooltipDirective implements OnInit, OnDestroy {
 
   constructor(
     private readonly _el: ElementRef,
-    private readonly _viewContainerRef: ViewContainerRef,
+    private readonly _appRef: ApplicationRef,
     private readonly _injector: EnvironmentInjector
-  ) {}
+  ) { }
 
   public ngOnInit(): void {
     this._setupEventListeners();
@@ -94,7 +94,7 @@ export class TooltipDirective implements OnInit, OnDestroy {
       const mouseEnterCleanup = this._addEventListener(element, 'mouseenter', () => {
         this._mouseEnter$.next();
       });
-      
+
       const mouseLeaveCleanup = this._addEventListener(element, 'mouseleave', () => {
         this._mouseLeave$.next();
       });
@@ -107,15 +107,15 @@ export class TooltipDirective implements OnInit, OnDestroy {
       const touchStartCleanup = this._addEventListener(element, 'touchstart', () => {
         this._touchStart$.next();
       }, { passive: true });
-      
+
       const touchEndCleanup = this._addEventListener(element, 'touchend', () => {
         this._touchEnd$.next();
       }, { passive: true });
-      
+
       const touchCancelCleanup = this._addEventListener(element, 'touchcancel', () => {
         this._touchEnd$.next();
       }, { passive: true });
-      
+
       const touchMoveCleanup = this._addEventListener(element, 'touchmove', () => {
         this._touchMove$.next();
       }, { passive: true });
@@ -196,14 +196,24 @@ export class TooltipDirective implements OnInit, OnDestroy {
       parent: this._injector
     });
 
-    this._tooltipComponent = this._viewContainerRef.createComponent(TooltipComponent, {
-      injector
+    // Create component and attach to document.body instead of ViewContainerRef
+    this._tooltipComponent = createComponent(TooltipComponent, {
+      environmentInjector: this._injector,
+      elementInjector: injector
     });
 
-    setTimeout(() => {
+    // Attach to application to enable change detection
+    this._appRef.attachView(this._tooltipComponent.hostView);
+
+    // Append to document.body (NOT inside the SVG!)
+    const tooltipElement = this._tooltipComponent.location.nativeElement;
+    document.body.appendChild(tooltipElement);
+
+    // Use requestAnimationFrame for proper layout timing
+    requestAnimationFrame(() => {
       if (this._tooltipComponent) {
-        const tooltipElement = this._tooltipComponent.location.nativeElement;
         this._positionTooltip(tooltipElement);
+        tooltipElement.style.visibility = 'visible'; // Show after positioning
       }
     });
   }
@@ -216,10 +226,17 @@ export class TooltipDirective implements OnInit, OnDestroy {
     this._isTooltipVisible = false;
 
     if (this._tooltipComponent) {
-      const index = this._viewContainerRef.indexOf(this._tooltipComponent.hostView);
-      if (index !== -1) {
-        this._viewContainerRef.remove(index);
+      // Detach from application
+      this._appRef.detachView(this._tooltipComponent.hostView);
+
+      // Remove from DOM
+      const tooltipElement = this._tooltipComponent.location.nativeElement;
+      if (tooltipElement.parentNode) {
+        tooltipElement.parentNode.removeChild(tooltipElement);
       }
+
+      // Destroy component
+      this._tooltipComponent.destroy();
       this._tooltipComponent = null;
     }
   }
@@ -227,8 +244,6 @@ export class TooltipDirective implements OnInit, OnDestroy {
   private _positionTooltip(tooltipElement: HTMLElement): void {
     const hostRect = this._el.nativeElement.getBoundingClientRect();
     const tooltipRect = tooltipElement.getBoundingClientRect();
-    const scrollY = window.scrollY || window.pageYOffset;
-    const scrollX = window.scrollX || window.pageXOffset;
     const spacing = 8;
 
     let top = 0;
@@ -236,33 +251,36 @@ export class TooltipDirective implements OnInit, OnDestroy {
 
     switch (this.tooltipPosition) {
       case 'top':
-        top = hostRect.top + scrollY - tooltipRect.height - spacing;
-        left = hostRect.left + scrollX + (hostRect.width - tooltipRect.width) / 2;
+        top = hostRect.top - tooltipRect.height - spacing;
+        left = hostRect.left + (hostRect.width - tooltipRect.width) / 2;
         break;
       case 'bottom':
-        top = hostRect.bottom + scrollY + spacing;
-        left = hostRect.left + scrollX + (hostRect.width - tooltipRect.width) / 2;
+        top = hostRect.bottom + spacing;
+        left = hostRect.left + (hostRect.width - tooltipRect.width) / 2;
         break;
       case 'left':
-        top = hostRect.top + scrollY + (hostRect.height - tooltipRect.height) / 2;
-        left = hostRect.left + scrollX - tooltipRect.width - spacing;
+        top = hostRect.top + (hostRect.height - tooltipRect.height) / 2;
+        left = hostRect.left - tooltipRect.width - spacing;
         break;
       case 'right':
-        top = hostRect.top + scrollY + (hostRect.height - tooltipRect.height) / 2;
-        left = hostRect.right + scrollX + spacing;
+        top = hostRect.top + (hostRect.height - tooltipRect.height) / 2;
+        left = hostRect.right + spacing;
         break;
     }
 
+    // Keep tooltip within viewport bounds
     const padding = 10;
     const maxLeft = window.innerWidth - tooltipRect.width - padding;
-    const maxTop = window.innerHeight + scrollY - tooltipRect.height - padding;
+    const maxTop = window.innerHeight - tooltipRect.height - padding;
 
     left = Math.max(padding, Math.min(left, maxLeft));
-    top = Math.max(scrollY + padding, Math.min(top, maxTop));
+    top = Math.max(padding, Math.min(top, maxTop));
 
+    // Use fixed positioning so it stays relative to viewport, not scroll position
     tooltipElement.style.position = 'fixed';
     tooltipElement.style.top = `${top}px`;
     tooltipElement.style.left = `${left}px`;
+    tooltipElement.style.zIndex = '10000';
   }
 
   public ngOnDestroy(): void {
