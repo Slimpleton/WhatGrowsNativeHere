@@ -93,8 +93,10 @@ async function preloadGeometry() {
 }
 
 function getCandidateCounties(pos: GeolocationCoordinates): any[] {
-  const radiusLat: number = pos.accuracy / 111_000; // meters → degrees latitude
-  const radiusLon: number = pos.accuracy / (111_000 * Math.cos(pos.latitude * Math.PI / 180)); // meters → degrees longitude
+  // Use accuracy or minimum 1km radius (whichever is larger)
+  const searchRadius = Math.max(pos.accuracy || 0, 1000); // meters
+  const radiusLat: number = searchRadius / 111_000; // meters → degrees latitude
+  const radiusLon: number = searchRadius / (111_000 * Math.cos(pos.latitude * Math.PI / 180)); // meters → degrees longitude
 
   const candidates: any[] = [];
   usCountyQuadtree.visit((node: { length: any; data: any; }, x0: number, y0: number, x1: number, y1: number) => {
@@ -213,7 +215,7 @@ app.post('/api/geolocation/state', async (req, res) => {
   }
 });
 
-app.post('/api/geolocation/county', async (req, res) => {
+app.post<County | undefined>('/api/geolocation/county', async (req, res) => {
   const pos: GeolocationCoordinates = req.body
   if (!pos || isNaN(pos.latitude) || isNaN(pos.longitude)) {
     return res.status(400).json({ error: 'Invalid coords' });
@@ -224,12 +226,14 @@ app.post('/api/geolocation/county', async (req, res) => {
     const candidates: any[] = getCandidateCounties(pos);
 
     // Step 2: filter by bounding box
+    const BBOX_TOLERANCE = 0.001; // ~100 meters
     const bboxCandidates = candidates.filter(c => {
       const { minX, minY, maxX, maxY } = c.bbox;
-      return pos.longitude >= minX && pos.longitude <= maxX &&
-        pos.latitude >= minY && pos.latitude <= maxY;
+      return pos.longitude >= minX - BBOX_TOLERANCE &&
+        pos.longitude <= maxX + BBOX_TOLERANCE &&
+        pos.latitude >= minY - BBOX_TOLERANCE &&
+        pos.latitude <= maxY + BBOX_TOLERANCE;
     });
-
     const county = bboxCandidates.find(x => isPointInFeature(pos, x));
     if (county == undefined || county == null)
       return res.json(null);
@@ -237,7 +241,7 @@ app.post('/api/geolocation/county', async (req, res) => {
     const stateFip = parseInt(county.id.substring(0, 2));
     const countyFip = county.id.substring(2);
     const countyCsvItem: County | undefined = getCountyCSVItem(stateFip, countyFip);
-
+    console.log(countyCsvItem, stateFip, countyFip);
     // TODO this should almost always return a county but sometimes i get nothing or some bug in some areas? idk it breaks the site i think tho. some sort of check issue? or maybe a faulty county in the data
 
     return res.json(countyCsvItem);
