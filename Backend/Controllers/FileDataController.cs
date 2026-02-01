@@ -53,7 +53,7 @@ namespace Backend.Controllers
                 return;  // County not found, return empty
             }
 
-            IAsyncEnumerable<PlantData> filtered = FileService.GetSortedPlants(sortOption, ascending).ToAsyncEnumerable();
+            IEnumerable<PlantData> filtered = FileService.GetSortedPlants(sortOption, ascending);
             filtered = filtered.Where(countyPlants.Contains);
             if (growthHabit != null && growthHabit != GrowthHabit.Any)
             {
@@ -64,7 +64,7 @@ namespace Backend.Controllers
                 filtered = filtered.Where(x => x.ScientificName.Contains(searchString, StringComparison.OrdinalIgnoreCase) || (x.CommonName != null && x.CommonName.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
 
             List<PlantData> batch = new(batchSize);
-            await foreach (var item in filtered.WithCancellation(cancellationToken))
+             foreach (var item in filtered)
             {
                 batch.Add(item);
                 if (batch.Count == batchSize)

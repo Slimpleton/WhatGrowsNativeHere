@@ -220,7 +220,6 @@ app.post('/api/geolocation/county', async (req, res) => {
   }
 
   try {
-
     // Step 1: get candidate counties using quadtree
     const candidates: any[] = getCandidateCounties(pos);
 
@@ -239,7 +238,9 @@ app.post('/api/geolocation/county', async (req, res) => {
     const countyFip = county.id.substring(2);
     const countyCsvItem: County | undefined = getCountyCSVItem(stateFip, countyFip);
 
-    return res.json({ countyCsvItem });
+    // TODO this should almost always return a county but sometimes i get nothing or some bug in some areas? idk it breaks the site i think tho. some sort of check issue? or maybe a faulty county in the data
+
+    return res.json(countyCsvItem);
   } catch (error) {
     console.error('County lookup error:', error);
     return res.status(500).json({ error: 'County lookup failed' });

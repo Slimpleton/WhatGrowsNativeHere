@@ -36,9 +36,9 @@ export class PositionService implements OnDestroy {
         takeUntil(this._ngDestroy$));
 
     private readonly _countyEmitter$: Observable<County> = this.positionEmitter$.pipe(
-        switchMap((position: GeolocationPosition) =>
-            this._http.post<{ countyCsvItem: County | null }>('/api/geolocation/county', position.coords).pipe(map(response => response.countyCsvItem))),
-        filter((county: County | null): county is County => county != null),
+        switchMap((position: GeolocationPosition) => this._http.post<County | undefined>('/api/geolocation/county', position.coords)),
+        filter((county: County | undefined): county is County => county != undefined),
+        // TODO do i let it emit undefined and search all counties if undefined? idk man
         takeUntil(this._ngDestroy$));
 
     public readonly countyEmitter$: Observable<County> = merge(this._manualCountySetter$, this._countyEmitter$).pipe(

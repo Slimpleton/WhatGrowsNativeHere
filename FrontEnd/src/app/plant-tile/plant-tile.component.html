@@ -7,7 +7,6 @@
     @if(!showMap){
     <span class="symbolAndShadeRow">
         <a target="_blank" rel="noopener noreferrer" [href]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
-            [tooltip]="usdaGovPlantProfileUrl + plant.acceptedSymbol"
             id="plant-abbreviation">{{plant.acceptedSymbol}}</a>
 
         @if (plant.shadeTolerance !== null) {
@@ -69,9 +68,17 @@
             <app-icon class="info-icon" name="help"></app-icon>
         </button>
 
-        <button class="info-btn" id="map-btn-{{plant.acceptedSymbol}}" (click)="showMap = !showMap"
-            [tooltip]="(showMap ? 'BACK' : 'NATIVE_REGION_MAP') | transloco">
-            <app-icon class="map-icon" [name]="showMap ? 'undo' : 'location_marker'"></app-icon>
+        @if(!showMap){
+        <button class="info-btn" id="map-btn-{{plant.acceptedSymbol}}" (click)="showMap = true"
+            [tooltip]=" 'NATIVE_REGION_MAP' | transloco">
+            <app-icon class="map-icon" name="location_marker"></app-icon>
         </button>
+        }
+        @else {
+        <button class="info-btn" id="back-btn-{{plant.acceptedSymbol}}" [tooltip]="'BACK' | transloco"
+            (click)="showMap = false">
+            <app-icon class="map-icon" name="undo"></app-icon>
+        </button>
+        }
     </div>
 </section>

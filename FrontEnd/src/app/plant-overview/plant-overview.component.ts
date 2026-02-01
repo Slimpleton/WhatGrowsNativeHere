@@ -4,12 +4,11 @@ import { KeyValuePipe, TitleCasePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { GovPlantsDataService } from '../services/PLANTS_data.service';
 import { CamelSplitPipe } from "../pipes/camel-split.pipe";
-import { TooltipDirective } from "../directives/tooltip.directive";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-plant-overview',
-  imports: [TranslocoPipe, TitleCasePipe, KeyValuePipe, CamelSplitPipe, TooltipDirective],
+  imports: [TranslocoPipe, TitleCasePipe, KeyValuePipe, CamelSplitPipe],
   templateUrl: './plant-overview.component.html',
   styleUrl: './plant-overview.component.css'
 })
