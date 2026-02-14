@@ -17,9 +17,8 @@ export class PlantOverviewComponent {
   public plant = input.required<PlantData>();
   public constructor() { }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public isIterable(value: any): value is Iterable<any> {
-    return value != null && typeof value[Symbol.iterator] === 'function' && typeof value !== 'string';
+  public isIterableNotString(value: unknown): value is Iterable<unknown> {
+    return value != null && typeof (value as Iterable<unknown>)[Symbol.iterator] === 'function' && typeof value !== 'string';
   }
 
   public getIterableString<T>(values: Iterable<T>): string {

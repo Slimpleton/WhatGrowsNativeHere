@@ -9,7 +9,7 @@
     <ul class="key-value-list">
         @for(item of plant() | keyvalue; track item.key){
         <li class="text"><b>{{item.key | camelSplit | titlecase}}</b>:
-            {{isIterable(item.value) ? getIterableString(item.value) : item.value}}
+            {{isIterableNotString(item.value) ? getIterableString(item.value) : item.value}}
         </li>
         }
     </ul>
