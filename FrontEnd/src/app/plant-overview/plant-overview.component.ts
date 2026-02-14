@@ -21,7 +21,7 @@ export class PlantOverviewComponent {
     return value != null && typeof (value as Iterable<unknown>)[Symbol.iterator] === 'function' && typeof value !== 'string';
   }
 
-  public getIterableString<T>(values: Iterable<T>): string {
+  public getIterableString(values: Iterable<unknown>): string {
     return [...values].join(', ');
   }
 }

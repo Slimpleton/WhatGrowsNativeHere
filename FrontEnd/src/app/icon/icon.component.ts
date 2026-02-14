@@ -5,7 +5,11 @@ export type IconName = 'cloud' | 'partly-cloudy' | 'image' | 'help' | 'search' |
 @Component({
   selector: 'app-icon',
   imports: [],
-  templateUrl: './icon.component.html',
+  template: `
+  <svg [attr.width]="size" [attr.height]="size" [attr.fill]="color" aria-hidden="true">
+    <use [attr.href]="'/assets/icons.svg#' + name"></use>
+  </svg>
+  `,
   styleUrl: './icon.component.css',
 })
 export class IconComponent {

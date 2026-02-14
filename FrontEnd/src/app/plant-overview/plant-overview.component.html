@@ -6,6 +6,9 @@
             id="plant-abbreviation">{{plant().acceptedSymbol}}</a>)
     </h1>
 
+    <!-- TODO zoomable county map -->
+
+
     <ul class="key-value-list">
         @for(item of plant() | keyvalue; track item.key){
         <li class="text"><b>{{item.key | camelSplit | titlecase}}</b>:

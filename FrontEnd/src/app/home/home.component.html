@@ -19,6 +19,8 @@
 </svg>
 }
 
+<!-- TODO convert search / filter to popout sidebar? -->
+
 <div class="plant-search-container">
     <plant-search class="plant-search" (filteredDataBatch)="updatePlantData($event)"
         (filterInProgress$)="clearData($event)" style="width:100%"></plant-search>
