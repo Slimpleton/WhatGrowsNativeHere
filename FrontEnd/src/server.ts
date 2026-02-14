@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import {
   AngularNodeAppEngine,
   createNodeRequestHandler,
@@ -61,7 +63,6 @@ async function preloadGeometry() {
 
   usStatesGeometries = (feature(topo, topo.objects.states) as any).features;
   usCountiesGeometries = (feature(topo, topo.objects.counties) as any).features;
-  // TODO quadtree for the usCounties lookups to speedUp
 
   // Compute bounding box for each county
   usCountiesGeometries.forEach(county => {
@@ -87,7 +88,6 @@ async function preloadGeometry() {
     .x((d: any) => d.centroid[0])
     .y((d: any) => d.centroid[1])
     .addAll(usCountiesGeometries);
-
 
   console.log('US geometry preloaded');
 }
